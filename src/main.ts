@@ -17,29 +17,55 @@ canvas.height = 256;
 
 const drawing = canvas.getContext('2d') as CanvasRenderingContext2D;
 
-const lines = [];
-const redoLines = [];
+interface Point {
+    x: number,
+    y: number,
+}
+const lines: Point[][] = [];
+let currentLine: Point[] = [];
 
 const cursor = {active: false, x:0, y:0}; 
+
 //mouse moving
+const drawingChangeEvent = new Event('drawing-changed');
+
 canvas.addEventListener("mousedown", (e) => {
     cursor.active = true;
     cursor.x = e.offsetX;
     cursor.y = e.offsetY;
+    currentLine = [];
+    lines.push(currentLine);
+    currentLine.push({ x: cursor.x, y: cursor.y });
+    canvas.dispatchEvent(drawingChangeEvent);
 })
 
 canvas.addEventListener("mouseup", (e)=> {
     cursor.active = false;
+    currentLine = [];
+    canvas.dispatchEvent(drawingChangeEvent);
 })
 
 canvas.addEventListener("mousemove", (e) => {
     if (cursor.active) {
-        drawing.beginPath();
-        drawing.moveTo(cursor.x, cursor.y);
-        drawing.lineTo(e.offsetX, e.offsetY);
-        drawing.stroke();
         cursor.x = e.offsetX;
         cursor.y = e.offsetY;
+        currentLine.push({ x: cursor.x, y: cursor.y });
+        canvas.dispatchEvent(drawingChangeEvent);
+    }
+})
+
+canvas.addEventListener("drawing-changed", (e) => {
+    drawing.clearRect(0, 0, canvas.width, canvas.height);
+    for (const line of lines) {
+        if (lines.length > 0) {
+            drawing.beginPath();
+            const startingPoint: Point = line[0];
+            drawing.moveTo(startingPoint.x,startingPoint.y);
+            for (const point of line) {
+                drawing.lineTo(point.x, point.y);
+            }
+            drawing.stroke();
+        }
     }
 })
 
