@@ -96,5 +96,9 @@ button:focus-visible {
 
 canvas {
   border: 2px solid black;
-  filter: drop-shadow(6px 6px);
+}
+
+.clear_button {
+  border: 2px solid grey;
+  filter: drop-shadow(3px 3px);
 }
