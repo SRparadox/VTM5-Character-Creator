@@ -13,6 +13,11 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+canvas {
+  border: 1px solid black; /* Adds a thin black border */
+  border-radius: 25% 10%;
+}
+
 a {
   font-weight: 500;
   color: #646cff;
