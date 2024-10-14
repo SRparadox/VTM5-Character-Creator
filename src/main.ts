@@ -22,6 +22,7 @@ interface Point {
     y: number,
 }
 const lines: Point[][] = [];
+const redoLines: Point[][] = [];
 let currentLine: Point[] = [];
 
 const cursor = {active: false, x:0, y:0}; 
@@ -74,4 +75,29 @@ clearButton.innerHTML = "clear";
 app.append(clearButton);
 clearButton.addEventListener("click", () => {
     drawing.clearRect(0, 0, canvas.width, canvas.height);
+    lines.length = 0;
 })
+
+const undoButton = document.createElement("button");
+undoButton.innerHTML = "undo";
+app.append(undoButton);
+undoButton.addEventListener("click", () => {
+   lineMover(redoLines, lines);
+});
+
+const redoButton = document.createElement("button");
+redoButton.innerHTML = "redo";
+app.append(redoButton);
+redoButton.addEventListener("click", () => {
+   lineMover(lines, redoLines); 
+});
+
+function lineMover (addingLinesTo: Point[][], takingLinesFrom: Point[][]) {
+    if(takingLinesFrom.length != 0) {
+        const movedLine = takingLinesFrom.pop();
+        if (movedLine){
+            addingLinesTo.push(movedLine);
+        }
+        canvas.dispatchEvent(drawingChangeEvent);
+    }
+}
