@@ -11,9 +11,12 @@ const header = document.createElement("h1");
 header.innerHTML = Title;
 app.append(header);
 
-ctx.fillStyle = "red";
+ctx.fillStyle = "blue";
 ctx.fillRect(0, 0, 256, 256);
 
+addEventListener("mousemove", (draw) => {});
+
+onmousemove = (draw) => {};
 
 document.title = APP_NAME;
 app.innerHTML = APP_NAME;
