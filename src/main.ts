@@ -1,6 +1,6 @@
 import "./style.css";
 
-let isDraw = true;
+let isDraw = false;
 let x = 0;
 let y = 0;
 
@@ -26,12 +26,29 @@ document.title = APP_NAME;
 app.innerHTML = APP_NAME;
 
 //functions borrowed from website: https://developer.mozilla.org/en-US/docs/Web/API/Element/mousemove_event
+// Add the event listeners for mousedown, mousemove, and mouseup
+canv.addEventListener("mousedown", (e) => 
+{
+    x = e.offsetX;
+    y = e.offsetY;
+    isDraw = true;
+});
+
 canv.addEventListener("mousemove", (e) => 
 {
     if (isDraw) {
         drawLine(ctx, x, y, e.offsetX, e.offsetY);
         x = e.offsetX;
         y = e.offsetY;
+    }
+});
+
+globalThis.addEventListener("mouseup", (e) => {
+    if (isDraw) {
+        drawLine(ctx, x, y, e.offsetX, e.offsetY);
+        x = 0;
+        y = 0;
+        isDraw = false;
     }
 });
 
