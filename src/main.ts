@@ -23,6 +23,11 @@ ctx.fillRect(0, 0, 256, 256);
 
 document.title = Title;
 
+clearButton.addEventListener("click", () => {
+    ctx.clearRect(0,0,256,256);
+    ctx.fillRect(0, 0, 256, 256);
+})
+
 //functions borrowed from: https://developer.mozilla.org/en-US/docs/Web/API/Element/mousemove_event
 // Add the event listeners for mousedown, mousemove, and mouseup
 canv.addEventListener("mousedown", (e) => 
