@@ -75,7 +75,7 @@ button {
 }
 
 canvas {
-  border-radius: 10px 0 30px 4px;
+  border-radius: 10px 10px 10px 10px;
 
   filter: drop-shadow(5px 5px black);
 

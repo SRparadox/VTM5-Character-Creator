@@ -14,5 +14,6 @@ app.append(header);
 ctx.fillStyle = "red";
 ctx.fillRect(0, 0, 256, 256);
 
+
 document.title = APP_NAME;
 app.innerHTML = APP_NAME;
