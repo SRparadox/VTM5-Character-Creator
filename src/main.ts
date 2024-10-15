@@ -4,7 +4,6 @@ let isDraw = false;
 let x = 0;
 let y = 0;
 
-const APP_NAME = "Beep";
 const app = document.querySelector<HTMLDivElement>("#app")!;
 const canv = document.getElementById("canvas");
 const ctx = canv.getContext("2d");
@@ -15,17 +14,16 @@ const header = document.createElement("h1");
 header.innerHTML = Title;
 app.append(header);
 
+const clearButton = document.createElement("button");
+clearButton.textContent = "Clear"; //moon emoji
+app.append(clearButton);
+
 ctx.fillStyle = "blue";
 ctx.fillRect(0, 0, 256, 256);
 
-addEventListener("mousemove", (draw) => {});
+document.title = Title;
 
-onmousemove = (draw) => {};
-
-document.title = APP_NAME;
-app.innerHTML = APP_NAME;
-
-//functions borrowed from website: https://developer.mozilla.org/en-US/docs/Web/API/Element/mousemove_event
+//functions borrowed from: https://developer.mozilla.org/en-US/docs/Web/API/Element/mousemove_event
 // Add the event listeners for mousedown, mousemove, and mouseup
 canv.addEventListener("mousedown", (e) => 
 {
