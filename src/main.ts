@@ -13,6 +13,8 @@ app.append(canvas);
 
 const context = canvas.getContext("2d")!;
 
+let isMouseDown = false;
+
 interface Point {
     x: number;
     y: number;
@@ -20,7 +22,6 @@ interface Point {
 type Line = Point[];
 
 const lines: Line[] = [];
-let isMouseDown = false;
 let currentLine: Line = [];
 canvas.addEventListener("mousedown", (e) => {
     isMouseDown = true;
@@ -33,6 +34,7 @@ canvas.addEventListener("mousemove", (e) => {
     if (isMouseDown) {
         currentLine.push({ x: e.offsetX, y: e.offsetY });
         canvas.dispatchEvent(drawingChangedEvent);
+        redoList = []
     }
 });
 canvas.addEventListener("mouseup", (e) => {
@@ -64,5 +66,28 @@ canvas.addEventListener("drawing-changed", () => {
         }
         context.stroke();
         context.closePath();
+    }
+});
+
+let redoList : Line[] = [];
+const undoButton = document.createElement("button");
+undoButton.innerHTML = "undo";
+app.append(undoButton);
+undoButton.addEventListener("mousedown", () => {
+    if(lines.length > 0){
+        const prevLine = lines.pop()!;
+        redoList.push(prevLine);
+        canvas.dispatchEvent(drawingChangedEvent);
+    }
+});
+
+const redoButton = document.createElement("button");
+redoButton.innerHTML = "redo";
+app.append(redoButton);
+redoButton.addEventListener("mousedown", () => {
+    if(redoList.length > 0){
+        const prevLine = redoList.pop()!;
+        lines.push(prevLine);
+        canvas.dispatchEvent(drawingChangedEvent);
     }
 });
