@@ -73,6 +73,14 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
+canvas {
+  border-radius: 10px 0 30px 4px;
+
+  filter: drop-shadow(5px 5px black);
+
+}
+
 button:hover {
   border-color: #646cff;
 }
@@ -93,3 +101,4 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
