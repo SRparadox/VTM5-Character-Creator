@@ -18,9 +18,10 @@ app.appendChild(canvas);
 
 const context = canvas.getContext("2d")!;
 let drawing = false; // Variable to track drawing status
-//Arrays to track drawn lines:
+// Arrays to track drawn lines:
 const strokes: Array<Array<{ x: number; y: number }>> = []; // Array to hold all strokes
 let currentStroke: Array<{ x: number; y: number }> = [];
+const redoStack: Array<Array<{ x: number; y: number }>> = []; // Array to hold undone strokes
 
 // Add mouse event listeners for drawing
 canvas.addEventListener("mousedown", (event) => {
@@ -36,26 +37,32 @@ canvas.addEventListener("mousemove", (event) => {
 });
 
 canvas.addEventListener("mouseup", () => {
-  if (drawing) {
+  drawing = false;
+  if (currentStroke.length > 0) {
     strokes.push(currentStroke); // Save the current stroke
-    drawing = false;
+    // Clear redoStack on new stroke addition
+    redoStack.length = 0;
+    dispatchDrawingChangedEvent();
   }
 });
 
 canvas.addEventListener("mouseout", () => {
-  if (drawing) {
+  drawing = false;
+  if (currentStroke.length > 0) {
     strokes.push(currentStroke);
-    drawing = false;
+    redoStack.length = 0;
+    dispatchDrawingChangedEvent();
   }
 });
 
-// Function to add a point to the current stroke and redraw
+// Function to add a point to the current stroke
 function addPoint(event: MouseEvent) {
   const rect = canvas.getBoundingClientRect();
   currentStroke.push({ x: event.clientX - rect.left, y: event.clientY - rect.top });
-  redraw();
+  dispatchDrawingChangedEvent();
 }
 
+// Function to redraw the canvas from stored points
 function redraw() {
   context.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
 
@@ -76,14 +83,52 @@ function redraw() {
   }
 }
 
+// Function to dispatch "drawing-changed" event
+function dispatchDrawingChangedEvent() {
+  const event = new Event("drawing-changed");
+  canvas.dispatchEvent(event);
+}
+
+// Observer for "drawing-changed" that will clear and redraw the user's lines
+canvas.addEventListener("drawing-changed", redraw);
+
 // Add clear button
 const clearButton = document.createElement("button");
 clearButton.textContent = "Clear";
 app.appendChild(clearButton);
 
+// Undo button:
+const undoButton = document.createElement("button");
+undoButton.textContent = "Undo";
+app.appendChild(undoButton);
+
+// Redo button:
+const redoButton = document.createElement("button");
+redoButton.textContent = "Redo";
+app.appendChild(redoButton);
+
 // Clear canvas on button click
 clearButton.addEventListener("click", () => {
   context.clearRect(0, 0, canvas.width, canvas.height); // Clear the entire canvas
-  // Empty the array:
-  strokes.length = 0;
+  strokes.length = 0; // Empty the array
+  redoStack.length = 0; // Clear redo stack
+  dispatchDrawingChangedEvent();
+});
+
+// Undo functionality
+undoButton.addEventListener("click", () => {
+  if (strokes.length !== 0) {
+    const stroke = strokes.pop()!;
+    redoStack.push(stroke); // Add the stroke to redo stack
+    dispatchDrawingChangedEvent();
+  }
+});
+
+// Redo functionality
+redoButton.addEventListener("click", () => {
+  if (redoStack.length !== 0) {
+    const stroke = redoStack.pop()!;
+    strokes.push(stroke); // Add the stroke back to display list
+    dispatchDrawingChangedEvent();
+  }
 });
