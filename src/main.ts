@@ -75,8 +75,7 @@ undoButton.innerHTML = "undo";
 app.append(undoButton);
 undoButton.addEventListener("mousedown", () => {
     if(lines.length > 0){
-        const prevLine = lines.pop()!;
-        redoList.push(prevLine);
+        redoList.push(lines.pop()!);
         canvas.dispatchEvent(drawingChangedEvent);
     }
 });
@@ -86,8 +85,7 @@ redoButton.innerHTML = "redo";
 app.append(redoButton);
 redoButton.addEventListener("mousedown", () => {
     if(redoList.length > 0){
-        const prevLine = redoList.pop()!;
-        lines.push(prevLine);
+        lines.push(redoList.pop()!);
         canvas.dispatchEvent(drawingChangedEvent);
     }
 });
