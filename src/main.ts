@@ -18,37 +18,62 @@ app.appendChild(canvas);
 
 const context = canvas.getContext("2d")!;
 let drawing = false; // Variable to track drawing status
+//Arrays to track drawn lines:
+const strokes: Array<Array<{ x: number; y: number }>> = []; // Array to hold all strokes
+let currentStroke: Array<{ x: number; y: number }> = [];
 
 // Add mouse event listeners for drawing
 canvas.addEventListener("mousedown", (event) => {
   drawing = true;
-  draw(event);
+  currentStroke = [];
+  addPoint(event);
 });
 
-canvas.addEventListener("mousemove", draw);
+canvas.addEventListener("mousemove", (event) => {
+  if (drawing) {
+    addPoint(event);
+  }
+});
 
 canvas.addEventListener("mouseup", () => {
-  drawing = false;
-  context.beginPath(); // Begin new path after mouse is released
+  if (drawing) {
+    strokes.push(currentStroke); // Save the current stroke
+    drawing = false;
+  }
 });
 
 canvas.addEventListener("mouseout", () => {
-  drawing = false;
-  context.beginPath(); // Ensure path ends when mouse leaves canvas
+  if (drawing) {
+    strokes.push(currentStroke);
+    drawing = false;
+  }
 });
 
-// Drawing function
-function draw(event: MouseEvent) {
-  if (!drawing) return; // If not drawing, do nothing
-  
-  context.lineWidth = 2; // Set line width
-  context.lineCap = "round"; // Set line cap to round
-  context.strokeStyle = "black"; // Set line color
-  
-  context.lineTo(event.offsetX, event.offsetY); // Draw from previous to current position
-  context.stroke(); // Make the stroke
-  context.beginPath(); // Start a new path
-  context.moveTo(event.offsetX, event.offsetY); // Move to the current position
+// Function to add a point to the current stroke and redraw
+function addPoint(event: MouseEvent) {
+  const rect = canvas.getBoundingClientRect();
+  currentStroke.push({ x: event.clientX - rect.left, y: event.clientY - rect.top });
+  redraw();
+}
+
+function redraw() {
+  context.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+
+  for (const stroke of strokes) {
+    context.beginPath();
+    stroke.forEach((point, index) => {
+      if (index === 0) {
+        context.moveTo(point.x, point.y);
+      } else {
+        context.lineTo(point.x, point.y);
+      }
+    });
+    context.strokeStyle = "black";
+    context.lineWidth = 2;
+    context.lineCap = "round";
+    context.stroke();
+    context.closePath();
+  }
 }
 
 // Add clear button
@@ -59,4 +84,6 @@ app.appendChild(clearButton);
 // Clear canvas on button click
 clearButton.addEventListener("click", () => {
   context.clearRect(0, 0, canvas.width, canvas.height); // Clear the entire canvas
+  // Empty the array:
+  strokes.length = 0;
 });
