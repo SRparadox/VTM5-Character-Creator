@@ -9,18 +9,16 @@ const size = 256;
 const app = document.querySelector<HTMLDivElement>("#app")!;
 const canv = document.getElementById("canvas");
 const ctx = canv.getContext("2d");
-
 const Title = "Title";
-
 const header = document.createElement("h1");
+const clearButton = document.createElement("button");
+const changEvent = new Event("drawing-changed");
+
 header.innerHTML = Title;
 app.append(header);
 
-const clearButton = document.createElement("button");
 clearButton.textContent = "Clear"; //moon emoji
 app.append(clearButton);
-
-const changEvent = new Event("drawing-changed");
 
 ctx.fillStyle = "blue";
 ctx.fillRect(0, 0, size, size);
@@ -33,9 +31,10 @@ clearButton.addEventListener("click", () => {
 })
 
 canv.addEventListener("drawing-changed", (changEvent) => {
-    redraw
+    redraw();
 })
 
+//redraw function borrowed from https://quant-paint.glitch.me/paint1.html 
 function redraw() {
     ctx.clearRect(0, 0, size, size);
     for (const line of mousePositions) {
