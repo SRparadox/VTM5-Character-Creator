@@ -5,6 +5,7 @@ let x = 0;
 let y = 0;
 let mousePositions = [];
 let redoPositions = [];
+let thisLine = null;
 
 const size = 256;
 const app = document.querySelector<HTMLDivElement>("#app")!;
@@ -67,6 +68,7 @@ function redraw() {
   }
 
 //functions borrowed from: https://developer.mozilla.org/en-US/docs/Web/API/Element/mousemove_event
+
 // Add the event listeners for mousedown, mousemove, and mouseup
 canv.addEventListener("mousedown", (e) => {
     x = e.offsetX;
@@ -75,7 +77,7 @@ canv.addEventListener("mousedown", (e) => {
     
     thisLine = [];
     redoPositions.splice(0, redoPositions.length);
-    thisLine.push(x, y);
+    thisLine.push({x: x, y: y});
     mousePositions.push(thisLine);
     dispatchEvent(changEvent);
 });
@@ -86,19 +88,21 @@ canv.addEventListener("mousemove", (e) => {
         x = e.offsetX;
         y = e.offsetY;
         //mousePositions.push([x, y]);
-        thisLine.push(x, y)
+        thisLine.push({x: x, y: y})
         dispatchEvent(changEvent);
     }
 });
 
 globalThis.addEventListener("mouseup", (e) => {
     if (isDraw) {
-        drawLine(ctx, x, y, e.offsetX, e.offsetY);
-        x = 0;
-        y = 0;
-        mousePositions.push([x, y]);
+        //drawLine(ctx, x, y, e.offsetX, e.offsetY);
+        //x = 0;
+        //y = 0;
+        //mousePositions.push([x, y]);
         console.log(mousePositions);
+        thisLine = null;
         isDraw = false;
+        dispatchEvent(changEvent);
     }
 });
 
