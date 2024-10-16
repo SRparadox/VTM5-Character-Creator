@@ -51,11 +51,13 @@ undoButton.addEventListener("click", () => {
     if (mousePositions.length > 0) {
         redoPositions.push(mousePositions.pop());
         dispatchEvent(changEvent);
+        console.log(mousePositions);
+        console.log(redoPositions);
     }
 });
 
 redoButton.addEventListener("click", () => {
-    if (mousePositions.length > 0) {
+    if (redoPositions.length > 0) {
         mousePositions.push(redoPositions.pop());
         dispatchEvent(changEvent);
     }
@@ -106,7 +108,7 @@ globalThis.addEventListener("mouseup", (e) => {
         //x = 0;
         //y = 0;
         //mousePositions.push([x, y]);
-        //console.log(mousePositions);
+        console.log(mousePositions);
         thisLine = null;
         isDraw = false;
         dispatchEvent(changEvent);
