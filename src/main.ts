@@ -42,7 +42,7 @@ clearButton.addEventListener("click", () => {
 
 
 globalThis.addEventListener("drawing-changed", (e) => {
-    console.log("drawing-changed event");
+    //console.log("drawing-changed event");
     redraw();
 })
 
@@ -106,20 +106,11 @@ globalThis.addEventListener("mouseup", (e) => {
         //x = 0;
         //y = 0;
         //mousePositions.push([x, y]);
-        console.log(mousePositions);
+        //console.log(mousePositions);
         thisLine = null;
         isDraw = false;
         dispatchEvent(changEvent);
     }
 });
 
-function drawLine(context, x1, y1, x2, y2) {
-    context.beginPath();
-    context.strokeStyle = "black";
-    context.lineWidth = 1;
-    context.moveTo(x1, y1);
-    context.lineTo(x2, y2);
-    context.stroke();
-    context.closePath();
-  }
   
