@@ -84,7 +84,7 @@ button:focus-visible {
 canvas {
   border: 1px solid white;
   border-radius: 20%;
-  filter: drop-shadow(white .1rem .1rem 5px);
+  box-shadow: .1rem .1rem 5px white;
 }
 
 @media (prefers-color-scheme: light) {
