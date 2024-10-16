@@ -68,26 +68,25 @@ function redraw() {
 
 //functions borrowed from: https://developer.mozilla.org/en-US/docs/Web/API/Element/mousemove_event
 // Add the event listeners for mousedown, mousemove, and mouseup
-canv.addEventListener("mousedown", (e) => 
-{
+canv.addEventListener("mousedown", (e) => {
     x = e.offsetX;
     y = e.offsetY;
     isDraw = true;
     
-    currentLines = [];
+    thisLine = [];
     redoPositions.splice(0, redoPositions.length);
-    currentLines.push(x, y);
-    mousePositions.push(currentLines);
-    redraw();
+    thisLine.push(x, y);
+    mousePositions.push(thisLine);
+    dispatchEvent(changEvent);
 });
 
-canv.addEventListener("mousemove", (e) => 
-{
+canv.addEventListener("mousemove", (e) => {
     if (isDraw) {
-        drawLine(ctx, x, y, e.offsetX, e.offsetY);
+        //drawLine(ctx, x, y, e.offsetX, e.offsetY);
         x = e.offsetX;
         y = e.offsetY;
-        mousePositions.push([x, y]);
+        //mousePositions.push([x, y]);
+        thisLine.push(x, y)
         dispatchEvent(changEvent);
     }
 });
