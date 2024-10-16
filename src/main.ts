@@ -1,7 +1,8 @@
 import "./style.css";
 
 let isDraw = false;
-let point = [0,0];
+let x = 0;
+let y = 0;
 let mousePositions = [];
 
 const size = 256;
@@ -19,6 +20,8 @@ const clearButton = document.createElement("button");
 clearButton.textContent = "Clear"; //moon emoji
 app.append(clearButton);
 
+const changEvent = new Event("drawing-changed");
+
 ctx.fillStyle = "blue";
 ctx.fillRect(0, 0, size, size);
 
@@ -29,30 +32,38 @@ clearButton.addEventListener("click", () => {
     ctx.fillRect(0, 0, size, size);
 })
 
+canv.addEventListener("drawing-changed", (changEvent) => {
+
+})
+
 //functions borrowed from: https://developer.mozilla.org/en-US/docs/Web/API/Element/mousemove_event
 // Add the event listeners for mousedown, mousemove, and mouseup
 canv.addEventListener("mousedown", (e) => 
 {
-    point[0] = e.offsetX;
-    point[1] = e.offsetY;
+    x = e.offsetX;
+    y = e.offsetY;
+    mousePositions.push([x, y]);
     isDraw = true;
 });
 
 canv.addEventListener("mousemove", (e) => 
 {
     if (isDraw) {
-        drawLine(ctx, point[0], point[1], e.offsetX, e.offsetY);
-        point[0] = e.offsetX;
-        point[1] = e.offsetY;
-
+        drawLine(ctx, x, y, e.offsetX, e.offsetY);
+        x = e.offsetX;
+        y = e.offsetY;
+        mousePositions.push([x, y]);
+        dispatchEvent(changEvent);
     }
 });
 
 globalThis.addEventListener("mouseup", (e) => {
     if (isDraw) {
-        drawLine(ctx, point[0], point[1], e.offsetX, e.offsetY);
-        point[0] = 0;
-        point[1] = 0;
+        drawLine(ctx, x, y, e.offsetX, e.offsetY);
+        x = 0;
+        y = 0;
+        mousePositions.push([x, y]);
+        console.log(mousePositions);
         isDraw = false;
     }
 });
