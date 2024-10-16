@@ -38,13 +38,14 @@ class LineCommand implements Displayable {
         this.line.push({x, y});
     }
 }
-
 let displayCommands : Displayable[] = [];
 let currentCommand = new LineCommand();
 let redoCommands : Displayable[] = [];
 
 canvas.addEventListener("mousedown", (e) => {
     redoCommands = [];
+    isMouseDown = true;
+
     currentCommand = new LineCommand();
     currentCommand.drag(e.offsetX, e.offsetY);
     displayCommands.push(currentCommand);
@@ -82,6 +83,12 @@ const undoButton = document.createElement("button");
 undoButton.innerHTML = "undo";
 app.append(undoButton);
 undoButton.addEventListener("mousedown", () => {
+    if(lines.length > 0){
+        redoList.push(lines.pop()!);
+        canvas.dispatchEvent(drawingChangedEvent);
+    }
+
+    //new
     if(displayCommands.length > 0){
         redoCommands.push(displayCommands.pop()!);
         canvas.dispatchEvent(drawingChangedEvent);
@@ -92,6 +99,12 @@ const redoButton = document.createElement("button");
 redoButton.innerHTML = "redo";
 app.append(redoButton);
 redoButton.addEventListener("mousedown", () => {
+    if(redoList.length > 0){
+        lines.push(redoList.pop()!);
+        canvas.dispatchEvent(drawingChangedEvent);
+    }
+
+    //new
     if(redoCommands.length > 0){
         displayCommands.push(redoCommands.pop()!);
         canvas.dispatchEvent(drawingChangedEvent);
