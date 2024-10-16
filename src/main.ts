@@ -4,7 +4,9 @@ const APP_NAME = "Drawing Application";
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
 document.title = APP_NAME;
-app.innerHTML = APP_NAME;
+const h = document.createElement("h1");
+h.innerHTML = APP_NAME;
+app.append(h)
 
 const canvas = document.createElement("canvas");
 canvas.height = 256;
@@ -12,6 +14,8 @@ canvas.width = 256;
 app.append(canvas);
 
 const context = canvas.getContext("2d")!;
+context.fillStyle = "white";
+context.fillRect(0, 0, canvas.height, canvas.width);
 
 let isMouseDown = false;
 let lineSize = 1;
@@ -66,25 +70,32 @@ canvas.addEventListener("mouseup", (e) => {
     canvas.dispatchEvent(drawingChangedEvent);
 });
 
-const clearButton = document.createElement("button");
-clearButton.innerHTML = "CLEAR";
-app.append(clearButton);
-clearButton.addEventListener("mousedown", () => {
-    displayCommands = []
-    context.clearRect(0, 0, canvas.height, canvas.width);
-});
+
 
 const drawingChangedEvent = new Event("drawing-changed");
 canvas.addEventListener("drawing-changed", () => {
-    context.clearRect(0, 0, canvas.height, canvas.width);
+    context.fillStyle = "white";
+    context.fillRect(0, 0, canvas.height, canvas.width);
     for (const command of displayCommands){
         command.display(context)
     }
 });
 
+const buttonPanel = document.createElement("div");
+app.append(buttonPanel);
+
+const clearButton = document.createElement("button");
+clearButton.innerHTML = "CLEAR";
+buttonPanel.append(clearButton);
+clearButton.addEventListener("mousedown", () => {
+    displayCommands = []
+    context.fillStyle = "white";
+    context.fillRect(0, 0, canvas.height, canvas.width);
+});
+
 const undoButton = document.createElement("button");
 undoButton.innerHTML = "undo";
-app.append(undoButton);
+buttonPanel.append(undoButton);
 undoButton.addEventListener("mousedown", () => {
     if(displayCommands.length > 0){
         redoCommands.push(displayCommands.pop()!);
@@ -94,7 +105,7 @@ undoButton.addEventListener("mousedown", () => {
 
 const redoButton = document.createElement("button");
 redoButton.innerHTML = "redo";
-app.append(redoButton);
+buttonPanel.append(redoButton);
 redoButton.addEventListener("mousedown", () => {
     if(redoCommands.length > 0){
         displayCommands.push(redoCommands.pop()!);
@@ -104,14 +115,14 @@ redoButton.addEventListener("mousedown", () => {
 
 const smallLineButton = document.createElement("button");
 smallLineButton.innerHTML = "small line";
-app.append(smallLineButton);
+buttonPanel.append(smallLineButton);
 smallLineButton.addEventListener("mousedown", () => {
     lineSize = 1;
 });
 
 const bigLineButton = document.createElement("button");
 bigLineButton.innerHTML = "big line";
-app.append(bigLineButton);
+buttonPanel.append(bigLineButton);
 bigLineButton.addEventListener("mousedown", () => {
     lineSize = 4;
 });
