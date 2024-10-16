@@ -55,6 +55,7 @@ globalThis.addEventListener("drawing-changed", (e) => {
 //functions borrowed from https://quant-paint.glitch.me/paint1.html 
 function redraw() {
     ctx.clearRect(0, 0, size, size);
+    ctx.fillRect(0,0,size, size);
     for (const line of mousePositions) {
       if (line.length > 1) {
         ctx.beginPath();
