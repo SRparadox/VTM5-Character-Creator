@@ -1,6 +1,6 @@
 import "./style.css";
 
-const APP_NAME = "Goodbye";
+const APP_NAME = "Drawing Application";
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
 document.title = APP_NAME;
@@ -19,63 +19,71 @@ interface Point {
     x: number;
     y: number;
 }
-type Line = Point[];
+interface Displayable {
+    display(context: CanvasRenderingContext2D): void;
+}
+class LineCommand implements Displayable {
+    line : Point[] = [];
+    display(context: CanvasRenderingContext2D){
+        context.beginPath();
+        context.strokeStyle = "black";
+        context.lineWidth = 1;
+        for(const point of this.line){
+            context.lineTo(point.x, point.y)
+        }
+        context.stroke();
+        context.closePath();
+    }
+    drag(x : number, y : number){
+        this.line.push({x, y});
+    }
+}
 
-const lines: Line[] = [];
-let currentLine: Line = [];
+let displayCommands : Displayable[] = [];
+let currentCommand = new LineCommand();
+let redoCommands : Displayable[] = [];
+
 canvas.addEventListener("mousedown", (e) => {
-    isMouseDown = true;
-    currentLine = [];
-    currentLine.push({ x: e.offsetX, y: e.offsetY });
-    lines.push(currentLine);
+    redoCommands = [];
+    currentCommand = new LineCommand();
+    currentCommand.drag(e.offsetX, e.offsetY);
+    displayCommands.push(currentCommand);
     canvas.dispatchEvent(drawingChangedEvent);
 });
 canvas.addEventListener("mousemove", (e) => {
     if (isMouseDown) {
-        currentLine.push({ x: e.offsetX, y: e.offsetY });
+        currentCommand.drag(e.offsetX, e.offsetY);
         canvas.dispatchEvent(drawingChangedEvent);
-        redoList = []
     }
 });
 canvas.addEventListener("mouseup", (e) => {
-    if (isMouseDown) {
-        isMouseDown = false;
-        currentLine.push({ x: e.offsetX, y: e.offsetY });
-        canvas.dispatchEvent(drawingChangedEvent);
-    }
+    isMouseDown = false;
+    currentCommand.drag(e.offsetX, e.offsetY);
+    canvas.dispatchEvent(drawingChangedEvent);
 });
 
 const clearButton = document.createElement("button");
 clearButton.innerHTML = "CLEAR";
 app.append(clearButton);
 clearButton.addEventListener("mousedown", () => {
+    displayCommands = []
     context.clearRect(0, 0, canvas.height, canvas.width);
 });
 
 const drawingChangedEvent = new Event("drawing-changed");
 canvas.addEventListener("drawing-changed", () => {
     context.clearRect(0, 0, canvas.height, canvas.width);
-    for (const line of lines) {
-        context.beginPath();
-        context.strokeStyle = "black";
-        context.lineWidth = 1;
-        const { x, y } = line[0];
-        context.moveTo(x, y);
-        for (const { x, y } of line) {
-            context.lineTo(x, y);
-        }
-        context.stroke();
-        context.closePath();
+    for (const command of displayCommands){
+        command.display(context)
     }
 });
 
-let redoList : Line[] = [];
 const undoButton = document.createElement("button");
 undoButton.innerHTML = "undo";
 app.append(undoButton);
 undoButton.addEventListener("mousedown", () => {
-    if(lines.length > 0){
-        redoList.push(lines.pop()!);
+    if(displayCommands.length > 0){
+        redoCommands.push(displayCommands.pop()!);
         canvas.dispatchEvent(drawingChangedEvent);
     }
 });
@@ -84,8 +92,8 @@ const redoButton = document.createElement("button");
 redoButton.innerHTML = "redo";
 app.append(redoButton);
 redoButton.addEventListener("mousedown", () => {
-    if(redoList.length > 0){
-        lines.push(redoList.pop()!);
+    if(redoCommands.length > 0){
+        displayCommands.push(redoCommands.pop()!);
         canvas.dispatchEvent(drawingChangedEvent);
     }
 });
