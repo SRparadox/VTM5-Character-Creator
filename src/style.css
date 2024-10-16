@@ -99,8 +99,8 @@ canvas {
     background-color: #f9f9f9;
   }
   canvas {
-    border: 1px solid black;
+    border: thin solid black;
     border-radius: 20%;
-    filter: drop-shadow(black .1rem .1rem 5px);
+    box-shadow: .1rem .1rem 5px black;
   }
 }
