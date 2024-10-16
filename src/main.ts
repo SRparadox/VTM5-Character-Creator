@@ -12,13 +12,19 @@ const ctx = canv.getContext("2d");
 const Title = "Title";
 const header = document.createElement("h1");
 const clearButton = document.createElement("button");
+const undoButton = document.createElement("button");
+const redoButton = document.createElement("button");
 const changEvent = new Event("drawing-changed");
 
 header.innerHTML = Title;
 app.append(header);
 
-clearButton.textContent = "Clear"; //moon emoji
+clearButton.textContent = "Clear";
 app.append(clearButton);
+undoButton.textContent = "Undo";
+app.append(undoButton);
+redoButton.textContent = "Redo";
+app.append(redoButton);
 
 ctx.fillStyle = "blue";
 ctx.fillRect(0, 0, size, size);
