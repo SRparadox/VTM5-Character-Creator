@@ -17,6 +17,10 @@ canvas.height = 256;
 
 const drawing = canvas.getContext('2d') as CanvasRenderingContext2D;
 
+const thickLine = 10;
+const thinLine = 1;
+let nextLineWidth = thinLine;
+
 interface Point {
     x: number,
     y: number,
@@ -27,11 +31,15 @@ interface Displayable {
 }
 
 class MarkerCommand {
-    line: Point[];
-    constructor(){
+    constructor(lineWidth: number){
         this.line = [];
+        this.lineWidth = lineWidth;
     }
+    line: Point[];
+    lineWidth: number;
+    
     display(ctx: CanvasRenderingContext2D) {
+        ctx.lineWidth = this.lineWidth;
         if (this.line.length > 0) {
             ctx.beginPath();
             const startingPoint: Point = this.line[0];
@@ -47,8 +55,10 @@ class MarkerCommand {
     }
 }
 
+//cxt.lineWidth
+
 const displayableCommands: Displayable[] = [];
-let currentCommand = new MarkerCommand();
+let currentCommand = new MarkerCommand(nextLineWidth);
 const redoCommands: Displayable[] = [];
 
 const cursor = {active: false}; 
@@ -58,7 +68,7 @@ const drawingChangeEvent = new Event('drawing-changed');
 
 canvas.addEventListener("mousedown", (e) => {
     cursor.active = true;
-    currentCommand = new MarkerCommand();
+    currentCommand = new MarkerCommand(nextLineWidth);
     currentCommand.drag(e.offsetX, e.offsetY);
     displayableCommands.push(currentCommand);
     canvas.dispatchEvent(drawingChangeEvent);
@@ -76,7 +86,7 @@ canvas.addEventListener("mousemove", (e) => {
     }
 })
 
-canvas.addEventListener("drawing-changed", (e) => {
+canvas.addEventListener("drawing-changed", () => {
     drawing.clearRect(0, 0, canvas.width, canvas.height);
     for (const command of displayableCommands) {
         command.display(drawing);
@@ -114,3 +124,17 @@ function mover (source: Displayable[], dest: Displayable[]) {
         canvas.dispatchEvent(drawingChangeEvent);
     }
 }
+
+const thinButton = document.createElement("button");
+thinButton.innerHTML = "thin"
+app.append(thinButton);
+thinButton.addEventListener("click", () => {
+    nextLineWidth = thinLine;
+});
+
+const thickButton = document.createElement("button");
+thickButton.innerHTML = "thick"
+app.append(thickButton);
+thickButton.addEventListener("click", () => {
+    nextLineWidth = thickLine;
+ });
