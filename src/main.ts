@@ -33,8 +33,23 @@ clearButton.addEventListener("click", () => {
 })
 
 canv.addEventListener("drawing-changed", (changEvent) => {
-
+    redraw
 })
+
+function redraw() {
+    ctx.clearRect(0, 0, size, size);
+    for (const line of mousePositions) {
+      if (line.length > 1) {
+        ctx.beginPath();
+        const { x, y } = line[0];
+        ctx.moveTo(x, y);
+        for (const { x, y } of line) {
+          ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+    }
+  }
 
 //functions borrowed from: https://developer.mozilla.org/en-US/docs/Web/API/Element/mousemove_event
 // Add the event listeners for mousedown, mousemove, and mouseup
