@@ -47,6 +47,13 @@ undoButton.addEventListener("click", () => {
     }
 });
 
+redoButton.addEventListener("click", () => {
+    if (mousePositions.length > 0) {
+        mousePositions.push(redoPositions.pop());
+        dispatchEvent(changEvent);
+    }
+});
+
 globalThis.addEventListener("drawing-changed", (e) => {
     console.log("drawing-changed event");
     redraw();
