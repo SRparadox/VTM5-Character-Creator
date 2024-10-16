@@ -43,15 +43,16 @@ clearButton.addEventListener("click", () => {
 undoButton.addEventListener("click", () => {
     if (mousePositions.length > 0) {
         redoPositions.push(mousePositions.pop());
-      redraw();
+        dispatchEvent(changEvent);
     }
 });
 
-canv.addEventListener("drawing-changed", (changEvent) => {
+globalThis.addEventListener("drawing-changed", (e) => {
+    console.log("drawing-changed event");
     redraw();
 })
 
-//redraw function borrowed from https://quant-paint.glitch.me/paint1.html 
+//functions borrowed from https://quant-paint.glitch.me/paint1.html 
 function redraw() {
     ctx.clearRect(0, 0, size, size);
     for (const line of mousePositions) {
@@ -66,8 +67,6 @@ function redraw() {
       }
     }
   }
-
-//functions borrowed from: https://developer.mozilla.org/en-US/docs/Web/API/Element/mousemove_event
 
 // Add the event listeners for mousedown, mousemove, and mouseup
 canv.addEventListener("mousedown", (e) => {
