@@ -4,6 +4,7 @@ let isDraw = false;
 let x = 0;
 let y = 0;
 let mousePositions = [];
+let redoPositions = [];
 
 const size = 256;
 const app = document.querySelector<HTMLDivElement>("#app")!;
@@ -38,6 +39,13 @@ clearButton.addEventListener("click", () => {
     redraw();
 })
 
+undoButton.addEventListener("click", () => {
+    if (mousePositions.length > 0) {
+        redoPositions.push(mousePositions.pop());
+      redraw();
+    }
+});
+
 canv.addEventListener("drawing-changed", (changEvent) => {
     redraw();
 })
@@ -64,8 +72,13 @@ canv.addEventListener("mousedown", (e) =>
 {
     x = e.offsetX;
     y = e.offsetY;
-    mousePositions.push([x, y]);
     isDraw = true;
+    
+    currentLines = [];
+    redoPositions.splice(0, redoPositions.length);
+    currentLines.push(x, y);
+    mousePositions.push(currentLines);
+    redraw();
 });
 
 canv.addEventListener("mousemove", (e) => 
