@@ -6,7 +6,9 @@ let y = 0;
 let mousePositions = [];
 let redoPositions = [];
 let thisLine = null;
-let thickness = 2
+let thickness: number[] = [];
+let redoThickness: number[] = [];
+let currentThick = false;
 
 const size = 256;
 const app = document.querySelector<HTMLDivElement>("#app")!;
@@ -31,6 +33,12 @@ app.append(thinButton);
 thickButton.textContent = "Thick";
 app.append(thickButton);
 
+const penType: selectTool = {
+    construct(width){
+        
+    }
+}
+
 const changEvent = new Event("drawing-changed");
 const toolMoved = new Event("tool-moved");
 
@@ -43,11 +51,11 @@ ctx.fillRect(0, 0, size, size);
 document.title = Title;
 
 thinButton.addEventListener("click", () => {
-    
+    currentThick = false;
 })
 
 thickButton.addEventListener("click", () => {
-    
+    currentThick = true;
 })
 
 clearButton.addEventListener("click", () => {
@@ -74,8 +82,6 @@ interface repLines{
 
 interface selectTool{
     construct(thickness: number): void;
-    thick(): void;
-    thin(): void;
 }
 
 //functions borrowed from https://quant-paint.glitch.me/paint1.html 
@@ -98,17 +104,21 @@ redoButton.addEventListener("click", () => {
 function redraw() {
     ctx.clearRect(0, 0, size, size);
     ctx.fillRect(0,0,size, size);
-    //ctx.lineWidth = thickness;
+    let n = 0;
+    //
     for (const line of mousePositions) {
-      if (line.length > 1) {
-        ctx.beginPath();
-        const { x, y } = line[0];
-        ctx.moveTo(x, y);
-        for (const { x, y } of line) {
-          ctx.lineTo(x, y);
+
+        ctx.lineWidth = thickness[n];
+        if (line.length > 1) {
+            ctx.beginPath();
+            const { x, y } = line[0];
+            ctx.moveTo(x, y);
+            for (const { x, y } of line) {
+                ctx.lineTo(x, y);
+            }
+            ctx.stroke();
         }
-        ctx.stroke();
-      }
+      n++;
     }
   }
 
@@ -116,7 +126,11 @@ canv.addEventListener("mousedown", (e) => {
     x = e.offsetX;
     y = e.offsetY;
     isDraw = true;
-    
+    if (currentThick){
+        thickness.push(4);
+    }else{
+        thickness.push(1);
+    }
     thisLine = [];
     redoPositions.splice(0, redoPositions.length);
     thisLine.push({x: x, y: y});
