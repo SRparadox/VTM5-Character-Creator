@@ -17,12 +17,19 @@ const header = document.createElement("h1");
 const clearButton = document.createElement("button");
 const undoButton = document.createElement("button");
 const redoButton = document.createElement("button");
+const thinButton = document.createElement("button");
+const thickButton = document.createElement("button");
 clearButton.textContent = "Clear";
 app.append(clearButton);
 undoButton.textContent = "Undo";
 app.append(undoButton);
 redoButton.textContent = "Redo";
 app.append(redoButton);
+thinButton.textContent = "Thick";
+app.append(thinButton);
+thickButton.textContent = "Thin";
+app.append(thickButton);
+
 
 const changEvent = new Event("drawing-changed");
 
