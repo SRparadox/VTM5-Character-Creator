@@ -49,14 +49,15 @@ let displayCommands: Displayable[] = [];
 let currentCommand = new LineCommand();
 let redoCommands: Displayable[] = [];
 
-class Cursor{
+
+class Cursor implements Displayable {
     x : number;
     y : number;
     constructor(x : number, y : number){
         this.x = x;
         this.y = y;
     }
-    execute(){
+    display(context: CanvasRenderingContext2D){
         context.beginPath()
         context.strokeStyle = "black";
         context.lineWidth = lineSize;
@@ -68,36 +69,82 @@ class Cursor{
         context.stroke();
         context.closePath();
     }
+    draw(context: CanvasRenderingContext2D){
+        context.beginPath()
+        context.strokeStyle = "black";
+        context.lineWidth = lineSize;
+        context.moveTo(this.x, this.y);
+        context.lineTo(this.x + 1, this.y);
+        context.lineTo(this.x + 1, this.y-1);
+        context.lineTo(this.x, this.y-1);
+        context.lineTo(this.x, this.y);
+        context.stroke();
+        context.closePath();
+    }
+    drag(x : number, y : number){
+        this.x = x;
+        this.y = y;
+    }
 }
-let cursorCommand : Cursor;
+
+class Sticker implements Displayable {
+    x : number = 0;
+    y : number = 0;
+    sticker : string;
+    constructor(x : number, y : number, sticker : string){
+        this.x = x;
+        this.y = y;
+        this.sticker = sticker;
+    }
+    display(context: CanvasRenderingContext2D){
+        context.font = "30px serif";
+        context.fillText(this.sticker, this.x, this.y);
+    }
+    draw(context: CanvasRenderingContext2D){
+        context.font = "30px serif";
+        context.fillText(this.sticker, this.x, this.y);
+    }
+    drag(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+    }
+}
+let cursorCommand : Displayable = new Cursor(0, 0);
 
 
 canvas.addEventListener("mousedown", (e) => {
     redoCommands = [];
     isMouseDown = true;
 
-    cursorCommand = new Cursor(e.offsetX, e.offsetY);
-    canvas.dispatchEvent(toolMovedEvent);
+    if(cursorCommand instanceof Sticker){
+        const sticker = new Sticker(e.offsetX, e.offsetY, cursorCommand.sticker);
+        displayCommands.push(sticker);
+    }
+    else{
+        currentCommand = new LineCommand();
+        currentCommand.lineSize = lineSize;
+        currentCommand.drag(e.offsetX, e.offsetY);
+        displayCommands.push(currentCommand);
+    }
 
-    currentCommand = new LineCommand();
-    currentCommand.lineSize = lineSize;
-    currentCommand.drag(e.offsetX, e.offsetY);
-    displayCommands.push(currentCommand);
     canvas.dispatchEvent(drawingChangedEvent);
 });
 canvas.addEventListener("mousemove", (e) => {
-    if (isMouseDown) {
+    if (isMouseDown && cursorCommand instanceof Cursor) {
         currentCommand.drag(e.offsetX, e.offsetY);
         canvas.dispatchEvent(drawingChangedEvent);
     }
     else{
-        cursorCommand = new Cursor(e.offsetX, e.offsetY);
+        cursorCommand.drag(e.offsetX, e.offsetY);
         canvas.dispatchEvent(toolMovedEvent);
     }
+    
 });
 canvas.addEventListener("mouseup", (e) => {
     isMouseDown = false;
-    currentCommand.drag(e.offsetX, e.offsetY);
+    if(cursorCommand instanceof Cursor){
+        currentCommand.drag(e.offsetX, e.offsetY);
+    }
     canvas.dispatchEvent(drawingChangedEvent);
 });
 
@@ -110,10 +157,10 @@ canvas.addEventListener("drawing-changed", () => {
     }
 });
 
-const toolMovedEvent = new Event("tool-moved");
+const toolMovedEvent = new CustomEvent("tool-moved");
 canvas.addEventListener("tool-moved", () => {
     canvas.dispatchEvent(drawingChangedEvent);
-    cursorCommand.execute();
+    cursorCommand.draw(context);
 });
 
 
@@ -153,13 +200,40 @@ redoButton.addEventListener("mousedown", () => {
 const smallLineButton = document.createElement("button");
 smallLineButton.innerHTML = "small line";
 buttonPanel.append(smallLineButton);
-smallLineButton.addEventListener("mousedown", () => {
+smallLineButton.addEventListener("mousedown", (e) => {
     lineSize = 1;
+    cursorCommand = new Cursor(e.offsetX, e.offsetY);
 });
 
 const bigLineButton = document.createElement("button");
 bigLineButton.innerHTML = "big line";
 buttonPanel.append(bigLineButton);
-bigLineButton.addEventListener("mousedown", () => {
+bigLineButton.addEventListener("mousedown", (e) => {
     lineSize = 4;
+    cursorCommand = new Cursor(e.offsetX, e.offsetY);
+});
+
+const stickerPanel = document.createElement("div");
+app.append(stickerPanel);
+
+const sticker1 = document.createElement("button");
+sticker1.innerHTML = "😸";
+stickerPanel.append(sticker1);
+sticker1.addEventListener("mousedown", () => { // should change background color too
+    canvas.dispatchEvent(toolMovedEvent);
+    cursorCommand = new Sticker(0, 0, "😸");
+});
+const sticker2 = document.createElement("button");
+sticker2.innerHTML = "😀";
+stickerPanel.append(sticker2);
+sticker2.addEventListener("mousedown", () => {
+    canvas.dispatchEvent(toolMovedEvent);
+    cursorCommand = new Sticker(0, 0, "😀");
+});
+const sticker3 = document.createElement("button");
+sticker3.innerHTML = "😈";
+stickerPanel.append(sticker3);
+sticker3.addEventListener("mousedown", () => {
+    canvas.dispatchEvent(toolMovedEvent);
+    cursorCommand = new Sticker(0, 0, "😈");
 });
