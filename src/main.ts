@@ -49,58 +49,57 @@ let displayCommands: Displayable[] = [];
 let currentCommand = new LineCommand();
 let redoCommands: Displayable[] = [];
 
-
 class Cursor implements Displayable {
-    x : number;
-    y : number;
-    constructor(x : number, y : number){
+    x: number;
+    y: number;
+    constructor(x: number, y: number) {
         this.x = x;
         this.y = y;
     }
-    display(context: CanvasRenderingContext2D){
-        context.beginPath()
+    display(context: CanvasRenderingContext2D) {
+        context.beginPath();
         context.strokeStyle = "black";
         context.lineWidth = lineSize;
         context.moveTo(this.x, this.y);
         context.lineTo(this.x + 1, this.y);
-        context.lineTo(this.x + 1, this.y-1);
-        context.lineTo(this.x, this.y-1);
+        context.lineTo(this.x + 1, this.y - 1);
+        context.lineTo(this.x, this.y - 1);
         context.lineTo(this.x, this.y);
         context.stroke();
         context.closePath();
     }
-    draw(context: CanvasRenderingContext2D){
-        context.beginPath()
+    draw(context: CanvasRenderingContext2D) {
+        context.beginPath();
         context.strokeStyle = "black";
         context.lineWidth = lineSize;
         context.moveTo(this.x, this.y);
         context.lineTo(this.x + 1, this.y);
-        context.lineTo(this.x + 1, this.y-1);
-        context.lineTo(this.x, this.y-1);
+        context.lineTo(this.x + 1, this.y - 1);
+        context.lineTo(this.x, this.y - 1);
         context.lineTo(this.x, this.y);
         context.stroke();
         context.closePath();
     }
-    drag(x : number, y : number){
+    drag(x: number, y: number) {
         this.x = x;
         this.y = y;
     }
 }
 
 class Sticker implements Displayable {
-    x : number = 0;
-    y : number = 0;
-    sticker : string;
-    constructor(x : number, y : number, sticker : string){
+    x: number = 0;
+    y: number = 0;
+    sticker: string;
+    constructor(x: number, y: number, sticker: string) {
         this.x = x;
         this.y = y;
         this.sticker = sticker;
     }
-    display(context: CanvasRenderingContext2D){
+    display(context: CanvasRenderingContext2D) {
         context.font = "30px serif";
         context.fillText(this.sticker, this.x, this.y);
     }
-    draw(context: CanvasRenderingContext2D){
+    draw(context: CanvasRenderingContext2D) {
         context.font = "30px serif";
         context.fillText(this.sticker, this.x, this.y);
     }
@@ -109,18 +108,20 @@ class Sticker implements Displayable {
         this.y = y;
     }
 }
-let cursorCommand : Displayable = new Cursor(0, 0);
-
+let cursorCommand: Displayable = new Cursor(0, 0);
 
 canvas.addEventListener("mousedown", (e) => {
     redoCommands = [];
     isMouseDown = true;
 
-    if(cursorCommand instanceof Sticker){
-        const sticker = new Sticker(e.offsetX, e.offsetY, cursorCommand.sticker);
+    if (cursorCommand instanceof Sticker) {
+        const sticker = new Sticker(
+            e.offsetX,
+            e.offsetY,
+            cursorCommand.sticker,
+        );
         displayCommands.push(sticker);
-    }
-    else{
+    } else {
         currentCommand = new LineCommand();
         currentCommand.lineSize = lineSize;
         currentCommand.drag(e.offsetX, e.offsetY);
@@ -133,16 +134,14 @@ canvas.addEventListener("mousemove", (e) => {
     if (isMouseDown && cursorCommand instanceof Cursor) {
         currentCommand.drag(e.offsetX, e.offsetY);
         canvas.dispatchEvent(drawingChangedEvent);
-    }
-    else{
+    } else {
         cursorCommand.drag(e.offsetX, e.offsetY);
         canvas.dispatchEvent(toolMovedEvent);
     }
-    
 });
 canvas.addEventListener("mouseup", (e) => {
     isMouseDown = false;
-    if(cursorCommand instanceof Cursor){
+    if (cursorCommand instanceof Cursor) {
         currentCommand.drag(e.offsetX, e.offsetY);
     }
     canvas.dispatchEvent(drawingChangedEvent);
@@ -162,8 +161,6 @@ canvas.addEventListener("tool-moved", () => {
     canvas.dispatchEvent(drawingChangedEvent);
     cursorCommand.draw(context);
 });
-
-
 
 const buttonPanel = document.createElement("div");
 app.append(buttonPanel);
@@ -216,8 +213,8 @@ bigLineButton.addEventListener("mousedown", (e) => {
 const stickerPanel = document.createElement("div");
 app.append(stickerPanel);
 
-let stickerList : string[] = ["😸", "😀", "😈"];
-function createStickerButton (s : string){
+let stickerList: string[] = ["😸", "😀", "😈"];
+function createStickerButton(s: string) {
     const sticker = document.createElement("button");
     sticker.innerHTML = s;
     stickerPanel.append(sticker);
@@ -226,7 +223,7 @@ function createStickerButton (s : string){
         cursorCommand = new Sticker(0, 0, s);
     });
 }
-for(let i = 0; i < stickerList.length; i++){
+for (let i = 0; i < stickerList.length; i++) {
     createStickerButton(stickerList[i]);
 }
 
@@ -236,10 +233,37 @@ app.append(customPanel);
 const customSticker = document.createElement("button");
 customSticker.innerHTML = "add custom sticker";
 customPanel.append(customSticker);
-customSticker.addEventListener("mousedown", () => { // should change background color too
-    const newSticker : string = prompt("Give new sticker", "🧽")!;
-    if(newSticker && stickerList.indexOf(newSticker) == -1){
+customSticker.addEventListener("mousedown", () => {
+    const newSticker: string = prompt("Give new sticker", "🧽")!;
+    if (newSticker && stickerList.indexOf(newSticker) == -1) {
         stickerList.push(newSticker);
         createStickerButton(newSticker);
     }
+});
+
+const exportButton = document.createElement("button");
+exportButton.innerHTML = "export";
+customPanel.append(exportButton);
+exportButton.addEventListener("mousedown", () => {
+    const newCanvas = document.createElement("canvas");
+    newCanvas.height = 1024;
+    newCanvas.width = 1024;
+
+    const newContext = newCanvas.getContext("2d")!;
+    newContext.scale(4, 4);
+
+    newCanvas.addEventListener("drawing-changed", () => {
+        newContext.fillStyle = "white";
+        newContext.fillRect(0, 0, newCanvas.height, newCanvas.width);
+        for (const command of displayCommands) {
+            command.display(newContext);
+        }
+    });
+    newCanvas.dispatchEvent(drawingChangedEvent);
+
+    const anchor = document.createElement("a");
+    anchor.href = newCanvas.toDataURL("image/png");
+    anchor.download = "sketchpad.png";
+    anchor.click();
+
 });
