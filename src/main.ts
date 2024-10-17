@@ -55,16 +55,40 @@ class MarkerCommand {
     }
 }
 
+class cursorIcon {
+    constructor(x: number, y: number, radius: number){
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+    }
+    x: number;
+    y: number;
+    radius: number;
+
+    draw(ctx: CanvasRenderingContext2D) {
+        console.log(this.x, this.y, this.radius);
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+        ctx.lineWidth = thinLine;
+        ctx.fillStyle = 'black';
+        ctx.fill();
+        ctx.stroke();
+        ctx.lineWidth = nextLineWidth;
+    }
+}
+
 //cxt.lineWidth
 
 const displayableCommands: Displayable[] = [];
 let currentCommand = new MarkerCommand(nextLineWidth);
 const redoCommands: Displayable[] = [];
+const cursorDrawing = new cursorIcon(0, 0, nextLineWidth);
 
 const cursor = {active: false}; 
 
 //mouse moving
 const drawingChangeEvent = new Event('drawing-changed');
+const toolMovedEvent = new Event('tool-moved');
 
 canvas.addEventListener("mousedown", (e) => {
     cursor.active = true;
@@ -83,14 +107,25 @@ canvas.addEventListener("mousemove", (e) => {
     if (cursor.active) {
         currentCommand.line.push({x: e.offsetX, y: e.offsetY});
         canvas.dispatchEvent(drawingChangeEvent);
+    } else {
+        cursorDrawing.x = e.offsetX;
+        cursorDrawing.y = e.offsetY;
+        cursorDrawing.radius = nextLineWidth;
+        canvas.dispatchEvent(toolMovedEvent);
     }
 })
 
 canvas.addEventListener("drawing-changed", () => {
+    console.log("happy");
     drawing.clearRect(0, 0, canvas.width, canvas.height);
     for (const command of displayableCommands) {
         command.display(drawing);
     }
+})
+
+canvas.addEventListener("tool-moved", () => {
+    canvas.dispatchEvent(drawingChangeEvent);
+    cursorDrawing.draw(drawing);
 })
 
 const clearButton = document.createElement("button");
