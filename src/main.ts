@@ -42,11 +42,11 @@ ctx.fillRect(0, 0, size, size);
 document.title = Title;
 
 thinButton.addEventListener("click", () => {
-    thickness = thickness / 2;
+    
 })
 
 thickButton.addEventListener("click", () => {
-    thickness = thickness * 2;
+    
 })
 
 clearButton.addEventListener("click", () => {
@@ -71,8 +71,10 @@ interface repLines{
     drag(x: number, y: number): void;
 }
 
-interface widthChange{
+interface selectTool{
     construct(thickness: number): void;
+    thick(): void;
+    thin(): void;
 }
 
 //functions borrowed from https://quant-paint.glitch.me/paint1.html 
@@ -95,7 +97,7 @@ redoButton.addEventListener("click", () => {
 function redraw() {
     ctx.clearRect(0, 0, size, size);
     ctx.fillRect(0,0,size, size);
-    ctx.lineWidth = thickness;
+    //ctx.lineWidth = thickness;
     for (const line of mousePositions) {
       if (line.length > 1) {
         ctx.beginPath();
