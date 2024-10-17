@@ -46,6 +46,12 @@ globalThis.addEventListener("drawing-changed", (e) => {
     redraw();
 })
 
+interface displayObj {
+    x: number;
+    y: number;
+    display(ctx : CanvasRenderingContext2D): void;
+}
+
 //functions borrowed from https://quant-paint.glitch.me/paint1.html 
 undoButton.addEventListener("click", () => {
     if (mousePositions.length > 0) {
