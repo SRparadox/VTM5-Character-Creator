@@ -16,8 +16,13 @@ app.append(canvas);
 /*Code from https://quant-paint.glitch.me/paint0.html*/
 const ctx = canvas.getContext("2d")!;
 
-interface Point { x: number; y: number }
-interface Line { points: Point[]; }
+interface Point {
+  x: number;
+  y: number;
+}
+interface Line {
+  points: Point[];
+}
 
 const lines: Line[] = [];
 
@@ -30,11 +35,11 @@ canvas.addEventListener("mousedown", (event) => {
   cursor.x = event.offsetX;
   cursor.y = event.offsetY;
 
-  lastLine = {points: []};
+  lastLine = { points: [] };
   lines.push(lastLine);
   lastLine.points.push({ x: cursor.x, y: cursor.y });
 
-  canvas.dispatchEvent(new CustomEvent("draw"));
+  canvas.dispatchEvent(new CustomEvent("drawing-changed"));
 });
 
 canvas.addEventListener("mousemove", (event) => {
@@ -43,16 +48,16 @@ canvas.addEventListener("mousemove", (event) => {
     cursor.y = event.offsetY;
 
     lastLine.points.push({ x: cursor.x, y: cursor.y });
-    canvas.dispatchEvent(new CustomEvent("draw"));
+    canvas.dispatchEvent(new CustomEvent("drawing-changed"));
   }
 });
 
 canvas.addEventListener("mouseup", (_event) => {
   cursor.active = false;
-  canvas.dispatchEvent(new CustomEvent("draw"));
+  canvas.dispatchEvent(new CustomEvent("drawing-changed"));
 });
 
-canvas.addEventListener("draw", (_event) => {
+canvas.addEventListener("drawing-changed", (_event) => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   for (const line of lines) {
@@ -70,6 +75,33 @@ clearButton.innerHTML = "clear";
 app.append(clearButton);
 
 clearButton.addEventListener("click", () => {
+  redoStack = lines.slice();
   lines.length = 0;
-  canvas.dispatchEvent(new CustomEvent("draw"));
+  canvas.dispatchEvent(new CustomEvent("drawing-changed"));
+});
+
+let redoStack: Line[] = [];
+
+const redoButton = document.createElement("button");
+redoButton.innerHTML = "redo";
+app.append(redoButton);
+
+const undoButton = document.createElement("button");
+undoButton.innerHTML = "undo";
+app.append(undoButton);
+
+redoButton.addEventListener("click", () => {
+  const line = redoStack.pop();
+  if (line) {
+    lines.push(line);
+    canvas.dispatchEvent(new CustomEvent("drawing-changed"));
+  }
+});
+
+undoButton.addEventListener("click", () => {
+  const line = lines.pop();
+  if (line) {
+    redoStack.push(line);
+    canvas.dispatchEvent(new CustomEvent("drawing-changed"));
+  }
 });
