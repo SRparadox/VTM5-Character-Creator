@@ -216,6 +216,35 @@ bigLineButton.addEventListener("mousedown", (e) => {
 const stickerPanel = document.createElement("div");
 app.append(stickerPanel);
 
+let stickerList : string[] = ["😸", "😀", "😈"];
+function createStickerButton (s : string){
+    const sticker = document.createElement("button");
+    sticker.innerHTML = s;
+    stickerPanel.append(sticker);
+    sticker.addEventListener("mousedown", () => { // should change background color too
+        canvas.dispatchEvent(toolMovedEvent);
+        cursorCommand = new Sticker(0, 0, s);
+    });
+}
+for(let i = 0; i < stickerList.length; i++){
+    createStickerButton(stickerList[i]);
+}
+
+const customPanel = document.createElement("div");
+app.append(customPanel);
+
+const customSticker = document.createElement("button");
+customSticker.innerHTML = "add custom sticker";
+customPanel.append(customSticker);
+customSticker.addEventListener("mousedown", () => { // should change background color too
+    const newSticker : string = prompt("Give new sticker", "🧽")!;
+    if(newSticker && stickerList.indexOf(newSticker) == -1){
+        stickerList.push(newSticker);
+        createStickerButton(newSticker);
+    }
+});
+
+/*
 const sticker1 = document.createElement("button");
 sticker1.innerHTML = "😸";
 stickerPanel.append(sticker1);
@@ -237,3 +266,4 @@ sticker3.addEventListener("mousedown", () => {
     canvas.dispatchEvent(toolMovedEvent);
     cursorCommand = new Sticker(0, 0, "😈");
 });
+*/
