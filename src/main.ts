@@ -12,6 +12,7 @@ const canvas = document.createElement("canvas");
 canvas.height = 256;
 canvas.width = 256;
 app.append(canvas);
+canvas.style.cursor = "none";
 
 const context = canvas.getContext("2d")!;
 context.fillStyle = "white";
@@ -48,9 +49,35 @@ let displayCommands: Displayable[] = [];
 let currentCommand = new LineCommand();
 let redoCommands: Displayable[] = [];
 
+class Cursor{
+    x : number;
+    y : number;
+    constructor(x : number, y : number){
+        this.x = x;
+        this.y = y;
+    }
+    execute(){
+        context.beginPath()
+        context.strokeStyle = "black";
+        context.lineWidth = lineSize;
+        context.moveTo(this.x, this.y);
+        context.lineTo(this.x + 1, this.y);
+        context.lineTo(this.x + 1, this.y-1);
+        context.lineTo(this.x, this.y-1);
+        context.lineTo(this.x, this.y);
+        context.stroke();
+        context.closePath();
+    }
+}
+let cursorCommand : Cursor;
+
+
 canvas.addEventListener("mousedown", (e) => {
     redoCommands = [];
     isMouseDown = true;
+
+    cursorCommand = new Cursor(e.offsetX, e.offsetY);
+    canvas.dispatchEvent(toolMovedEvent);
 
     currentCommand = new LineCommand();
     currentCommand.lineSize = lineSize;
@@ -62,6 +89,10 @@ canvas.addEventListener("mousemove", (e) => {
     if (isMouseDown) {
         currentCommand.drag(e.offsetX, e.offsetY);
         canvas.dispatchEvent(drawingChangedEvent);
+    }
+    else{
+        cursorCommand = new Cursor(e.offsetX, e.offsetY);
+        canvas.dispatchEvent(toolMovedEvent);
     }
 });
 canvas.addEventListener("mouseup", (e) => {
@@ -78,6 +109,14 @@ canvas.addEventListener("drawing-changed", () => {
         command.display(context);
     }
 });
+
+const toolMovedEvent = new Event("tool-moved");
+canvas.addEventListener("tool-moved", () => {
+    canvas.dispatchEvent(drawingChangedEvent);
+    cursorCommand.execute();
+});
+
+
 
 const buttonPanel = document.createElement("div");
 app.append(buttonPanel);
