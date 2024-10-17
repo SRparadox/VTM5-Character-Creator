@@ -49,7 +49,12 @@ globalThis.addEventListener("drawing-changed", (e) => {
 interface displayObj {
     x: number;
     y: number;
-    display(ctx : CanvasRenderingContext2D): void;
+    display(context : CanvasRenderingContext2D): void;
+}
+
+interface repLines{
+    construct(x: number, y: number): void;
+    drag(x: number, y: number): void;
 }
 
 //functions borrowed from https://quant-paint.glitch.me/paint1.html 
