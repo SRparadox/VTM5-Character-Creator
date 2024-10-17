@@ -245,25 +245,24 @@ const exportButton = document.createElement("button");
 exportButton.innerHTML = "export";
 customPanel.append(exportButton);
 exportButton.addEventListener("mousedown", () => {
-    const newCanvas = document.createElement("canvas");
-    newCanvas.height = 1024;
-    newCanvas.width = 1024;
+    const exportCanvas = document.createElement("canvas");
+    exportCanvas.height = 1024;
+    exportCanvas.width = 1024;
 
-    const newContext = newCanvas.getContext("2d")!;
-    newContext.scale(4, 4);
+    const exportContext = exportCanvas.getContext("2d")!;
+    exportContext.scale(4, 4);
 
-    newCanvas.addEventListener("drawing-changed", () => {
-        newContext.fillStyle = "white";
-        newContext.fillRect(0, 0, newCanvas.height, newCanvas.width);
+    exportCanvas.addEventListener("drawing-changed", () => {
+        exportContext.fillStyle = "white";
+        exportContext.fillRect(0, 0, exportCanvas.height, exportCanvas.width);
         for (const command of displayCommands) {
-            command.display(newContext);
+            command.display(exportContext);
         }
     });
-    newCanvas.dispatchEvent(drawingChangedEvent);
+    exportCanvas.dispatchEvent(drawingChangedEvent);
 
     const anchor = document.createElement("a");
-    anchor.href = newCanvas.toDataURL("image/png");
+    anchor.href = exportCanvas.toDataURL("image/png");
     anchor.download = "sketchpad.png";
     anchor.click();
-
 });
