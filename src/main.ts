@@ -6,6 +6,7 @@ let y = 0;
 let mousePositions = [];
 let redoPositions = [];
 let thisLine = null;
+let thickness = 2
 
 const size = 256;
 const app = document.querySelector<HTMLDivElement>("#app")!;
@@ -25,9 +26,9 @@ undoButton.textContent = "Undo";
 app.append(undoButton);
 redoButton.textContent = "Redo";
 app.append(redoButton);
-thinButton.textContent = "Thick";
+thinButton.textContent = "Thin";
 app.append(thinButton);
-thickButton.textContent = "Thin";
+thickButton.textContent = "Thick";
 app.append(thickButton);
 
 const changEvent = new Event("drawing-changed");
@@ -41,11 +42,11 @@ ctx.fillRect(0, 0, size, size);
 document.title = Title;
 
 thinButton.addEventListener("click", () => {
-    
+    thickness = thickness / 2;
 })
 
 thickButton.addEventListener("click", () => {
-    
+    thickness = thickness * 2;
 })
 
 clearButton.addEventListener("click", () => {
@@ -90,6 +91,7 @@ redoButton.addEventListener("click", () => {
 function redraw() {
     ctx.clearRect(0, 0, size, size);
     ctx.fillRect(0,0,size, size);
+    ctx.lineWidth = thickness;
     for (const line of mousePositions) {
       if (line.length > 1) {
         ctx.beginPath();
