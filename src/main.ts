@@ -71,6 +71,10 @@ interface repLines{
     drag(x: number, y: number): void;
 }
 
+interface widthChange{
+    construct(thickness: number): void;
+}
+
 //functions borrowed from https://quant-paint.glitch.me/paint1.html 
 undoButton.addEventListener("click", () => {
     if (mousePositions.length > 0) {
