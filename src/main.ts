@@ -282,3 +282,5 @@ thickButton.addEventListener("click", () => {
     });
     canvasElement.dispatchEvent(new Event("tool-moved"));
 });
+
+ fdsaf
