@@ -88,6 +88,7 @@ interface selectTool{
 undoButton.addEventListener("click", () => {
     if (mousePositions.length > 0) {
         redoPositions.push(mousePositions.pop());
+        redoThickness.push(thickness.pop());
         dispatchEvent(changEvent);
         console.log(mousePositions);
         console.log(redoPositions);
@@ -97,6 +98,7 @@ undoButton.addEventListener("click", () => {
 redoButton.addEventListener("click", () => {
     if (redoPositions.length > 0) {
         mousePositions.push(redoPositions.pop());
+        thickness.push(redoThickness.pop());
         dispatchEvent(changEvent);
     }
 });
