@@ -53,6 +53,7 @@ let points: Array<Drawable> = [];
 let redoStack: Array<Drawable> = [];
 let currentLine: MarkerLine | null = null;
 let currentThickness = 2; // Default thickness
+let toolPreview: ToolPreview | null = null;
 
 interface Drawable {
     display(ctx: CanvasRenderingContext2D): void;
@@ -85,10 +86,34 @@ class MarkerLine implements Drawable {
     }
 }
 
+class ToolPreview implements Drawable {
+    private x: number;
+    private y: number;
+    private thickness: number;
+
+    constructor(x: number, y: number, thickness: number) {
+        this.x = x;
+        this.y = y;
+        this.thickness = thickness;
+    }
+
+    updatePosition(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+    }
+
+    display(ctx: CanvasRenderingContext2D) {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.thickness / 2, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+}
+
 canvasElement.addEventListener("mousedown", (event) => {
     drawing = true;
     currentLine = new MarkerLine(event.offsetX, event.offsetY, currentThickness);
     points.push(currentLine);
+    toolPreview = null; // Hide tool preview when drawing
 });
 
 canvasElement.addEventListener("mouseup", () => {
@@ -98,9 +123,17 @@ canvasElement.addEventListener("mouseup", () => {
 });
 
 canvasElement.addEventListener("mousemove", (event) => {
-    if (!drawing || !currentLine) return;
-    currentLine.drag(event.offsetX, event.offsetY);
-    canvasElement.dispatchEvent(new Event("drawing-changed"));
+    if (!drawing) {
+        if (!toolPreview) {
+            toolPreview = new ToolPreview(event.offsetX, event.offsetY, currentThickness);
+        } else {
+            toolPreview.updatePosition(event.offsetX, event.offsetY);
+        }
+        canvasElement.dispatchEvent(new Event("tool-moved"));
+    } else if (currentLine) {
+        currentLine.drag(event.offsetX, event.offsetY);
+        canvasElement.dispatchEvent(new Event("drawing-changed"));
+    }
 });
 
 canvasElement.addEventListener("drawing-changed", () => {
@@ -109,6 +142,18 @@ canvasElement.addEventListener("drawing-changed", () => {
     ctx.strokeStyle = "black";
 
     points.forEach(line => line.display(ctx));
+});
+
+canvasElement.addEventListener("tool-moved", () => {
+    ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "black";
+
+    points.forEach(line => line.display(ctx));
+
+    if (toolPreview) {
+        toolPreview.display(ctx);
+    }
 });
 
 clearButton.addEventListener("click", () => {
