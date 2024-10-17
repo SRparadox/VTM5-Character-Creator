@@ -243,27 +243,3 @@ customSticker.addEventListener("mousedown", () => { // should change background 
         createStickerButton(newSticker);
     }
 });
-
-/*
-const sticker1 = document.createElement("button");
-sticker1.innerHTML = "😸";
-stickerPanel.append(sticker1);
-sticker1.addEventListener("mousedown", () => { // should change background color too
-    canvas.dispatchEvent(toolMovedEvent);
-    cursorCommand = new Sticker(0, 0, "😸");
-});
-const sticker2 = document.createElement("button");
-sticker2.innerHTML = "😀";
-stickerPanel.append(sticker2);
-sticker2.addEventListener("mousedown", () => {
-    canvas.dispatchEvent(toolMovedEvent);
-    cursorCommand = new Sticker(0, 0, "😀");
-});
-const sticker3 = document.createElement("button");
-sticker3.innerHTML = "😈";
-stickerPanel.append(sticker3);
-sticker3.addEventListener("mousedown", () => {
-    canvas.dispatchEvent(toolMovedEvent);
-    cursorCommand = new Sticker(0, 0, "😈");
-});
-*/
