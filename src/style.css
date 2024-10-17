@@ -84,10 +84,15 @@ button:focus-visible {
 
 /* Add styles for the canvas */
 #sketchCanvas {
-    background-color: white; /* Canvas background color */
-    border: 3px solid black; /* Black border */
+    border: 1px solid black;
     border-radius: 8px; /* Rounded corners */
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* Drop shadow */
+    background-color: white; /* Canvas background to white */
+}
+
+/* Add styles for selected tool buttons */
+.selectedTool {
+    background-color: #d3d3d3; /* Light gray background for selected tool */
 }
 
 @media (prefers-color-scheme: light) {
