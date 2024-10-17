@@ -32,6 +32,7 @@ thickButton.textContent = "Thick";
 app.append(thickButton);
 
 const changEvent = new Event("drawing-changed");
+const toolMoved = new Event("tool-moved");
 
 header.innerHTML = Title;
 app.append(header);
@@ -124,6 +125,7 @@ canv.addEventListener("mousedown", (e) => {
 });
 
 canv.addEventListener("mousemove", (e) => {
+    dispatchEvent(toolMoved);
     if (isDraw) {
         x = e.offsetX;
         y = e.offsetY;
@@ -135,7 +137,7 @@ canv.addEventListener("mousemove", (e) => {
 globalThis.addEventListener("mouseup", (e) => {
     if (isDraw) {
         
-        console.log(mousePositions);
+        //console.log(mousePositions);
         thisLine = null;
         isDraw = false;
         dispatchEvent(changEvent);
