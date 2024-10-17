@@ -30,7 +30,6 @@ app.append(thinButton);
 thickButton.textContent = "Thin";
 app.append(thickButton);
 
-
 const changEvent = new Event("drawing-changed");
 
 header.innerHTML = Title;
@@ -41,6 +40,14 @@ ctx.fillRect(0, 0, size, size);
 
 document.title = Title;
 
+thinButton.addEventListener("click", () => {
+    
+})
+
+thickButton.addEventListener("click", () => {
+    
+})
+
 clearButton.addEventListener("click", () => {
     ctx.clearRect(0,0,size,size);
     ctx.fillRect(0, 0, size, size);
@@ -49,7 +56,6 @@ clearButton.addEventListener("click", () => {
 
 
 globalThis.addEventListener("drawing-changed", (e) => {
-    //console.log("drawing-changed event");
     redraw();
 })
 
@@ -111,10 +117,8 @@ canv.addEventListener("mousedown", (e) => {
 
 canv.addEventListener("mousemove", (e) => {
     if (isDraw) {
-        //drawLine(ctx, x, y, e.offsetX, e.offsetY);
         x = e.offsetX;
         y = e.offsetY;
-        //mousePositions.push([x, y]);
         thisLine.push({x: x, y: y})
         dispatchEvent(changEvent);
     }
@@ -122,10 +126,7 @@ canv.addEventListener("mousemove", (e) => {
 
 globalThis.addEventListener("mouseup", (e) => {
     if (isDraw) {
-        //drawLine(ctx, x, y, e.offsetX, e.offsetY);
-        //x = 0;
-        //y = 0;
-        //mousePositions.push([x, y]);
+        
         console.log(mousePositions);
         thisLine = null;
         isDraw = false;
