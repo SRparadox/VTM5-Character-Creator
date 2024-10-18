@@ -31,8 +31,8 @@ interface Displayable {
 }
 class LineCommand implements Displayable {
     line: Point[] = [];
-    lineSize: number = 1;
-    lineColor: string = "black";
+    lineSize: number = lineSize;
+    lineColor: string = lineColor;
     display(context: CanvasRenderingContext2D) {
         context.beginPath();
         context.strokeStyle = this.lineColor;
@@ -70,18 +70,6 @@ class Cursor implements Displayable {
         context.stroke();
         context.closePath();
     }
-    draw(context: CanvasRenderingContext2D) {
-        context.beginPath();
-        context.strokeStyle = lineColor;
-        context.lineWidth = lineSize;
-        context.moveTo(this.x, this.y);
-        context.lineTo(this.x + 1, this.y);
-        context.lineTo(this.x + 1, this.y - 1);
-        context.lineTo(this.x, this.y - 1);
-        context.lineTo(this.x, this.y);
-        context.stroke();
-        context.closePath();
-    }
     drag(x: number, y: number) {
         this.x = x;
         this.y = y;
@@ -92,26 +80,23 @@ class Sticker implements Displayable {
     x: number = 0;
     y: number = 0;
     sticker: string;
-    rotation : number;
-    constructor(x: number, y: number, sticker: string, rotation : number) {
+    rotation: number;
+    constructor(x: number, y: number, sticker: string, rotation: number) {
         this.x = x;
         this.y = y;
         this.sticker = sticker;
         this.rotation = rotation;
     }
     display(context: CanvasRenderingContext2D) {
-        context.save()
-        context.rotate((this.rotation / Math.PI) / 180)
+        context.save();
+        context.translate(this.x, this.y);
+        context.rotate((this.rotation / Math.PI) / 180);
+        context.translate(-this.x, -this.y);
+        context.fillStyle = "black"; // just in case someone adds a custom sticker that is just text
         context.font = "30px serif";
+        context.textAlign = "center";
         context.fillText(this.sticker, this.x, this.y);
-        context.restore()
-    }
-    draw(context: CanvasRenderingContext2D) {
-        context.save()
-        context.rotate((this.rotation / Math.PI) / 180)
-        context.font = "30px serif";
-        context.fillText(this.sticker, this.x, this.y);
-        context.restore()
+        context.restore();
     }
     drag(x: number, y: number) {
         this.x = x;
@@ -134,8 +119,6 @@ canvas.addEventListener("mousedown", (e) => {
         displayCommands.push(sticker);
     } else {
         currentCommand = new LineCommand();
-        currentCommand.lineSize = lineSize;
-        currentCommand.lineColor = lineColor;
         currentCommand.drag(e.offsetX, e.offsetY);
         displayCommands.push(currentCommand);
     }
@@ -143,13 +126,11 @@ canvas.addEventListener("mousedown", (e) => {
     canvas.dispatchEvent(drawingChangedEvent);
 });
 canvas.addEventListener("mousemove", (e) => {
-    if (isMouseDown && cursorCommand instanceof Cursor) {
+    cursorCommand.drag(e.offsetX, e.offsetY);
+    if(isMouseDown && cursorCommand instanceof Cursor){
         currentCommand.drag(e.offsetX, e.offsetY);
-        canvas.dispatchEvent(drawingChangedEvent);
-    } else {
-        cursorCommand.drag(e.offsetX, e.offsetY);
-        canvas.dispatchEvent(toolMovedEvent);
     }
+    canvas.dispatchEvent(toolMovedEvent);
 });
 canvas.addEventListener("mouseup", (e) => {
     isMouseDown = false;
@@ -168,10 +149,10 @@ canvas.addEventListener("drawing-changed", () => {
     }
 });
 
-const toolMovedEvent = new CustomEvent("tool-moved");
+const toolMovedEvent = new Event("tool-moved");
 canvas.addEventListener("tool-moved", () => {
     canvas.dispatchEvent(drawingChangedEvent);
-    cursorCommand.draw(context);
+    cursorCommand.display(context);
 });
 
 const buttonPanel = document.createElement("div");
@@ -211,7 +192,7 @@ smallLineButton.innerHTML = "small line";
 buttonPanel.append(smallLineButton);
 smallLineButton.addEventListener("mousedown", (e) => {
     lineSize = 1;
-    lineColor = "#" + Math.floor(Math.random()*16777215).toString(16);
+    lineColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
     cursorCommand = new Cursor(e.offsetX, e.offsetY);
     canvas.dispatchEvent(toolMovedEvent);
     changeButton(smallLineButton);
@@ -222,7 +203,7 @@ bigLineButton.innerHTML = "big line";
 buttonPanel.append(bigLineButton);
 bigLineButton.addEventListener("mousedown", (e) => {
     lineSize = 4;
-    lineColor = "#" + Math.floor(Math.random()*16777215).toString(16);
+    lineColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
     cursorCommand = new Cursor(e.offsetX, e.offsetY);
     canvas.dispatchEvent(toolMovedEvent);
     changeButton(bigLineButton);
@@ -237,7 +218,12 @@ function createStickerButton(s: string) {
     sticker.innerHTML = s;
     stickerPanel.append(sticker);
     sticker.addEventListener("mousedown", (e) => {
-        cursorCommand = new Sticker(e.offsetX, e.offsetY, s, Math.floor(Math.random() * (200 - (-200)) + -200));
+        cursorCommand = new Sticker(
+            e.offsetX,
+            e.offsetY,
+            s,
+            Math.floor(Math.random() * (200 - (-200)) + -200),
+        );
         canvas.dispatchEvent(toolMovedEvent);
         changeButton(sticker);
     });
@@ -286,9 +272,9 @@ exportButton.addEventListener("mousedown", () => {
     anchor.click();
 });
 
-let selectedButton : HTMLButtonElement = smallLineButton;
+let selectedButton: HTMLButtonElement = smallLineButton;
 selectedButton.style.backgroundColor = "grey";
-function changeButton(button : HTMLButtonElement) {
+function changeButton(button: HTMLButtonElement) {
     button.style.backgroundColor = "grey";
     selectedButton.style.backgroundColor = "";
     selectedButton = button;
