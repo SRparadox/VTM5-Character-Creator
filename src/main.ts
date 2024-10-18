@@ -20,7 +20,6 @@ const drawing = canvas.getContext('2d') as CanvasRenderingContext2D;
 const thickLine = 20;
 const thinLine = 2;
 let nextLineWidth = thinLine;
-let nextSticker = "❤️"
 const fontSize = 25;
 
 interface Point {
@@ -127,10 +126,12 @@ class StickerCommand {
 }
 
 const availableStickers = [
-    {symbol: "😆"},
-    {symbol: "❤️"},
-    {symbol: "🔥"}
+    {symbol: "🍔"},
+    {symbol: "👨"},
+    {symbol: "👩"}
 ];
+
+let nextSticker = availableStickers[0].symbol;
 
 const displayableCommands: Displayable[] = [];
 let currentCommand: Displayable = new MarkerCommand(nextLineWidth);
