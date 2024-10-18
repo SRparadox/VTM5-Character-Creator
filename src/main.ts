@@ -29,6 +29,22 @@ class LineCommand {
   }
 }
 
+class CursorCommand {
+  x: number;
+  y: number;
+
+  constructor(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
+
+  display(ctx: CanvasRenderingContext2D) {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, lineThickness, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
 const APP_NAME = "Sketchpad Demo";
 document.title = APP_NAME;
 const app = document.querySelector<HTMLDivElement>("#app")!;
@@ -40,6 +56,7 @@ app.append(header);
 const canvas = document.createElement("canvas");
 canvas.width = 256;
 canvas.height = 256;
+canvas.style.cursor = "none";
 app.append(canvas);
 
 app.append(document.createElement("br"));
@@ -68,29 +85,35 @@ app.append(thickMarkerButton);
 
 const ctx = canvas.getContext("2d")!;
 
-const cursor = { active: false, x: 0, y: 0 };
+let cursor: CursorCommand | null = null;
+
+canvas.addEventListener("mouseout", (_event) => {
+  cursor = null;
+  canvas.dispatchEvent(new CustomEvent("tool-moved"));
+});
+
+canvas.addEventListener("mouseenter", (_event) => {
+  cursor = new CursorCommand(_event.offsetX, _event.offsetY);
+  canvas.dispatchEvent(new CustomEvent("tool-moved"));
+});
 
 const lines: LineCommand[] = [];
 
 let currentLine: LineCommand = new LineCommand([], 1);
 
-canvas.addEventListener("mousedown", (event) => {
-  cursor.active = true;
-  cursor.x = event.offsetX;
-  cursor.y = event.offsetY;
-
-  !currentLine
-    ? new LineCommand([{ x: cursor.x, y: cursor.y }], lineThickness)
-    : currentLine.drag(cursor.x, cursor.y);
-  lines.push(currentLine);
-
+canvas.addEventListener("mousedown", (_event) => {
+  if (cursor) {
+    currentLine = new LineCommand([{ x: cursor.x, y: cursor.y }], lineThickness);
+    currentLine.drag(cursor.x, cursor.y);
+    lines.push(currentLine);
+  }
   canvas.dispatchEvent(new CustomEvent("drawing-changed"));
 });
 
-canvas.addEventListener("mousemove", (event) => {
-  if (cursor.active) {
-    cursor.x = event.offsetX;
-    cursor.y = event.offsetY;
+canvas.addEventListener("mousemove", (_event) => {
+  if (cursor) {
+    cursor.x = _event.offsetX;
+    cursor.y = _event.offsetY;
 
     currentLine.drag(cursor.x, cursor.y);
     canvas.dispatchEvent(new CustomEvent("drawing-changed"));
@@ -99,18 +122,24 @@ canvas.addEventListener("mousemove", (event) => {
 
 canvas.addEventListener("mouseup", (_event) => {
   currentLine = new LineCommand([], lineThickness);
-  cursor.active = false;
   canvas.dispatchEvent(new CustomEvent("drawing-changed"));
 });
 
 function redraw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (const line of lines) {
     line.display(ctx);
+  }
+  if (cursor) {
+    cursor.display(ctx);
   }
 }
 
 canvas.addEventListener("drawing-changed", (_event) => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  redraw();
+});
+
+canvas.addEventListener("tool-moved", (_event) => {
   redraw();
 });
 
@@ -118,6 +147,7 @@ clearButton.addEventListener("click", () => {
   lines.length = 0;
   canvas.dispatchEvent(new CustomEvent("drawing-changed"));
 });
+
 
 const redoStack: LineCommand[] = [];
 
