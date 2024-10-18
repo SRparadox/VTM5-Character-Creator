@@ -1,5 +1,34 @@
 import "./style.css";
 
+interface Point {
+  x: number;
+  y: number;
+}
+
+class LineCommand {
+  points: Point[];
+  thickness: number = 1;
+
+  constructor(points: Point[], thickness: number) {
+    this.points = points;
+    this.thickness = thickness;
+  }
+
+  drag(x: number, y: number) {
+    this.points.push({ x, y });
+  }
+
+  display(ctx: CanvasRenderingContext2D) {
+    ctx.lineWidth = this.thickness;
+    ctx.beginPath();
+    ctx.moveTo(this.points[0].x, this.points[0].y);
+    for (const point of this.points) {
+      ctx.lineTo(point.x, point.y);
+    }
+    ctx.stroke();
+  }
+}
+
 const APP_NAME = "Sketchpad Demo";
 document.title = APP_NAME;
 const app = document.querySelector<HTMLDivElement>("#app")!;
@@ -13,51 +42,47 @@ canvas.width = 256;
 canvas.height = 256;
 app.append(canvas);
 
-/*Code from https://quant-paint.glitch.me/paint0.html*/
+app.append(document.createElement("br"));
+
+const clearButton = document.createElement("button");
+clearButton.innerHTML = "clear";
+app.append(clearButton);
+
+const redoButton = document.createElement("button");
+redoButton.innerHTML = "redo";
+app.append(redoButton);
+
+const undoButton = document.createElement("button");
+undoButton.innerHTML = "undo";
+app.append(undoButton);
+
+app.append(document.createElement("br"));
+
+const thinMarkerButton = document.createElement("button");
+thinMarkerButton.innerHTML = "Thin";
+app.append(thinMarkerButton);
+
+const thickMarkerButton = document.createElement("button");
+thickMarkerButton.innerHTML = "Thick";
+app.append(thickMarkerButton);
+
 const ctx = canvas.getContext("2d")!;
-
-interface Point {
-  x: number;
-  y: number;
-}
-interface Line {
-  points: Point[];
-}
-
-class LineCommand{
-  points: Point[];
-
-  constructor(points: Point[]){
-    this.points = points;
-  }
-
-  drag(x:number,y:number){
-    this.points.push({x,y});
-  }
-
-  display(ctx: CanvasRenderingContext2D){
-    ctx.beginPath();
-    ctx.moveTo(this.points[0].x, this.points[0].y);
-    for (const point of this.points) {
-      ctx.lineTo(point.x, point.y);
-    }
-    ctx.stroke();
-  }
-}
 
 const cursor = { active: false, x: 0, y: 0 };
 
 const lines: LineCommand[] = [];
 
-let lastLine: LineCommand = new LineCommand([]);
+let currentLine: LineCommand = new LineCommand([], 1);
 
 canvas.addEventListener("mousedown", (event) => {
   cursor.active = true;
   cursor.x = event.offsetX;
   cursor.y = event.offsetY;
 
-  lastLine = new LineCommand([{ x: cursor.x, y: cursor.y }]);
-  lines.push(lastLine);
+  !currentLine
+    ? new LineCommand([{ x: cursor.x, y: cursor.y }], lineThickness)
+    : currentLine.drag(cursor.x, cursor.y);
+  lines.push(currentLine);
 
   canvas.dispatchEvent(new CustomEvent("drawing-changed"));
 });
@@ -67,27 +92,27 @@ canvas.addEventListener("mousemove", (event) => {
     cursor.x = event.offsetX;
     cursor.y = event.offsetY;
 
-    lastLine.drag(cursor.x,cursor.y );
+    currentLine.drag(cursor.x, cursor.y);
     canvas.dispatchEvent(new CustomEvent("drawing-changed"));
   }
 });
 
 canvas.addEventListener("mouseup", (_event) => {
+  currentLine = new LineCommand([], lineThickness);
   cursor.active = false;
   canvas.dispatchEvent(new CustomEvent("drawing-changed"));
 });
 
-canvas.addEventListener("drawing-changed", (_event) => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+function redraw() {
   for (const line of lines) {
     line.display(ctx);
   }
-});
+}
 
-const clearButton = document.createElement("button");
-clearButton.innerHTML = "clear";
-app.append(clearButton);
+canvas.addEventListener("drawing-changed", (_event) => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  redraw();
+});
 
 clearButton.addEventListener("click", () => {
   lines.length = 0;
@@ -95,14 +120,6 @@ clearButton.addEventListener("click", () => {
 });
 
 const redoStack: LineCommand[] = [];
-
-const redoButton = document.createElement("button");
-redoButton.innerHTML = "redo";
-app.append(redoButton);
-
-const undoButton = document.createElement("button");
-undoButton.innerHTML = "undo";
-app.append(undoButton);
 
 redoButton.addEventListener("click", () => {
   const line = redoStack.pop();
@@ -118,4 +135,20 @@ undoButton.addEventListener("click", () => {
     redoStack.push(line);
     canvas.dispatchEvent(new CustomEvent("drawing-changed"));
   }
+});
+
+let lineThickness = 1;
+
+thinMarkerButton.addEventListener("click", () => {
+  lineThickness = 1;
+  canvas.dispatchEvent(new CustomEvent("marker-changed"));
+});
+
+thickMarkerButton.addEventListener("click", () => {
+  lineThickness = 5;
+  canvas.dispatchEvent(new CustomEvent("marker-changed"));
+});
+
+canvas.addEventListener("marker-changed", (_event) => {
+  currentLine.thickness = lineThickness;
 });
