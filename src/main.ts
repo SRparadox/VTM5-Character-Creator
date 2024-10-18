@@ -21,6 +21,9 @@ const thickLine = 20;
 const thinLine = 2;
 let nextLineWidth = thinLine;
 const fontSize = 25;
+const strokeColors = ["black", "red", "orange", "yellow", "green", "blue", "purple"]
+let nextLineColor: string = strokeColors[0];
+let nextStickerRotation: number = Math.floor(Math.random() * 360);
 
 interface Point {
     x: number,
@@ -33,15 +36,18 @@ interface Displayable {
 }
 
 class MarkerCommand {
-    constructor(lineWidth: number){
+    constructor(lineWidth: number, lineColor: string){
         this.line = [];
         this.lineWidth = lineWidth;
+        this.lineColor = lineColor;
     }
     line: Point[];
     lineWidth: number;
+    lineColor: string;
     
     display(ctx: CanvasRenderingContext2D) {
         ctx.lineWidth = this.lineWidth;
+        ctx.strokeStyle = this.lineColor;
         if (this.line.length > 0) {
             ctx.beginPath();
             const startingPoint: Point = this.line[0];
@@ -60,23 +66,26 @@ class MarkerCommand {
 }
 
 class cursorPreviewCommand {
-    constructor(x: number, y: number, radius: number, active: boolean){
+    constructor(x: number, y: number, radius: number, active: boolean, color: string){
         this.x = x;
         this.y = y;
         this.radius = radius;
         this.active = active;
+        this.color = color;
     }
     x: number;
     y: number;
     radius: number;
     active: boolean;
+    color: string;
 
     draw(ctx: CanvasRenderingContext2D) {
         if(this.active) {
+            ctx.strokeStyle = this.color;
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
             ctx.lineWidth = thinLine;
-            ctx.fillStyle = 'black';
+            ctx.fillStyle = this.color;
             ctx.fill();
             ctx.stroke();
             ctx.lineWidth = nextLineWidth;
@@ -85,39 +94,51 @@ class cursorPreviewCommand {
 }
 
 class stickerPreviewCommand {
-    constructor(x:number, y:number, sticker: string, active: boolean) {
+    constructor(x:number, y:number, sticker: string, active: boolean, rotation: number) {
         this.x = x;
         this.y = y;
         this.sticker = sticker;
         this.active = active;
+        this.rotation = rotation;
     }
 
     x: number;
     y: number;
     sticker: string;
-    active: boolean
+    active: boolean;
+    rotation: number;
 
     draw(ctx: CanvasRenderingContext2D) {
         if(this.active) {
+            ctx.translate(this.x, this.y);
+            ctx.rotate((this.rotation * Math.PI)/180);
             ctx.font = `${fontSize}px serif`;
-            ctx.fillText(this.sticker, this.x, this.y);
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(this.sticker, 0, 0);
+            ctx.resetTransform();
         }
     }
 }
 
 class StickerCommand {
-    constructor(x:number, y:number, sticker: string) {
+    constructor(x:number, y:number, sticker: string, rotation: number) {
         this.x = x;
         this.y = y;
         this.sticker = sticker;
+        this.rotation = rotation;
     }
     x: number;
     y: number;
     sticker: string;
+    rotation: number;
 
     display(ctx: CanvasRenderingContext2D) {
+        ctx.translate(this.x, this.y);
+        ctx.rotate((this.rotation * Math.PI) / 180);
         ctx.font = `${fontSize}px serif`;
-        ctx.fillText(this.sticker, this.x, this.y);
+        ctx.fillText(this.sticker, 0, 0);
+        ctx.resetTransform();
     }
     drag(x: number, y: number) {
         this.x = x;
@@ -126,18 +147,18 @@ class StickerCommand {
 }
 
 const availableStickers = [
-    {symbol: "🍔"},
-    {symbol: "👨"},
-    {symbol: "👩"}
+    "🍔",
+    "👨",
+    "👩"
 ];
 
-let nextSticker = availableStickers[0].symbol;
+let nextSticker = availableStickers[0];
 
 const displayableCommands: Displayable[] = [];
-let currentCommand: Displayable = new MarkerCommand(nextLineWidth);
+let currentCommand: Displayable = new MarkerCommand(nextLineWidth, nextLineColor);
 const redoCommands: Displayable[] = [];
-const cursorDrawing = new cursorPreviewCommand(0, 0, nextLineWidth, true);
-const stickerPreviewDrawing = new stickerPreviewCommand(0, 0, nextSticker, false);
+const cursorDrawing = new cursorPreviewCommand(0, 0, nextLineWidth, true, nextLineColor);
+const stickerPreviewDrawing = new stickerPreviewCommand(0, 0, nextSticker, false, nextStickerRotation);
 
 const cursor = {active: false}; 
 
@@ -147,9 +168,9 @@ const toolMovedEvent = new Event('tool-moved');
 canvas.addEventListener("mousedown", (e) => {
     cursor.active = true;
     if(currentCommand instanceof MarkerCommand){
-        currentCommand = new MarkerCommand(nextLineWidth);
+        currentCommand = new MarkerCommand(nextLineWidth, nextLineColor);
     } else if (currentCommand instanceof StickerCommand) {
-        currentCommand = new StickerCommand(0, 0, nextSticker);
+        currentCommand = new StickerCommand(0, 0, nextSticker, nextStickerRotation);
     }
     currentCommand.drag(e.offsetX, e.offsetY);
     displayableCommands.push(currentCommand);
@@ -179,6 +200,11 @@ canvas.addEventListener("mousemove", (e) => {
     }
 })
 
+//clears cursor/sticker previews from viewable canvas when mouse is not on canvas
+canvas.addEventListener("mouseout", () => {
+    canvas.dispatchEvent(drawingChangeEvent);
+})
+
 canvas.addEventListener("drawing-changed", () => {
     drawing.clearRect(0, 0, canvas.width, canvas.height);
     for (const command of displayableCommands) {
@@ -190,6 +216,7 @@ canvas.addEventListener("tool-moved", () => {
     canvas.dispatchEvent(drawingChangeEvent);
     cursorDrawing.draw(drawing);
     stickerPreviewDrawing.draw(drawing);
+    
 })
 
 const clearButton = document.createElement("button");
@@ -231,7 +258,9 @@ thinButton.addEventListener("click", () => {
     cursorDrawing.active = true;
     stickerPreviewDrawing.active = false;
     nextLineWidth = thinLine;
-    currentCommand = new MarkerCommand(nextLineWidth);
+    nextLineColor = strokeColors[Math.floor(Math.random() * strokeColors.length)];
+    cursorDrawing.color = nextLineColor;
+    currentCommand = new MarkerCommand(nextLineWidth, nextLineColor);
 });
 
 const thickButton = document.createElement("button");
@@ -241,7 +270,9 @@ thickButton.addEventListener("click", () => {
     cursorDrawing.active = true;
     stickerPreviewDrawing.active = false;
     nextLineWidth = thickLine;
-    currentCommand = new MarkerCommand(nextLineWidth);
+    nextLineColor = strokeColors[Math.floor(Math.random() * strokeColors.length)];
+    cursorDrawing.color = nextLineColor;
+    currentCommand = new MarkerCommand(nextLineWidth, nextLineColor);
  });
 
  const customStickerButton = document.createElement("button");
@@ -250,30 +281,30 @@ thickButton.addEventListener("click", () => {
  customStickerButton.addEventListener("click", () => {
     const customStickerEmoji = prompt("Custom sticker text","🧽");
     if (customStickerEmoji) {
-        const customSticker = {symbol: customStickerEmoji};
+        const customSticker: string = customStickerEmoji;
         availableStickers.push(customSticker);
         createStickerButton(customSticker);
     }
  })
 
-function createStickerButton(sticker: {symbol: string}) {
+function createStickerButton(sticker: string) {
     const currentButton = document.createElement("button");
-    currentButton.innerHTML = sticker.symbol;
+    currentButton.innerHTML = sticker;
     app.append(currentButton);
     currentButton.addEventListener("click", () => {
         canvas.dispatchEvent(toolMovedEvent);
         cursorDrawing.active = false;
         stickerPreviewDrawing.active = true;
-        stickerPreviewDrawing.sticker = sticker.symbol;
-        nextSticker = sticker.symbol;
-        currentCommand = new StickerCommand(0, 0, nextSticker);
+        stickerPreviewDrawing.sticker = sticker;
+        nextSticker = sticker;
+        nextStickerRotation = Math.floor(Math.random() * 360);
+        stickerPreviewDrawing.rotation = nextStickerRotation;
+        currentCommand = new StickerCommand(0, 0, nextSticker, nextStickerRotation);
     })
 }
 
 for (const sticker of availableStickers) {
-    if ("symbol" in sticker) {
-        createStickerButton(sticker);
-    }
+    createStickerButton(sticker);
 }
 
 const exportButton = document.createElement("button");
@@ -288,9 +319,12 @@ exportButton.addEventListener("click", () => {
     tempContext.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
     for (const command of displayableCommands) {
         command.display(tempContext);
+        if(command instanceof StickerCommand) {
+            tempContext.scale(4, 4);
+        }
     }
     const anchor = document.createElement("a");
-    anchor.href = canvas.toDataURL("image/png");
+    anchor.href = tempCanvas.toDataURL("image/png");
     anchor.download = "sketchpad.png";
     anchor.click();
 })
