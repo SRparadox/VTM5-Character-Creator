@@ -17,8 +17,8 @@ canvas.height = 256;
 
 const drawing = canvas.getContext('2d') as CanvasRenderingContext2D;
 
-const thickLine = 10;
-const thinLine = 1;
+const thickLine = 20;
+const thinLine = 2;
 let nextLineWidth = thinLine;
 let nextSticker = "❤️"
 const fontSize = 25;
