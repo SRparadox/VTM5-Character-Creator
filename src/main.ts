@@ -62,8 +62,8 @@ clearButton.addEventListener("click", () => {
     ctx.clearRect(0,0,size,size);
     ctx.fillRect(0, 0, size, size);
     mousePositions = [];
+    thickness = [];
 })
-
 
 globalThis.addEventListener("drawing-changed", (e) => {
     redraw();
@@ -83,6 +83,10 @@ interface repLines{
 interface selectTool{
     construct(thickness: number): void;
 }
+
+globalThis.addEventListener("tool-moved", () => {
+    ctx.fillText("*", x - 8, y + 16);
+})
 
 //functions borrowed from https://quant-paint.glitch.me/paint1.html 
 undoButton.addEventListener("click", () => {
