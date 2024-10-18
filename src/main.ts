@@ -21,6 +21,7 @@ const thickLine = 10;
 const thinLine = 1;
 let nextLineWidth = thinLine;
 let nextSticker = "❤️"
+const fontSize = 25;
 
 interface Point {
     x: number,
@@ -99,7 +100,7 @@ class stickerPreviewCommand {
 
     draw(ctx: CanvasRenderingContext2D) {
         if(this.active) {
-            ctx.font = "25px serif";
+            ctx.font = `${fontSize}px serif`;
             ctx.fillText(this.sticker, this.x, this.y);
         }
     }
@@ -116,6 +117,7 @@ class StickerCommand {
     sticker: string;
 
     display(ctx: CanvasRenderingContext2D) {
+        ctx.font = `${fontSize}px serif`;
         ctx.fillText(this.sticker, this.x, this.y);
     }
     drag(x: number, y: number) {
@@ -272,3 +274,22 @@ for (const sticker of availableStickers) {
         createStickerButton(sticker);
     }
 }
+
+const exportButton = document.createElement("button");
+exportButton.innerHTML = "export";
+app.append(exportButton);
+exportButton.addEventListener("click", () => {
+    const tempCanvas = document.createElement("canvas") as HTMLCanvasElement;
+    tempCanvas.width = 1024;
+    tempCanvas.height = 1024;
+    const tempContext = tempCanvas.getContext('2d') as CanvasRenderingContext2D;
+    tempContext.scale(4, 4);
+    tempContext.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+    for (const command of displayableCommands) {
+        command.display(tempContext);
+    }
+    const anchor = document.createElement("a");
+    anchor.href = canvas.toDataURL("image/png");
+    anchor.download = "sketchpad.png";
+    anchor.click();
+})
