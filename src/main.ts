@@ -123,6 +123,13 @@ class StickerCommand {
         this.y = y;
     }
 }
+
+const availableStickers = [
+    {symbol: "😆"},
+    {symbol: "❤️"},
+    {symbol: "🔥"}
+];
+
 const displayableCommands: Displayable[] = [];
 let currentCommand: Displayable = new MarkerCommand(nextLineWidth);
 const redoCommands: Displayable[] = [];
@@ -215,7 +222,7 @@ function mover (source: Displayable[], dest: Displayable[]) {
 }
 
 const thinButton = document.createElement("button");
-thinButton.innerHTML = "thin"
+thinButton.innerHTML = "thin";
 app.append(thinButton);
 thinButton.addEventListener("click", () => {
     cursorDrawing.active = true;
@@ -225,7 +232,7 @@ thinButton.addEventListener("click", () => {
 });
 
 const thickButton = document.createElement("button");
-thickButton.innerHTML = "thick"
+thickButton.innerHTML = "thick";
 app.append(thickButton);
 thickButton.addEventListener("click", () => {
     cursorDrawing.active = true;
@@ -234,38 +241,34 @@ thickButton.addEventListener("click", () => {
     currentCommand = new MarkerCommand(nextLineWidth);
  });
 
-const heartButton = document.createElement("button");
-heartButton.innerHTML = "❤️";
-app.append(heartButton);
-heartButton.addEventListener("click", () => {
-    canvas.dispatchEvent(toolMovedEvent);
-    cursorDrawing.active = false;
-    stickerPreviewDrawing.active = true;
-    stickerPreviewDrawing.sticker = "❤️";
-    nextSticker = "❤️";
-    currentCommand = new StickerCommand(0, 0, nextSticker);
-})
+ const customStickerButton = document.createElement("button");
+ customStickerButton.innerHTML = "custom sticker";
+ app.append(customStickerButton);
+ customStickerButton.addEventListener("click", () => {
+    const customStickerEmoji = prompt("Custom sticker text","🧽");
+    if (customStickerEmoji) {
+        const customSticker = {symbol: customStickerEmoji};
+        availableStickers.push(customSticker);
+        createStickerButton(customSticker);
+    }
+ })
 
-const smileButton = document.createElement("button");
-smileButton.innerHTML = "😆";
-app.append(smileButton);
-smileButton.addEventListener("click", () => {
-    canvas.dispatchEvent(toolMovedEvent);
-    cursorDrawing.active = false;
-    stickerPreviewDrawing.active = true;
-    stickerPreviewDrawing.sticker = "😆";
-    nextSticker = "😆";
-    currentCommand = new StickerCommand(0, 0, nextSticker);
-})
+function createStickerButton(sticker: {symbol: string}) {
+    const currentButton = document.createElement("button");
+    currentButton.innerHTML = sticker.symbol;
+    app.append(currentButton);
+    currentButton.addEventListener("click", () => {
+        canvas.dispatchEvent(toolMovedEvent);
+        cursorDrawing.active = false;
+        stickerPreviewDrawing.active = true;
+        stickerPreviewDrawing.sticker = sticker.symbol;
+        nextSticker = sticker.symbol;
+        currentCommand = new StickerCommand(0, 0, nextSticker);
+    })
+}
 
-const fireButton = document.createElement("button");
-fireButton.innerHTML = "🔥";
-app.append(fireButton);
-fireButton.addEventListener("click", () => {
-    canvas.dispatchEvent(toolMovedEvent);
-    cursorDrawing.active = false;
-    stickerPreviewDrawing.active = true;
-    stickerPreviewDrawing.sticker = "🔥";
-    nextSticker = "🔥";
-    currentCommand = new StickerCommand(0, 0, nextSticker);
-})
+for (const sticker of availableStickers) {
+    if ("symbol" in sticker) {
+        createStickerButton(sticker);
+    }
+}
