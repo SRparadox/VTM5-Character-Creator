@@ -24,20 +24,40 @@ interface Line {
   points: Point[];
 }
 
-const lines: Line[] = [];
+class LineCommand{
+  points: Point[];
 
-let lastLine: Line = { points: [] };
+  constructor(points: Point[]){
+    this.points = points;
+  }
+
+  drag(x:number,y:number){
+    this.points.push({x,y});
+  }
+
+  display(ctx: CanvasRenderingContext2D){
+    ctx.beginPath();
+    ctx.moveTo(this.points[0].x, this.points[0].y);
+    for (const point of this.points) {
+      ctx.lineTo(point.x, point.y);
+    }
+    ctx.stroke();
+  }
+}
 
 const cursor = { active: false, x: 0, y: 0 };
+
+const lines: LineCommand[] = [];
+
+let lastLine: LineCommand = new LineCommand([]);
 
 canvas.addEventListener("mousedown", (event) => {
   cursor.active = true;
   cursor.x = event.offsetX;
   cursor.y = event.offsetY;
 
-  lastLine = { points: [] };
+  lastLine = new LineCommand([{ x: cursor.x, y: cursor.y }]);
   lines.push(lastLine);
-  lastLine.points.push({ x: cursor.x, y: cursor.y });
 
   canvas.dispatchEvent(new CustomEvent("drawing-changed"));
 });
@@ -47,7 +67,7 @@ canvas.addEventListener("mousemove", (event) => {
     cursor.x = event.offsetX;
     cursor.y = event.offsetY;
 
-    lastLine.points.push({ x: cursor.x, y: cursor.y });
+    lastLine.drag(cursor.x,cursor.y );
     canvas.dispatchEvent(new CustomEvent("drawing-changed"));
   }
 });
@@ -61,12 +81,7 @@ canvas.addEventListener("drawing-changed", (_event) => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   for (const line of lines) {
-    ctx.beginPath();
-    ctx.moveTo(line.points[0].x, line.points[0].y);
-    for (const point of line.points) {
-      ctx.lineTo(point.x, point.y);
-    }
-    ctx.stroke();
+    line.display(ctx);
   }
 });
 
@@ -75,12 +90,11 @@ clearButton.innerHTML = "clear";
 app.append(clearButton);
 
 clearButton.addEventListener("click", () => {
-  redoStack = lines.slice();
   lines.length = 0;
   canvas.dispatchEvent(new CustomEvent("drawing-changed"));
 });
 
-let redoStack: Line[] = [];
+const redoStack: LineCommand[] = [];
 
 const redoButton = document.createElement("button");
 redoButton.innerHTML = "redo";
