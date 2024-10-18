@@ -200,6 +200,8 @@ buttonPanel.append(smallLineButton);
 smallLineButton.addEventListener("mousedown", (e) => {
     lineSize = 1;
     cursorCommand = new Cursor(e.offsetX, e.offsetY);
+    canvas.dispatchEvent(toolMovedEvent);
+    changeButton(smallLineButton);
 });
 
 const bigLineButton = document.createElement("button");
@@ -208,6 +210,8 @@ buttonPanel.append(bigLineButton);
 bigLineButton.addEventListener("mousedown", (e) => {
     lineSize = 4;
     cursorCommand = new Cursor(e.offsetX, e.offsetY);
+    canvas.dispatchEvent(toolMovedEvent);
+    changeButton(bigLineButton);
 });
 
 const stickerPanel = document.createElement("div");
@@ -218,9 +222,10 @@ function createStickerButton(s: string) {
     const sticker = document.createElement("button");
     sticker.innerHTML = s;
     stickerPanel.append(sticker);
-    sticker.addEventListener("mousedown", () => { // should change background color too
+    sticker.addEventListener("mousedown", (e) => { // should change background color too
+        cursorCommand = new Sticker(e.offsetX, e.offsetY, s);
         canvas.dispatchEvent(toolMovedEvent);
-        cursorCommand = new Sticker(0, 0, s);
+        changeButton(sticker);
     });
 }
 for (let i = 0; i < stickerList.length; i++) {
@@ -266,3 +271,11 @@ exportButton.addEventListener("mousedown", () => {
     anchor.download = "sketchpad.png";
     anchor.click();
 });
+
+let selectedButton : HTMLButtonElement = smallLineButton;
+selectedButton.style.backgroundColor = "grey";
+function changeButton(button : HTMLButtonElement) {
+    button.style.backgroundColor = "grey";
+    selectedButton.style.backgroundColor = "";
+    selectedButton = button;
+}
