@@ -20,6 +20,7 @@ context.fillRect(0, 0, canvas.height, canvas.width);
 
 let isMouseDown = false;
 let lineSize = 1;
+let lineColor = "black";
 
 interface Point {
     x: number;
@@ -31,9 +32,10 @@ interface Displayable {
 class LineCommand implements Displayable {
     line: Point[] = [];
     lineSize: number = 1;
+    lineColor: string = "black";
     display(context: CanvasRenderingContext2D) {
         context.beginPath();
-        context.strokeStyle = "black";
+        context.strokeStyle = this.lineColor;
         context.lineWidth = this.lineSize;
         for (const point of this.line) {
             context.lineTo(point.x, point.y);
@@ -58,7 +60,7 @@ class Cursor implements Displayable {
     }
     display(context: CanvasRenderingContext2D) {
         context.beginPath();
-        context.strokeStyle = "black";
+        context.strokeStyle = lineColor;
         context.lineWidth = lineSize;
         context.moveTo(this.x, this.y);
         context.lineTo(this.x + 1, this.y);
@@ -70,7 +72,7 @@ class Cursor implements Displayable {
     }
     draw(context: CanvasRenderingContext2D) {
         context.beginPath();
-        context.strokeStyle = "black";
+        context.strokeStyle = lineColor;
         context.lineWidth = lineSize;
         context.moveTo(this.x, this.y);
         context.lineTo(this.x + 1, this.y);
@@ -90,18 +92,26 @@ class Sticker implements Displayable {
     x: number = 0;
     y: number = 0;
     sticker: string;
-    constructor(x: number, y: number, sticker: string) {
+    rotation : number;
+    constructor(x: number, y: number, sticker: string, rotation : number) {
         this.x = x;
         this.y = y;
         this.sticker = sticker;
+        this.rotation = rotation;
     }
     display(context: CanvasRenderingContext2D) {
+        context.save()
+        context.rotate((this.rotation / Math.PI) / 180)
         context.font = "30px serif";
         context.fillText(this.sticker, this.x, this.y);
+        context.restore()
     }
     draw(context: CanvasRenderingContext2D) {
+        context.save()
+        context.rotate((this.rotation / Math.PI) / 180)
         context.font = "30px serif";
         context.fillText(this.sticker, this.x, this.y);
+        context.restore()
     }
     drag(x: number, y: number) {
         this.x = x;
@@ -119,11 +129,13 @@ canvas.addEventListener("mousedown", (e) => {
             e.offsetX,
             e.offsetY,
             cursorCommand.sticker,
+            cursorCommand.rotation,
         );
         displayCommands.push(sticker);
     } else {
         currentCommand = new LineCommand();
         currentCommand.lineSize = lineSize;
+        currentCommand.lineColor = lineColor;
         currentCommand.drag(e.offsetX, e.offsetY);
         displayCommands.push(currentCommand);
     }
@@ -199,6 +211,7 @@ smallLineButton.innerHTML = "small line";
 buttonPanel.append(smallLineButton);
 smallLineButton.addEventListener("mousedown", (e) => {
     lineSize = 1;
+    lineColor = "#" + Math.floor(Math.random()*16777215).toString(16);
     cursorCommand = new Cursor(e.offsetX, e.offsetY);
     canvas.dispatchEvent(toolMovedEvent);
     changeButton(smallLineButton);
@@ -209,6 +222,7 @@ bigLineButton.innerHTML = "big line";
 buttonPanel.append(bigLineButton);
 bigLineButton.addEventListener("mousedown", (e) => {
     lineSize = 4;
+    lineColor = "#" + Math.floor(Math.random()*16777215).toString(16);
     cursorCommand = new Cursor(e.offsetX, e.offsetY);
     canvas.dispatchEvent(toolMovedEvent);
     changeButton(bigLineButton);
@@ -222,8 +236,8 @@ function createStickerButton(s: string) {
     const sticker = document.createElement("button");
     sticker.innerHTML = s;
     stickerPanel.append(sticker);
-    sticker.addEventListener("mousedown", (e) => { // should change background color too
-        cursorCommand = new Sticker(e.offsetX, e.offsetY, s);
+    sticker.addEventListener("mousedown", (e) => {
+        cursorCommand = new Sticker(e.offsetX, e.offsetY, s, Math.floor(Math.random() * (200 - (-200)) + -200));
         canvas.dispatchEvent(toolMovedEvent);
         changeButton(sticker);
     });
