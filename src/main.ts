@@ -32,15 +32,17 @@ class LineCommand {
 class CursorCommand {
   x: number;
   y: number;
+  active: boolean;
 
-  constructor(x: number, y: number) {
+  constructor(x: number, y: number, active: boolean) {
     this.x = x;
     this.y = y;
+    this.active = active
   }
 
   display(ctx: CanvasRenderingContext2D) {
     ctx.beginPath();
-    ctx.arc(this.x, this.y, lineThickness, 0, Math.PI * 2);
+    ctx.arc(this.x, this.y, Math.max(lineThickness/2,1), 0, Math.PI * 2);
     ctx.fill();
   }
 }
@@ -93,7 +95,7 @@ canvas.addEventListener("mouseout", (_event) => {
 });
 
 canvas.addEventListener("mouseenter", (_event) => {
-  cursor = new CursorCommand(_event.offsetX, _event.offsetY);
+  cursor = new CursorCommand(_event.offsetX, _event.offsetY, false);
   canvas.dispatchEvent(new CustomEvent("tool-moved"));
 });
 
@@ -106,6 +108,7 @@ canvas.addEventListener("mousedown", (_event) => {
     currentLine = new LineCommand([{ x: cursor.x, y: cursor.y }], lineThickness);
     currentLine.drag(cursor.x, cursor.y);
     lines.push(currentLine);
+    cursor.active = true;
   }
   canvas.dispatchEvent(new CustomEvent("drawing-changed"));
 });
@@ -122,6 +125,9 @@ canvas.addEventListener("mousemove", (_event) => {
 
 canvas.addEventListener("mouseup", (_event) => {
   currentLine = new LineCommand([], lineThickness);
+  if(cursor){
+    cursor.active = false;
+  }
   canvas.dispatchEvent(new CustomEvent("drawing-changed"));
 });
 
@@ -130,7 +136,7 @@ function redraw() {
   for (const line of lines) {
     line.display(ctx);
   }
-  if (cursor) {
+  if (cursor?.active == false) {
     cursor.display(ctx);
   }
 }
