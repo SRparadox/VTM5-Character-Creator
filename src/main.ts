@@ -12,8 +12,9 @@ let currentThick = false;
 
 const size = 256;
 const app = document.querySelector<HTMLDivElement>("#app")!;
-const canv = document.getElementById("canvas");
-const ctx = canv.getContext("2d");
+const canvas = document.getElementById("canvas");
+canvas.style.cursor = "none";
+const ctx = canvas.getContext("2d");
 const Title = "Title";
 const header = document.createElement("h1");
 
@@ -36,6 +37,10 @@ app.append(thickButton);
 const penType: selectTool = {
     construct(width){
         
+    },
+
+    moveCursor(){
+        ctx.move(x, y);
     }
 }
 
@@ -82,10 +87,20 @@ interface repLines{
 
 interface selectTool{
     construct(thickness: number): void;
+    x: number;
+    y: number;
+    moveCursor(): void;
 }
 
+
 globalThis.addEventListener("tool-moved", () => {
-    ctx.fillText("*", x - 8, y + 16);
+    
+})
+
+canvas.addEventListener("mouseenter", () => {
+    dispatchEvent(toolMoved);
+    ctx.arc(size / 2, size / 2, 1, 0, 2*Math.PI);
+    ctx.stroke();
 })
 
 //functions borrowed from https://quant-paint.glitch.me/paint1.html 
@@ -128,7 +143,8 @@ function redraw() {
     }
   }
 
-canv.addEventListener("mousedown", (e) => {
+canvas.addEventListener("mousedown", (e) => {
+    dispatchEvent(toolMoved);
     x = e.offsetX;
     y = e.offsetY;
     isDraw = true;
@@ -144,8 +160,9 @@ canv.addEventListener("mousedown", (e) => {
     dispatchEvent(changEvent);
 });
 
-canv.addEventListener("mousemove", (e) => {
+canvas.addEventListener("mousemove", (e) => {
     dispatchEvent(toolMoved);
+    
     if (isDraw) {
         x = e.offsetX;
         y = e.offsetY;
@@ -155,6 +172,7 @@ canv.addEventListener("mousemove", (e) => {
 });
 
 globalThis.addEventListener("mouseup", (e) => {
+    dispatchEvent(toolMoved);
     if (isDraw) {
         
         //console.log(mousePositions);
