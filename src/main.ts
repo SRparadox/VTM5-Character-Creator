@@ -105,14 +105,14 @@ globalThis.addEventListener("tool-moved", (e) => {
 })
 
 canvas.addEventListener("mouseenter", (e) => {
-    /*
+    
     if (currentThick){
         ctx.lineWidth = 4;
     }else{
         ctx.lineWidth = 1;
     }
     ctx.arc(size / 2, size / 2, 1, 0, 2 * Math.PI);
-    ctx.stroke();*/
+    ctx.stroke();
     dispatchEvent(toolMoved);
     
 })
