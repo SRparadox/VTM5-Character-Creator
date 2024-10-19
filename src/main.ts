@@ -25,6 +25,9 @@ const undoButton = document.createElement("button");
 const redoButton = document.createElement("button");
 const thinButton = document.createElement("button");
 const thickButton = document.createElement("button");
+const emoteButton1 = document.createElement("button");
+const emoteButton2 = document.createElement("button");
+const emoteButton3 = document.createElement("button");
 clearButton.textContent = "Clear";
 app.append(clearButton);
 undoButton.textContent = "Undo";
@@ -35,6 +38,12 @@ thinButton.textContent = "Thin";
 app.append(thinButton);
 thickButton.textContent = "Thick";
 app.append(thickButton);
+emoteButton1.textContent = "🌕";
+app.append(emoteButton1);
+emoteButton2.textContent = "🍤";
+app.append(emoteButton2);
+emoteButton3.textContent = "☄️";
+app.append(emoteButton3);
 
 const penType: selectTool = {
     x: 0, 
