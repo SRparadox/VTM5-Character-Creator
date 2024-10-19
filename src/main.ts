@@ -41,7 +41,7 @@ app.append(emoteButton2);
 emoteButton3.textContent = "☄️";
 app.append(emoteButton3);
 
-const penType: selectTool = {
+const penTool: selectTool = {
     x: 0, 
     y: 0,
 
@@ -50,7 +50,7 @@ const penType: selectTool = {
     },
 
     moveCursor(){
-        ctx.arc(penType.x, penType.y, 1, 0, 2 * Math.PI);
+        ctx.arc(penTool.x, penTool.y, 1, 0, 2 * Math.PI);
         ctx.stroke();
     }
 }
@@ -84,6 +84,11 @@ clearButton.addEventListener("click", () => {
     thickness = [];
 })
 
+emoteButton1.addEventListener("click", () => {
+    ctx.font = "32px monospace";
+    ctx.fillText("🌕", penTool.x, penTool.y);
+})
+
 globalThis.addEventListener("drawing-changed", (e) => {
     redraw();
 })
@@ -106,20 +111,15 @@ interface selectTool{
 }
 
 globalThis.addEventListener("tool-moved", (e) => {
-    
-})
-
-canvas.addEventListener("mouseenter", (e) => {
-    
     if (currentThick){
         ctx.lineWidth = 4;
     }else{
         ctx.lineWidth = 1;
     }
-    ctx.arc(size / 2, size / 2, 1, 0, 2 * Math.PI);
+    redraw();
+    ctx.beginPath();
+    ctx.arc(penTool.x, penTool.y, 1, 0, 2 * Math.PI);
     ctx.stroke();
-    dispatchEvent(toolMoved);
-    
 })
 
 canvas.addEventListener("mouseleave", () => {
@@ -166,8 +166,8 @@ function redraw() {
 
 canvas.addEventListener("mousedown", (e) => {
     dispatchEvent(toolMoved);
-    penType.x = e.offsetX;
-    penType.y = e.offsetY;
+    penTool.x = e.offsetX;
+    penTool.y = e.offsetY;
     isDraw = true;
     if (currentThick){
         thickness.push(4);
@@ -176,17 +176,18 @@ canvas.addEventListener("mousedown", (e) => {
     }
     thisLine = [];
     redoPositions.splice(0, redoPositions.length);
-    thisLine.push({x: penType.x, y: penType.y});
+    thisLine.push({x: penTool.x, y: penTool.y});
     mousePositions.push(thisLine);
     dispatchEvent(changEvent);
 });
 
 canvas.addEventListener("mousemove", (e) => {
+    penTool.x = e.offsetX;
+    penTool.y = e.offsetY;
+    
     dispatchEvent(toolMoved);
-    penType.x = e.offsetX;
-    penType.y = e.offsetY;
     if (isDraw) {
-        thisLine.push({x: penType.x, y: penType.y})
+        thisLine.push({x: penTool.x, y: penTool.y})
         dispatchEvent(changEvent);
     }
 });
