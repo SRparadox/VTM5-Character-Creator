@@ -53,7 +53,6 @@ ctx.fillRect(0, 0, size, size);
 
 document.title = Title;
 
-
 interface displayObj {
     
     display(context : CanvasRenderingContext2D): void;
@@ -67,15 +66,15 @@ interface repLines{ //represents marker lines
 interface selectTool{
     x: number;
     y: number;
+    option: number;
     construct(thickness: number): void;
     moveCursor(): void;
 }
 
-
 const penTool: selectTool = {
     x: 0, 
     y: 0,
-
+    option: 0,
     construct(width){
         thickness.push(width);
     },
@@ -83,7 +82,19 @@ const penTool: selectTool = {
     moveCursor(){
         redraw();
         ctx.beginPath();
-        ctx.arc(penTool.x, penTool.y, 1, 0, 2 * Math.PI);
+        
+        if(this.option == 1){
+            ctx.font = "32px monospace";
+            ctx.fillText("🌕", penTool.x - 18, penTool.y + 10);
+        }else if (this.option == 2){
+            ctx.font = "32px monospace";
+            ctx.fillText("🍤", penTool.x - 18, penTool.y + 10);
+        }else if (this.option == 3){
+            ctx.font = "32px monospace";
+            ctx.fillText("☄️", penTool.x - 18, penTool.y + 10);
+        }else{
+            ctx.arc(penTool.x, penTool.y, 1, 0, 2 * Math.PI);
+        }
         ctx.stroke();
     }
 }
@@ -106,8 +117,17 @@ clearButton.addEventListener("click", () => {
 })
 
 emoteButton1.addEventListener("click", () => {
-    ctx.font = "32px monospace";
-    ctx.fillText("🌕", penTool.x, penTool.y);
+    penTool.option = 1;
+    dispatchEvent(toolMoved);
+})
+
+emoteButton2.addEventListener("click", () => {
+    penTool.option = 2;
+    dispatchEvent(toolMoved);
+})
+
+emoteButton3.addEventListener("click", () => {
+    penTool.option = 3;
     dispatchEvent(toolMoved);
 })
 
@@ -149,7 +169,6 @@ function redraw() {
     ctx.clearRect(0, 0, size, size);
     ctx.fillRect(0,0,size, size);
     let n = 0;
-    //
     for (const line of drawPositions) {
 
         ctx.lineWidth = thickness[n + 1];
@@ -164,7 +183,11 @@ function redraw() {
         }
       n++;
     }
-  }
+}
+
+function stickerDraw(){
+    
+}
 
 canvas.addEventListener("mousedown", (e) => {
     dispatchEvent(toolMoved);
@@ -175,6 +198,9 @@ canvas.addEventListener("mousedown", (e) => {
         thickness.push(4);
     }else{
         thickness.push(1);
+    }
+    if (penTool.option == 1){
+
     }
     thisLine = [];
     redoPositions.splice(0, redoPositions.length);
