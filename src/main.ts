@@ -38,11 +38,12 @@ app.append(thickButton);
 
 const penType: selectTool = {
     construct(width){
-        
+        thickness.push(width);
     },
 
     moveCursor(){
-        ctx.move(x, y);
+        ctx.arc(x, y, 1, 0, 2 * Math.PI);
+        ctx.stroke();
     }
 }
 
@@ -89,26 +90,24 @@ interface repLines{
 
 interface selectTool{
     construct(thickness: number): void;
-    x: number;
-    y: number;
     moveCursor(): void;
 }
 
 
 globalThis.addEventListener("tool-moved", (e) => {
     
-    ctx.moveTo(x, y);
+    penType.moveCursor();
 })
 
 canvas.addEventListener("mouseenter", (e) => {
-    ctx.arc(x, y, 1, 0, 2*Math.PI);
+    ctx.arc(x, y, 1, 0, 2 * Math.PI);
     ctx.stroke();
     dispatchEvent(toolMoved);
     
 })
 
 canvas.addEventListener("mouseleave", () => {
-
+    redraw();
 })
 
 //functions borrowed from https://quant-paint.glitch.me/paint1.html 
