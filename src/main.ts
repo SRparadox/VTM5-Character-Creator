@@ -1,80 +1,28 @@
 import "./style.css";
 
-const APP_NAME = "Stick N Sketch";
-const app = document.querySelector<HTMLDivElement>("#app")!;
+class MarkerLine {
+  private points: Array<{ x: number; y: number }> = [];
 
-// Add app title to the webpage:
-const header = document.createElement("h1");
-header.innerHTML = APP_NAME;
-app.append(header);
-
-document.title = APP_NAME;
-
-// Add canvas
-const canvas = document.createElement("canvas");
-canvas.width = 256;
-canvas.height = 256;
-app.appendChild(canvas);
-
-const context = canvas.getContext("2d")!;
-let drawing = false; // Variable to track drawing status
-// Arrays to track drawn lines:
-const strokes: Array<Array<{ x: number; y: number }>> = []; // Array to hold all strokes
-let currentStroke: Array<{ x: number; y: number }> = [];
-const redoStack: Array<Array<{ x: number; y: number }>> = []; // Array to hold undone strokes
-
-// Add mouse event listeners for drawing
-canvas.addEventListener("mousedown", (event) => {
-  drawing = true;
-  currentStroke = [];
-  addPoint(event);
-});
-
-canvas.addEventListener("mousemove", (event) => {
-  if (drawing) {
-    addPoint(event);
+  constructor(initialX: number, initialY: number) {
+    this.points.push({ x: initialX, y: initialY });
   }
-});
 
-canvas.addEventListener("mouseup", () => {
-  drawing = false;
-  if (currentStroke.length > 0) {
-    strokes.push(currentStroke); // Save the current stroke
-    // Clear redoStack on new stroke addition
-    redoStack.length = 0;
-    dispatchDrawingChangedEvent();
+  drag(x: number, y: number) {
+    this.points.push({ x, y });
   }
-});
 
-canvas.addEventListener("mouseout", () => {
-  drawing = false;
-  if (currentStroke.length > 0) {
-    strokes.push(currentStroke);
-    redoStack.length = 0;
-    dispatchDrawingChangedEvent();
-  }
-});
-
-// Function to add a point to the current stroke
-function addPoint(event: MouseEvent) {
-  const rect = canvas.getBoundingClientRect();
-  currentStroke.push({ x: event.clientX - rect.left, y: event.clientY - rect.top });
-  dispatchDrawingChangedEvent();
-}
-
-// Function to redraw the canvas from stored points
-function redraw() {
-  context.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
-
-  for (const stroke of strokes) {
+  display(context: CanvasRenderingContext2D) {
+    if (this.points.length < 1) return;
+    
     context.beginPath();
-    stroke.forEach((point, index) => {
+    this.points.forEach((point, index) => {
       if (index === 0) {
         context.moveTo(point.x, point.y);
       } else {
         context.lineTo(point.x, point.y);
       }
     });
+
     context.strokeStyle = "black";
     context.lineWidth = 2;
     context.lineCap = "round";
@@ -83,52 +31,107 @@ function redraw() {
   }
 }
 
-// Function to dispatch "drawing-changed" event
+const APP_NAME = "Stick N Sketch";
+const app = document.querySelector<HTMLDivElement>("#app")!;
+
+const header = document.createElement("h1");
+header.innerHTML = APP_NAME;
+app.append(header);
+
+document.title = APP_NAME;
+
+const canvas = document.createElement("canvas");
+canvas.width = 256;
+canvas.height = 256;
+app.appendChild(canvas);
+
+const context = canvas.getContext("2d")!;
+let drawing = false;
+const strokes: MarkerLine[] = [];
+let currentStroke: MarkerLine | null = null;
+const redoStack: MarkerLine[] = [];
+
+function endStroke() {
+  if (drawing && currentStroke !== null) {
+    strokes.push(currentStroke);
+    currentStroke = null;
+    drawing = false;
+    dispatchDrawingChangedEvent();
+  }
+}
+
+canvas.addEventListener("mousedown", (event) => {
+  if (!drawing) {
+    drawing = true;
+    const rect = canvas.getBoundingClientRect();
+    currentStroke = new MarkerLine(event.clientX - rect.left, event.clientY - rect.top);
+    addPoint(event);
+  }
+});
+
+canvas.addEventListener("mousemove", (event) => {
+  if (drawing && currentStroke) {
+    addPoint(event);
+  }
+});
+
+canvas.addEventListener("mouseup", endStroke);
+canvas.addEventListener("mouseout", endStroke);
+
+function addPoint(event: MouseEvent) {
+  const rect = canvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+
+  if (currentStroke) {
+    currentStroke.drag(x, y);
+    dispatchDrawingChangedEvent();
+  }
+}
+
+function redraw() {
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  strokes.forEach((stroke) => stroke.display(context));
+}
+
 function dispatchDrawingChangedEvent() {
   const event = new Event("drawing-changed");
   canvas.dispatchEvent(event);
 }
 
-// Observer for "drawing-changed" that will clear and redraw the user's lines
 canvas.addEventListener("drawing-changed", redraw);
 
-// Add clear button
 const clearButton = document.createElement("button");
 clearButton.textContent = "Clear";
 app.appendChild(clearButton);
 
-// Undo button:
 const undoButton = document.createElement("button");
 undoButton.textContent = "Undo";
 app.appendChild(undoButton);
 
-// Redo button:
 const redoButton = document.createElement("button");
 redoButton.textContent = "Redo";
 app.appendChild(redoButton);
 
-// Clear canvas on button click
 clearButton.addEventListener("click", () => {
-  context.clearRect(0, 0, canvas.width, canvas.height); // Clear the entire canvas
-  strokes.length = 0; // Empty the array
-  redoStack.length = 0; // Clear redo stack
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  strokes.length = 0;
+  redoStack.length = 0;
   dispatchDrawingChangedEvent();
 });
 
-// Undo functionality
 undoButton.addEventListener("click", () => {
   if (strokes.length !== 0) {
     const stroke = strokes.pop()!;
-    redoStack.push(stroke); // Add the stroke to redo stack
+    redoStack.push(stroke);
     dispatchDrawingChangedEvent();
   }
 });
 
-// Redo functionality
 redoButton.addEventListener("click", () => {
   if (redoStack.length !== 0) {
     const stroke = redoStack.pop()!;
-    strokes.push(stroke); // Add the stroke back to display list
+    strokes.push(stroke);
     dispatchDrawingChangedEvent();
   }
 });
