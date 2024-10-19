@@ -1,16 +1,12 @@
 import "./style.css";
 
 let isDraw = false;
-//let penType.x = 0;
-//let penType.y = 0;
 let mousePositions = [];
 let redoPositions = [];
 let thisLine = null;
 let thickness: number[] = [];
 let redoThickness: number[] = [];
 let currentThick = false;
-let mouseX:number;
-let mouseY:number;
 
 const size = 256;
 const app = document.querySelector<HTMLDivElement>("#app")!;
