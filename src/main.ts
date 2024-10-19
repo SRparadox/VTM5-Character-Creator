@@ -64,10 +64,12 @@ document.title = Title;
 
 thinButton.addEventListener("click", () => {
     currentThick = false;
+    console.log("thin button clicked");
 })
 
 thickButton.addEventListener("click", () => {
     currentThick = true;
+    console.log("thick button clicked");
 })
 
 clearButton.addEventListener("click", () => {
@@ -103,13 +105,14 @@ globalThis.addEventListener("tool-moved", (e) => {
 })
 
 canvas.addEventListener("mouseenter", (e) => {
+    /*
     if (currentThick){
         ctx.lineWidth = 4;
     }else{
         ctx.lineWidth = 1;
     }
     ctx.arc(size / 2, size / 2, 1, 0, 2 * Math.PI);
-    ctx.stroke();
+    ctx.stroke();*/
     dispatchEvent(toolMoved);
     
 })
@@ -142,7 +145,7 @@ function redraw() {
     //
     for (const line of mousePositions) {
 
-        ctx.lineWidth = thickness[n];
+        ctx.lineWidth = thickness[n + 1];
         if (line.length > 1) {
             ctx.beginPath();
             const { x, y } = line[0];
