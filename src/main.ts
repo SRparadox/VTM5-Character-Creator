@@ -9,6 +9,8 @@ let thisLine = null;
 let thickness: number[] = [];
 let redoThickness: number[] = [];
 let currentThick = false;
+let mouseX:number;
+let mouseY:number;
 
 const size = 256;
 const app = document.querySelector<HTMLDivElement>("#app")!;
@@ -93,14 +95,20 @@ interface selectTool{
 }
 
 
-globalThis.addEventListener("tool-moved", () => {
+globalThis.addEventListener("tool-moved", (e) => {
+    
+    ctx.moveTo(x, y);
+})
+
+canvas.addEventListener("mouseenter", (e) => {
+    ctx.arc(x, y, 1, 0, 2*Math.PI);
+    ctx.stroke();
+    dispatchEvent(toolMoved);
     
 })
 
-canvas.addEventListener("mouseenter", () => {
-    dispatchEvent(toolMoved);
-    ctx.arc(size / 2, size / 2, 1, 0, 2*Math.PI);
-    ctx.stroke();
+canvas.addEventListener("mouseleave", () => {
+
 })
 
 //functions borrowed from https://quant-paint.glitch.me/paint1.html 
@@ -109,8 +117,6 @@ undoButton.addEventListener("click", () => {
         redoPositions.push(mousePositions.pop());
         redoThickness.push(thickness.pop());
         dispatchEvent(changEvent);
-        console.log(mousePositions);
-        console.log(redoPositions);
     }
 });
 
@@ -162,10 +168,9 @@ canvas.addEventListener("mousedown", (e) => {
 
 canvas.addEventListener("mousemove", (e) => {
     dispatchEvent(toolMoved);
-    
+    x = e.offsetX;
+    y = e.offsetY;
     if (isDraw) {
-        x = e.offsetX;
-        y = e.offsetY;
         thisLine.push({x: x, y: y})
         dispatchEvent(changEvent);
     }
