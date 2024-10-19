@@ -58,9 +58,10 @@ interface displayObj {
     display(context : CanvasRenderingContext2D): void;
 }
 
-interface repLines{ //represents marker lines
-    construct(x: number, y: number): void;
-    drag(x: number, y: number): void;
+interface StickerObj{ //represents marker lines
+    x: number,
+    y: number,
+    drag(changeX: number, changeY: number): void;
 }
 
 interface selectTool{
@@ -69,6 +70,15 @@ interface selectTool{
     option: number;
     construct(thickness: number): void;
     moveCursor(): void;
+}
+
+const emojiSticker: StickerObj = {
+    x: 0,
+    y: 0,
+    drag(changeX, changeY){
+        x: changeX;
+        y: changeY;
+    }
 }
 
 const penTool: selectTool = {
@@ -82,15 +92,12 @@ const penTool: selectTool = {
     moveCursor(){
         redraw();
         ctx.beginPath();
-        
+        ctx.font = "32px monospace";
         if(this.option == 1){
-            ctx.font = "32px monospace";
             ctx.fillText("🌕", penTool.x - 18, penTool.y + 10);
         }else if (this.option == 2){
-            ctx.font = "32px monospace";
             ctx.fillText("🍤", penTool.x - 18, penTool.y + 10);
         }else if (this.option == 3){
-            ctx.font = "32px monospace";
             ctx.fillText("☄️", penTool.x - 18, penTool.y + 10);
         }else{
             ctx.arc(penTool.x, penTool.y, 1, 0, 2 * Math.PI);
@@ -117,17 +124,29 @@ clearButton.addEventListener("click", () => {
 })
 
 emoteButton1.addEventListener("click", () => {
-    penTool.option = 1;
+    if(penTool.option != 1){
+        penTool.option = 1;
+    }else{
+        penTool.option = 0;
+    }
     dispatchEvent(toolMoved);
 })
 
 emoteButton2.addEventListener("click", () => {
-    penTool.option = 2;
+    if(penTool.option != 2){
+        penTool.option = 2;
+    }else{
+        penTool.option = 0;
+    }
     dispatchEvent(toolMoved);
 })
 
 emoteButton3.addEventListener("click", () => {
-    penTool.option = 3;
+    if(penTool.option != 3){
+        penTool.option = 3;
+    }else{
+        penTool.option = 0;
+    }
     dispatchEvent(toolMoved);
 })
 
@@ -186,7 +205,7 @@ function redraw() {
 }
 
 function stickerDraw(){
-    
+
 }
 
 canvas.addEventListener("mousedown", (e) => {
