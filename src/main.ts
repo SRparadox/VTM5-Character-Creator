@@ -53,6 +53,25 @@ ctx.fillRect(0, 0, size, size);
 
 document.title = Title;
 
+
+interface displayObj {
+    
+    display(context : CanvasRenderingContext2D): void;
+}
+
+interface repLines{ //represents marker lines
+    construct(x: number, y: number): void;
+    drag(x: number, y: number): void;
+}
+
+interface selectTool{
+    x: number;
+    y: number;
+    construct(thickness: number): void;
+    moveCursor(): void;
+}
+
+
 const penTool: selectTool = {
     x: 0, 
     y: 0,
@@ -62,6 +81,8 @@ const penTool: selectTool = {
     },
 
     moveCursor(){
+        redraw();
+        ctx.beginPath();
         ctx.arc(penTool.x, penTool.y, 1, 0, 2 * Math.PI);
         ctx.stroke();
     }
@@ -87,28 +108,12 @@ clearButton.addEventListener("click", () => {
 emoteButton1.addEventListener("click", () => {
     ctx.font = "32px monospace";
     ctx.fillText("🌕", penTool.x, penTool.y);
+    dispatchEvent(toolMoved);
 })
 
-globalThis.addEventListener("drawing-changed", (e) => {
+globalThis.addEventListener("drawing-changed", () => {
     redraw();
 })
-
-interface displayObj {
-    
-    display(context : CanvasRenderingContext2D): void;
-}
-
-interface repLines{
-    construct(x: number, y: number): void;
-    drag(x: number, y: number): void;
-}
-
-interface selectTool{
-    x: number;
-    y: number;
-    construct(thickness: number): void;
-    moveCursor(): void;
-}
 
 globalThis.addEventListener("tool-moved", () => {
     if (currentThick){
@@ -116,10 +121,7 @@ globalThis.addEventListener("tool-moved", () => {
     }else{
         ctx.lineWidth = 1;
     }
-    redraw();
-    ctx.beginPath();
-    ctx.arc(penTool.x, penTool.y, 1, 0, 2 * Math.PI);
-    ctx.stroke();
+    penTool.moveCursor();
 })
 
 canvas.addEventListener("mouseleave", () => {
