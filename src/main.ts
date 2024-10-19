@@ -1,8 +1,8 @@
 import "./style.css";
 
 let isDraw = false;
-let x = 0;
-let y = 0;
+//let penType.x = 0;
+//let penType.y = 0;
 let mousePositions = [];
 let redoPositions = [];
 let thisLine = null;
@@ -37,12 +37,15 @@ thickButton.textContent = "Thick";
 app.append(thickButton);
 
 const penType: selectTool = {
+    x: 0, 
+    y: 0,
+
     construct(width){
         thickness.push(width);
     },
 
     moveCursor(){
-        ctx.arc(x, y, 1, 0, 2 * Math.PI);
+        ctx.arc(penType.x, penType.y, 1, 0, 2 * Math.PI);
         ctx.stroke();
     }
 }
@@ -50,6 +53,7 @@ const penType: selectTool = {
 const changEvent = new Event("drawing-changed");
 const toolMoved = new Event("tool-moved");
 
+thickness.push(1);
 header.innerHTML = Title;
 app.append(header);
 
@@ -78,8 +82,7 @@ globalThis.addEventListener("drawing-changed", (e) => {
 })
 
 interface displayObj {
-    x: number;
-    y: number;
+    
     display(context : CanvasRenderingContext2D): void;
 }
 
@@ -89,18 +92,23 @@ interface repLines{
 }
 
 interface selectTool{
+    x: number;
+    y: number;
     construct(thickness: number): void;
     moveCursor(): void;
 }
 
-
 globalThis.addEventListener("tool-moved", (e) => {
     
-    penType.moveCursor();
 })
 
 canvas.addEventListener("mouseenter", (e) => {
-    ctx.arc(x, y, 1, 0, 2 * Math.PI);
+    if (currentThick){
+        ctx.lineWidth = 4;
+    }else{
+        ctx.lineWidth = 1;
+    }
+    ctx.arc(size / 2, size / 2, 1, 0, 2 * Math.PI);
     ctx.stroke();
     dispatchEvent(toolMoved);
     
@@ -150,8 +158,8 @@ function redraw() {
 
 canvas.addEventListener("mousedown", (e) => {
     dispatchEvent(toolMoved);
-    x = e.offsetX;
-    y = e.offsetY;
+    penType.x = e.offsetX;
+    penType.y = e.offsetY;
     isDraw = true;
     if (currentThick){
         thickness.push(4);
@@ -160,17 +168,17 @@ canvas.addEventListener("mousedown", (e) => {
     }
     thisLine = [];
     redoPositions.splice(0, redoPositions.length);
-    thisLine.push({x: x, y: y});
+    thisLine.push({x: penType.x, y: penType.y});
     mousePositions.push(thisLine);
     dispatchEvent(changEvent);
 });
 
 canvas.addEventListener("mousemove", (e) => {
     dispatchEvent(toolMoved);
-    x = e.offsetX;
-    y = e.offsetY;
+    penType.x = e.offsetX;
+    penType.y = e.offsetY;
     if (isDraw) {
-        thisLine.push({x: x, y: y})
+        thisLine.push({x: penType.x, y: penType.y})
         dispatchEvent(changEvent);
     }
 });
