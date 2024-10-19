@@ -1,7 +1,7 @@
 import "./style.css";
 
 let isDraw = false;
-let mousePositions = [];
+let drawPositions = [];
 let redoPositions = [];
 let thisLine = null;
 let thickness: number[] = [];
@@ -41,6 +41,18 @@ app.append(emoteButton2);
 emoteButton3.textContent = "☄️";
 app.append(emoteButton3);
 
+const changEvent = new Event("drawing-changed");
+const toolMoved = new Event("tool-moved");
+
+thickness.push(1);
+header.innerHTML = Title;
+app.append(header);
+
+ctx.fillStyle = "blue";
+ctx.fillRect(0, 0, size, size);
+
+document.title = Title;
+
 const penTool: selectTool = {
     x: 0, 
     y: 0,
@@ -55,18 +67,6 @@ const penTool: selectTool = {
     }
 }
 
-const changEvent = new Event("drawing-changed");
-const toolMoved = new Event("tool-moved");
-
-thickness.push(1);
-header.innerHTML = Title;
-app.append(header);
-
-ctx.fillStyle = "blue";
-ctx.fillRect(0, 0, size, size);
-
-document.title = Title;
-
 thinButton.addEventListener("click", () => {
     currentThick = false;
     console.log("thin button clicked");
@@ -80,7 +80,7 @@ thickButton.addEventListener("click", () => {
 clearButton.addEventListener("click", () => {
     ctx.clearRect(0,0,size,size);
     ctx.fillRect(0, 0, size, size);
-    mousePositions = [];
+    drawPositions = [];
     thickness = [];
 })
 
@@ -110,7 +110,7 @@ interface selectTool{
     moveCursor(): void;
 }
 
-globalThis.addEventListener("tool-moved", (e) => {
+globalThis.addEventListener("tool-moved", () => {
     if (currentThick){
         ctx.lineWidth = 4;
     }else{
@@ -128,8 +128,8 @@ canvas.addEventListener("mouseleave", () => {
 
 //functions borrowed from https://quant-paint.glitch.me/paint1.html 
 undoButton.addEventListener("click", () => {
-    if (mousePositions.length > 0) {
-        redoPositions.push(mousePositions.pop());
+    if (drawPositions.length > 0) {
+        redoPositions.push(drawPositions.pop());
         redoThickness.push(thickness.pop());
         dispatchEvent(changEvent);
     }
@@ -137,7 +137,7 @@ undoButton.addEventListener("click", () => {
 
 redoButton.addEventListener("click", () => {
     if (redoPositions.length > 0) {
-        mousePositions.push(redoPositions.pop());
+        drawPositions.push(redoPositions.pop());
         thickness.push(redoThickness.pop());
         dispatchEvent(changEvent);
     }
@@ -148,7 +148,7 @@ function redraw() {
     ctx.fillRect(0,0,size, size);
     let n = 0;
     //
-    for (const line of mousePositions) {
+    for (const line of drawPositions) {
 
         ctx.lineWidth = thickness[n + 1];
         if (line.length > 1) {
@@ -177,7 +177,7 @@ canvas.addEventListener("mousedown", (e) => {
     thisLine = [];
     redoPositions.splice(0, redoPositions.length);
     thisLine.push({x: penTool.x, y: penTool.y});
-    mousePositions.push(thisLine);
+    drawPositions.push(thisLine);
     dispatchEvent(changEvent);
 });
 
