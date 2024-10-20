@@ -29,37 +29,49 @@ app.append(clearButton);
 app.append(undoButton);
 app.append(redoButton);
 
-interface point {
-  x: number;
-  y: number;
+class Line {
+  points: [{ x: number; y: number }];
+
+  constructor(x: number, y: number) {
+    this.points = [{ x, y }];
+  }
+
+  drag(x: number, y: number) {
+    this.points.push({ x, y });
+  }
+
+  display(ctx: CanvasRenderingContext2D) {
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    const { x, y } = this.points[0];
+    ctx.moveTo(x, y);
+    for (const { x, y } of this.points) {
+      ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
 }
-type line = point[];
-let currentLine: line = [];
-const lines: line[] = [];
-const redoLines: line[] = [];
 
-const ctx = canvas.getContext("2d");
-
-let active = false;
+let currentLine: Line;
+const lines: Line[] = [];
+const redoLines: Line[] = [];
 
 canvas.addEventListener("mousedown", (e) => {
-  active = true;
-
-  currentLine = [];
+  currentLine = new Line(e.offsetX, e.offsetY);
   lines.push(currentLine);
-  currentLine.push({ x: e.offsetX, y: e.offsetY });
+  redoLines.splice(0, redoLines.length);
+  canvas.dispatchEvent(new Event("drawing-changed"));
 });
 
 canvas.addEventListener("mousemove", (e) => {
-  if (active) {
-    currentLine.push({ x: e.offsetX, y: e.offsetY });
-    canvas.dispatchEvent(new Event("drawing-changed"));
-  }
+  if (!currentLine) return;
+  currentLine.drag(e.offsetX, e.offsetY);
+  canvas.dispatchEvent(new Event("drawing-changed"));
 });
 
 canvas.addEventListener("mouseup", (e) => {
-  active = false;
-  currentLine = [];
+  currentLine = null;
   canvas.dispatchEvent(new Event("drawing-changed"));
 });
 
@@ -68,21 +80,16 @@ canvas.addEventListener("drawing-changed", () => {
 });
 
 function redraw() {
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (const line of lines) {
-    if (line.length > 1) {
-      ctx.beginPath();
-      const { x, y } = line[0];
-      ctx.moveTo(x, y);
-      for (const { x, y } of line) {
-        ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-    }
+    line.display(ctx);
   }
 }
 
 clearButton.addEventListener("click", () => {
+  const ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   lines.splice(0, lines.length);
   redoLines.splice(0, redoLines.length);
