@@ -119,11 +119,13 @@ const penTool: selectTool = {
 
 thinButton.addEventListener("click", () => {
     currentThick = false;
+    penTool.option = 0;
     console.log("thin button clicked");
 })
 
 thickButton.addEventListener("click", () => {
     currentThick = true;
+    penTool.option = 0;
     console.log("thick button clicked");
 })
 
