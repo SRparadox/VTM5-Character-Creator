@@ -33,6 +33,32 @@ class MarkerLine {
   }
 }
 
+// ToolPreview class to manage render of the preview tool
+class ToolPreview {
+  private x: number;
+  private y: number;
+  private thickness: number;
+
+  constructor(thickness: number) {
+    this.x = 0;
+    this.y = 0;
+    this.thickness = thickness;
+  }
+
+  updatePosition(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
+
+  draw(context: CanvasRenderingContext2D) {
+    context.beginPath();
+    context.arc(this.x, this.y, this.thickness / 2, 0, 2 * Math.PI);
+    context.strokeStyle = "gray";
+    context.lineWidth = 1;
+    context.stroke();
+  }
+}
+
 const APP_NAME = "Stick N Sketch";
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
@@ -53,8 +79,11 @@ const strokes: MarkerLine[] = [];
 let currentStroke: MarkerLine | null = null;
 const redoStack: MarkerLine[] = [];
 
+// Tool Preview instance to manage drawing preview
+let toolPreview: ToolPreview | null = new ToolPreview(2); // initial thin size
+
 // Initially set to "thin" style
-let currentMarkerThickness = 2; // Default thickness
+let currentMarkerThickness = 2;
 
 function endStroke() {
   if (drawing && currentStroke !== null) {
@@ -74,14 +103,21 @@ canvas.addEventListener("mousedown", (event) => {
   }
 });
 
-canvas.addEventListener("mousemove", (event) => {
-  if (drawing && currentStroke) {
-    addPoint(event);
-  }
-});
-
 canvas.addEventListener("mouseup", endStroke);
 canvas.addEventListener("mouseout", endStroke);
+
+canvas.addEventListener("mousemove", (event) => {
+  const rect = canvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+
+  if (drawing && currentStroke) {
+    addPoint(event);
+  } else if (toolPreview) {
+    toolPreview.updatePosition(x, y);
+    dispatchToolMovedEvent();
+  }
+});
 
 function addPoint(event: MouseEvent) {
   const rect = canvas.getBoundingClientRect();
@@ -97,6 +133,11 @@ function addPoint(event: MouseEvent) {
 function redraw() {
   context.clearRect(0, 0, canvas.width, canvas.height);
   strokes.forEach((stroke) => stroke.display(context));
+
+  // Draw tool preview only if not currently drawing
+  if (!drawing && toolPreview) {
+    toolPreview.draw(context);
+  }
 }
 
 function dispatchDrawingChangedEvent() {
@@ -104,7 +145,13 @@ function dispatchDrawingChangedEvent() {
   canvas.dispatchEvent(event);
 }
 
+function dispatchToolMovedEvent() {
+  const event = new Event("tool-moved");
+  canvas.dispatchEvent(event);
+}
+
 canvas.addEventListener("drawing-changed", redraw);
+canvas.addEventListener("tool-moved", redraw);
 
 const clearButton = document.createElement("button");
 clearButton.textContent = "Clear";
@@ -151,15 +198,16 @@ redoButton.addEventListener("click", () => {
 
 thickButton.addEventListener("click", () => {
   currentMarkerThickness = 4; // Set thickness for thick marker
+  if (toolPreview) toolPreview = new ToolPreview(4);
   updateSelectedTool(thickButton);
 });
 
 thinButton.addEventListener("click", () => {
   currentMarkerThickness = 2; // Set thickness for thin marker
+  if (toolPreview) toolPreview = new ToolPreview(2);
   updateSelectedTool(thinButton);
 });
 
-// Function to update the CSS class of selected tool button
 function updateSelectedTool(selectedButton: HTMLButtonElement) {
   const buttons = [thinButton, thickButton];
   buttons.forEach(button => {
@@ -171,4 +219,5 @@ function updateSelectedTool(selectedButton: HTMLButtonElement) {
   });
 }
 
-updateSelectedTool(thinButton); // Initialize with the thin marker selected
+// Initialize with the thin marker selected
+updateSelectedTool(thinButton);
