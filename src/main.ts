@@ -22,18 +22,30 @@ const undoButton = document.createElement("button");
 undoButton.innerHTML = "undo";
 const redoButton = document.createElement("button");
 redoButton.innerHTML = "redo";
+const thinButton = document.createElement("button");
+thinButton.innerHTML = "thin";
+const thickButton = document.createElement("button");
+thickButton.innerHTML = "thick";
 
 app.append(title);
-app.append(canvas);
+document.body.append(canvas);
 app.append(clearButton);
 app.append(undoButton);
 app.append(redoButton);
+app.append(thinButton);
+app.append(thickButton);
+
+const THIN_LINE = 2;
+const THICK_LINE = 6;
+let lineSize = THIN_LINE;
 
 class Line {
   points: [{ x: number; y: number }];
+  size: number;
 
-  constructor(x: number, y: number) {
+  constructor(x: number, y: number, s: number) {
     this.points = [{ x, y }];
+    this.size = s;
   }
 
   drag(x: number, y: number) {
@@ -42,7 +54,7 @@ class Line {
 
   display(ctx: CanvasRenderingContext2D) {
     ctx.strokeStyle = "black";
-    ctx.lineWidth = 4;
+    ctx.lineWidth = this.size;
     ctx.beginPath();
     const { x, y } = this.points[0];
     ctx.moveTo(x, y);
@@ -58,7 +70,7 @@ const lines: Line[] = [];
 const redoLines: Line[] = [];
 
 canvas.addEventListener("mousedown", (e) => {
-  currentLine = new Line(e.offsetX, e.offsetY);
+  currentLine = new Line(e.offsetX, e.offsetY, lineSize);
   lines.push(currentLine);
   redoLines.splice(0, redoLines.length);
   canvas.dispatchEvent(new Event("drawing-changed"));
@@ -107,4 +119,12 @@ redoButton.addEventListener("click", () => {
     lines.push(redoLines.pop());
     canvas.dispatchEvent(new Event("drawing-changed"));
   }
+});
+
+thinButton.addEventListener("click", () => {
+  lineSize = THIN_LINE;
+});
+
+thickButton.addEventListener("click", () => {
+  lineSize = THICK_LINE;
 });
