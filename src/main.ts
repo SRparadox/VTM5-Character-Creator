@@ -3,6 +3,7 @@ import "./style.css";
 let isDraw = false;
 let thisLine = null;
 let currentThick = false;
+let custom = prompt("what would you like your custom to be?");
 let drawPositions = [];
 let redoPositions = [];
 let thickness: number[] = [];
@@ -41,7 +42,7 @@ emoteButton2.textContent = "🍤";
 app.append(emoteButton2);
 emoteButton3.textContent = "☄️";
 app.append(emoteButton3);
-customButton.textContent = "custom";
+customButton.textContent = custom;
 app.append(customButton);
 
 const changEvent = new Event("drawing-changed");
