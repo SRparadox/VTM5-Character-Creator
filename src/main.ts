@@ -26,6 +26,7 @@ const emoteButton1 = document.createElement("button");
 const emoteButton2 = document.createElement("button");
 const emoteButton3 = document.createElement("button");
 const customButton = document.createElement("button");
+const exportButton = document.createElement("button");
 clearButton.textContent = "Clear";
 app.append(clearButton);
 undoButton.textContent = "Undo";
@@ -44,6 +45,8 @@ emoteButton3.textContent = "☄️";
 app.append(emoteButton3);
 customButton.textContent = custom;
 app.append(customButton);
+exportButton.textContent = "export";
+app.append(exportButton);
 
 const changEvent = new Event("drawing-changed");
 const toolMoved = new Event("tool-moved");
