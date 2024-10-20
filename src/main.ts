@@ -3,7 +3,7 @@ import "./style.css";
 let isDraw = false;
 let thisLine = null;
 let currentThick = false;
-let custom = prompt("what would you like your custom to be?");
+let custom = prompt("Custom sticker text","🧽");
 let drawPositions = [];
 let redoPositions = [];
 let thickness: number[] = [];
@@ -75,7 +75,7 @@ interface selectTool{
 }
 
 const emojiSticker: StickerObj = {
-    emojiPositions: [[0,-4],[0,-4],[0,-4]],
+    emojiPositions: [[0,-4],[0,-4],[0,-4],[0,-4]],
     drag(changeX, changeY){
         ctx.font = "32px monospace";
         if(penTool.option == 1){
@@ -84,6 +84,8 @@ const emojiSticker: StickerObj = {
             this.emojiPositions[1] = [changeX, changeY];
         }else if (penTool.option == 3){
             this.emojiPositions[2] = [changeX, changeY];
+        }else if (penTool.option == 4){
+            this.emojiPositions[3] = [changeX, changeY];
         }
     }
 }
@@ -106,6 +108,8 @@ const penTool: selectTool = {
             ctx.fillText("🍤", penTool.x - 18, penTool.y + 10);
         }else if (this.option == 3){
             ctx.fillText("☄️", penTool.x - 18, penTool.y + 10);
+        }else if (this.option == 4){
+            ctx.fillText(custom, penTool.x - 18, penTool.y + 10);
         }else{
             ctx.arc(penTool.x, penTool.y, 1, 0, 2 * Math.PI);
         }
@@ -151,6 +155,15 @@ emoteButton2.addEventListener("click", () => {
 emoteButton3.addEventListener("click", () => {
     if(penTool.option != 3){
         penTool.option = 3;
+    }else{
+        penTool.option = 0;
+    }
+    dispatchEvent(toolMoved);
+})
+
+customButton.addEventListener("click", () => {
+    if(penTool.option != 4){
+        penTool.option = 4;
     }else{
         penTool.option = 0;
     }
@@ -212,6 +225,7 @@ function redraw() {
     ctx.fillText("🌕", emojiSticker.emojiPositions[0][0], emojiSticker.emojiPositions[0][1]);
     ctx.fillText("🍤", emojiSticker.emojiPositions[1][0], emojiSticker.emojiPositions[1][1]);
     ctx.fillText("☄️", emojiSticker.emojiPositions[2][0], emojiSticker.emojiPositions[2][1]);
+    ctx.fillText(custom, emojiSticker.emojiPositions[3][0], emojiSticker.emojiPositions[3][1]);
 }
 
 canvas.addEventListener("mousedown", (e) => {
