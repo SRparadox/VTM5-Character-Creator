@@ -242,7 +242,6 @@ canvas.addEventListener("mousedown", (e) => {
     }
     if (penTool.option > 0){
         emojiSticker.drag(e.offsetX, e.offsetY);
-        
     }
     thisLine = [];
     redoPositions.splice(0, redoPositions.length);
