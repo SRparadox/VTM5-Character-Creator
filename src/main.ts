@@ -1,12 +1,12 @@
 import "./style.css";
 
 let isDraw = false;
+let thisLine = null;
+let currentThick = false;
 let drawPositions = [];
 let redoPositions = [];
-let thisLine = null;
 let thickness: number[] = [];
 let redoThickness: number[] = [];
-let currentThick = false;
 
 const size = 256;
 const app = document.querySelector<HTMLDivElement>("#app")!;
@@ -24,6 +24,7 @@ const thickButton = document.createElement("button");
 const emoteButton1 = document.createElement("button");
 const emoteButton2 = document.createElement("button");
 const emoteButton3 = document.createElement("button");
+const customButton = document.createElement("button");
 clearButton.textContent = "Clear";
 app.append(clearButton);
 undoButton.textContent = "Undo";
@@ -40,6 +41,8 @@ emoteButton2.textContent = "🍤";
 app.append(emoteButton2);
 emoteButton3.textContent = "☄️";
 app.append(emoteButton3);
+customButton.textContent = "custom";
+app.append(customButton);
 
 const changEvent = new Event("drawing-changed");
 const toolMoved = new Event("tool-moved");
@@ -54,13 +57,11 @@ ctx.fillRect(0, 0, size, size);
 document.title = Title;
 
 interface displayObj {
-    
     display(context : CanvasRenderingContext2D): void;
 }
 
-interface StickerObj{ //represents marker lines
-    x: number,
-    y: number,
+interface StickerObj{
+    emojiPositions: number[][];
     drag(changeX: number, changeY: number): void;
 }
 
@@ -73,11 +74,16 @@ interface selectTool{
 }
 
 const emojiSticker: StickerObj = {
-    x: 0,
-    y: 0,
+    emojiPositions: [[0,-4],[0,-4],[0,-4]],
     drag(changeX, changeY){
-        x: changeX;
-        y: changeY;
+        ctx.font = "32px monospace";
+        if(penTool.option == 1){
+            this.emojiPositions[0] = [changeX, changeY];
+        }else if (penTool.option == 2){
+            this.emojiPositions[1] = [changeX, changeY];
+        }else if (penTool.option == 3){
+            this.emojiPositions[2] = [changeX, changeY];
+        }
     }
 }
 
@@ -189,7 +195,7 @@ function redraw() {
     ctx.fillRect(0,0,size, size);
     let n = 0;
     for (const line of drawPositions) {
-
+        
         ctx.lineWidth = thickness[n + 1];
         if (line.length > 1) {
             ctx.beginPath();
@@ -202,10 +208,9 @@ function redraw() {
         }
       n++;
     }
-}
-
-function stickerDraw(){
-
+    ctx.fillText("🌕", emojiSticker.emojiPositions[0][0], emojiSticker.emojiPositions[0][1]);
+    ctx.fillText("🍤", emojiSticker.emojiPositions[1][0], emojiSticker.emojiPositions[1][1]);
+    ctx.fillText("☄️", emojiSticker.emojiPositions[2][0], emojiSticker.emojiPositions[2][1]);
 }
 
 canvas.addEventListener("mousedown", (e) => {
@@ -218,12 +223,13 @@ canvas.addEventListener("mousedown", (e) => {
     }else{
         thickness.push(1);
     }
-    if (penTool.option == 1){
-
+    if (penTool.option > 0){
+        emojiSticker.drag(e.offsetX, e.offsetY);
+        
     }
     thisLine = [];
     redoPositions.splice(0, redoPositions.length);
-    thisLine.push({x: penTool.x, y: penTool.y});
+    thisLine.push({x: e.offsetX, y: e.offsetY});
     drawPositions.push(thisLine);
     dispatchEvent(changEvent);
 });
@@ -242,8 +248,6 @@ canvas.addEventListener("mousemove", (e) => {
 globalThis.addEventListener("mouseup", (e) => {
     dispatchEvent(toolMoved);
     if (isDraw) {
-        
-        //console.log(mousePositions);
         thisLine = null;
         isDraw = false;
         dispatchEvent(changEvent);
