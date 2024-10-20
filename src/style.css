@@ -13,6 +13,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.selectedTool {
+  background-color: #dddddd;
+}
+
 canvas {
   border: 1px solid black; /* Adds a thin black border */
   border-radius: 25% 10%;

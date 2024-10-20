@@ -2,9 +2,11 @@ import "./style.css";
 
 class MarkerLine {
   private points: Array<{ x: number; y: number }> = [];
+  private thickness: number;
 
-  constructor(initialX: number, initialY: number) {
+  constructor(initialX: number, initialY: number, thickness: number) {
     this.points.push({ x: initialX, y: initialY });
+    this.thickness = thickness;
   }
 
   drag(x: number, y: number) {
@@ -13,7 +15,7 @@ class MarkerLine {
 
   display(context: CanvasRenderingContext2D) {
     if (this.points.length < 1) return;
-    
+
     context.beginPath();
     this.points.forEach((point, index) => {
       if (index === 0) {
@@ -24,7 +26,7 @@ class MarkerLine {
     });
 
     context.strokeStyle = "black";
-    context.lineWidth = 2;
+    context.lineWidth = this.thickness;
     context.lineCap = "round";
     context.stroke();
     context.closePath();
@@ -51,6 +53,9 @@ const strokes: MarkerLine[] = [];
 let currentStroke: MarkerLine | null = null;
 const redoStack: MarkerLine[] = [];
 
+// Initially set to "thin" style
+let currentMarkerThickness = 2; // Default thickness
+
 function endStroke() {
   if (drawing && currentStroke !== null) {
     strokes.push(currentStroke);
@@ -64,7 +69,7 @@ canvas.addEventListener("mousedown", (event) => {
   if (!drawing) {
     drawing = true;
     const rect = canvas.getBoundingClientRect();
-    currentStroke = new MarkerLine(event.clientX - rect.left, event.clientY - rect.top);
+    currentStroke = new MarkerLine(event.clientX - rect.left, event.clientY - rect.top, currentMarkerThickness);
     addPoint(event);
   }
 });
@@ -113,6 +118,14 @@ const redoButton = document.createElement("button");
 redoButton.textContent = "Redo";
 app.appendChild(redoButton);
 
+const thickButton = document.createElement("button");
+thickButton.textContent = "Thick";
+app.appendChild(thickButton);
+
+const thinButton = document.createElement("button");
+thinButton.textContent = "Thin";
+app.appendChild(thinButton);
+
 clearButton.addEventListener("click", () => {
   context.clearRect(0, 0, canvas.width, canvas.height);
   strokes.length = 0;
@@ -135,3 +148,27 @@ redoButton.addEventListener("click", () => {
     dispatchDrawingChangedEvent();
   }
 });
+
+thickButton.addEventListener("click", () => {
+  currentMarkerThickness = 4; // Set thickness for thick marker
+  updateSelectedTool(thickButton);
+});
+
+thinButton.addEventListener("click", () => {
+  currentMarkerThickness = 2; // Set thickness for thin marker
+  updateSelectedTool(thinButton);
+});
+
+// Function to update the CSS class of selected tool button
+function updateSelectedTool(selectedButton: HTMLButtonElement) {
+  const buttons = [thinButton, thickButton];
+  buttons.forEach(button => {
+    if (button === selectedButton) {
+      button.classList.add("selectedTool");
+    } else {
+      button.classList.remove("selectedTool");
+    }
+  });
+}
+
+updateSelectedTool(thinButton); // Initialize with the thin marker selected
