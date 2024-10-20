@@ -175,6 +175,10 @@ customButton.addEventListener("click", () => {
     dispatchEvent(toolMoved);
 })
 
+exportButton.addEventListener("click", () => {
+    const tempCanvas = document.getElementById("canvas");
+})
+
 globalThis.addEventListener("drawing-changed", () => {
     redraw();
 })
