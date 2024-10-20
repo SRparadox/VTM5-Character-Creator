@@ -53,7 +53,6 @@ const toolMoved = new Event("tool-moved");
 
 thickness.push(1);
 header.innerHTML = Title;
-app.append(header);
 
 ctx.fillStyle = "blue";
 ctx.fillRect(0, 0, size, size);
@@ -177,6 +176,12 @@ customButton.addEventListener("click", () => {
 
 exportButton.addEventListener("click", () => {
     const tempCanvas = document.getElementById("canvas");
+    const tempCtx = tempCanvas.getContext("2d");
+    tempCtx.scale(4*size, 4*size);
+    const anchor = document.createElement('a');
+    anchor.href = dataUrl;
+    anchor.download = 'drawing.png';
+    anchor.click();
 })
 
 globalThis.addEventListener("drawing-changed", () => {
