@@ -175,12 +175,12 @@ customButton.addEventListener("click", () => {
 })
 
 exportButton.addEventListener("click", () => {
-    //const tempCanvas = document.getElementById("canvas");
-    //const tempCtx = tempCanvas.getContext("2d");
-    ctx.scale(4*size, 4*size);
-    //redraw(tempCtx);
+    const tempCanvas = document.getElementById("canvas");
+    const tempCtx = tempCanvas.getContext("2d");
+    redraw(tempCtx);
+    tempCtx.scale(4*size, 4*size);
     const anchor = document.createElement('a');
-    anchor.href = canvas.toDataURL("image/png");
+    anchor.href = tempCanvas.toDataURL("image/png");
     anchor.download = 'drawing.png';
     anchor.click();
 })
