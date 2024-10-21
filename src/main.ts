@@ -28,16 +28,51 @@ const thickButton = document.createElement("button");
 thickButton.innerHTML = "thick";
 
 app.append(title);
-document.body.append(canvas);
-app.append(clearButton);
-app.append(undoButton);
-app.append(redoButton);
-app.append(thinButton);
-app.append(thickButton);
+app.append(canvas);
+app.append(document.createElement("h1"));
+app.append(clearButton, undoButton, redoButton, thinButton, thickButton);
+app.append(document.createElement("h1"));
+
+interface Emoji {
+  emoji: string;
+  button: HTMLButtonElement;
+}
+const button = document.createElement("button");
+
+const availableEmojis: Emoji[] = [
+  {
+    emoji: "🦖",
+    button,
+  },
+  {
+    emoji: "👹",
+    button,
+  },
+  {
+    emoji: "⭐",
+    button,
+  },
+];
+
+for (let i = 0; i < availableEmojis.length; i++) {
+  const emojiButton = document.createElement("button");
+  emojiButton.innerHTML = availableEmojis[i].emoji;
+  availableEmojis[i].button = emojiButton;
+  emojiButton.onclick = () => {
+    if (cursorSymbol != availableEmojis[i].emoji) {
+      cursorSymbol = availableEmojis[i].emoji;
+    } else {
+      cursorSymbol = "o";
+    }
+    canvas.dispatchEvent(new Event("tool-moved"));
+  };
+  app.append(emojiButton);
+}
 
 const THIN_LINE = 2;
 const THICK_LINE = 6;
 let lineSize = THIN_LINE;
+let cursorSymbol = "o";
 
 class Line {
   points: [{ x: number; y: number }];
@@ -68,41 +103,89 @@ class Line {
 class Cursor {
   x: number;
   y: number;
-  constructor(x: number, y: number) {
+  symbol: string;
+  constructor(x: number, y: number, symbol: string) {
+    this.x = x;
+    this.y = y;
+    this.symbol = symbol;
+  }
+  display(ctx: CanvasRenderingContext2D) {
+    if (this.symbol == "o") {
+      ctx.font = "16px monospace";
+      ctx.fillText(this.symbol, this.x - 6, this.y + 4);
+    } else {
+      ctx.font = "32px monospace";
+      ctx.fillText(this.symbol, this.x - 16, this.y + 16);
+    }
+  }
+}
+
+class Sticker {
+  x: number;
+  y: number;
+  stamp: string;
+  constructor(x: number, y: number, stamp: string) {
+    this.x = x;
+    this.y = y;
+    this.stamp = stamp;
+  }
+  drag(x: number, y: number) {
     this.x = x;
     this.y = y;
   }
   display(ctx: CanvasRenderingContext2D) {
-    ctx.font = 16 + "px monospace";
-    ctx.fillText("o", this.x - 4, this.y + 4);
+    ctx.font = "32px monospace";
+    ctx.fillText(this.stamp, this.x - 16, this.y + 16);
   }
 }
 
 let currentLine: Line;
 let cursor: Cursor;
-const lines: Line[] = [];
+const lines: (Line | Sticker)[] = [];
 const redoLines: Line[] = [];
+let sticker: Sticker;
+
+canvas.addEventListener("mouseout", (e) => {
+  cursor = null;
+  canvas.dispatchEvent(new Event("drawing-changed"));
+});
+
+canvas.addEventListener("mouseenter", (e) => {
+  cursor = new Cursor(e.offsetX, e.offsetY, cursorSymbol);
+  canvas.dispatchEvent(new Event("drawing-changed"));
+});
 
 canvas.addEventListener("mousedown", (e) => {
-  cursor = new Cursor(e.offsetX, e.offsetY);
-  currentLine = new Line(e.offsetX, e.offsetY, lineSize);
-  lines.push(currentLine);
+  cursor = new Cursor(e.offsetX, e.offsetY, cursorSymbol);
+  if (cursorSymbol != "o") {
+    sticker = new Sticker(e.offsetX, e.offsetY, cursorSymbol);
+    lines.push(sticker);
+  } else {
+    currentLine = new Line(e.offsetX, e.offsetY, lineSize);
+    lines.push(currentLine);
+  }
   redoLines.splice(0, redoLines.length);
   canvas.dispatchEvent(new Event("drawing-changed"));
 });
 
 canvas.addEventListener("mousemove", (e) => {
-  cursor = new Cursor(e.offsetX, e.offsetY);
+  cursor = new Cursor(e.offsetX, e.offsetY, cursorSymbol);
   if (!currentLine) {
+    if (cursorSymbol != "o") {
+      canvas.dispatchEvent(new Event("tool-moved"));
+      sticker.drag(e.offsetX, e.offsetY);
+    }
     canvas.dispatchEvent(new Event("tool-moved"));
-    // return;
+  } else {
+    currentLine.drag(e.offsetX, e.offsetY);
   }
-  currentLine.drag(e.offsetX, e.offsetY);
   canvas.dispatchEvent(new Event("drawing-changed"));
 });
 
 canvas.addEventListener("mouseup", (e) => {
   currentLine = null;
+  sticker = null;
+  cursor = new Cursor(e.offsetX, e.offsetY, cursorSymbol);
   canvas.dispatchEvent(new Event("drawing-changed"));
 });
 
@@ -117,11 +200,13 @@ canvas.addEventListener("tool-moved", () => {
 function redraw() {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
+  // cursor.display(ctx);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (const line of lines) {
     line.display(ctx);
   }
   cursor.display(ctx);
+  sticker.display(ctx);
 }
 
 clearButton.addEventListener("click", () => {
