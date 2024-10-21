@@ -3,6 +3,7 @@ import "./style.css";
 let isDraw = false;
 let thisLine = null;
 let currentThick = false;
+let rotated;
 let custom = prompt("Custom sticker text","🧽");
 let drawPositions = [];
 let redoPositions = [];
@@ -81,17 +82,17 @@ interface selectTool{
 }
 
 const emojiSticker: StickerObj = {
-    emojiPositions: [[0,-4],[0,-4],[0,-4],[0,-4]],
+    emojiPositions: [[0,-2000],[0,-2000],[0,-2000],[0,-2000]],
     drag(changeX, changeY){
         ctx.font = "32px monospace";
         if(penTool.option == 1){
-            this.emojiPositions[0] = [changeX, changeY];
+            this.emojiPositions[0] = [changeX - 18, changeY + 10];
         }else if (penTool.option == 2){
-            this.emojiPositions[1] = [changeX, changeY];
+            this.emojiPositions[1] = [changeX - 18, changeY + 10];
         }else if (penTool.option == 3){
-            this.emojiPositions[2] = [changeX, changeY];
+            this.emojiPositions[2] = [changeX - 18, changeY + 10];
         }else if (penTool.option == 4){
-            this.emojiPositions[3] = [changeX, changeY];
+            this.emojiPositions[3] = [changeX - 18, changeY + 10];
         }
     }
 }
@@ -191,7 +192,13 @@ exportButton.addEventListener("click", () => {
 
 rotation.addEventListener("input", (e) =>{
     degrees.textContent = e.target.value;
-    ctx.rotate((e.target.value * Math.PI) / 180);
+    if (penTool.option > 0){
+        canvas.addEventListener("mousedown", () => {
+            ctx.translate(penTool.x, penTool.y);
+            ctx.rotate((e.target.value * Math.PI) / 180);
+            ctx.translate(-penTool.x, -penTool.y);
+        })
+    }
 });
 
 globalThis.addEventListener("drawing-changed", () => {
