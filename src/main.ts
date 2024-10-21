@@ -3,6 +3,8 @@ import "./style.css";
 let isDraw = false;
 let thisLine = null;
 let currentThick = false;
+let colors: string[] = ["black", "red", "green", "yellow", "magenta", "cyan", "white", "gray"];
+let colorIndex: number = 0;
 let rotated;
 let custom = prompt("Custom sticker text","🧽");
 let drawPositions = [];
@@ -239,6 +241,11 @@ function redraw(ctxParam: CanvasRenderingContext2D ) {
     ctxParam.clearRect(0, 0, size, size);
     ctxParam.fillRect(0,0,size, size);
     let n = 0;
+    colorIndex++;
+    if(colorIndex >= colors.length){
+        colorIndex = 0;
+    }
+    ctxParam.strokeStyle = colors[colorIndex];
     for (const line of drawPositions) {
         
         ctxParam.lineWidth = thickness[n + 1];
