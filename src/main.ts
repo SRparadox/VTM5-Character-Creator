@@ -65,11 +65,26 @@ class Line {
   }
 }
 
+class Cursor {
+  x: number;
+  y: number;
+  constructor(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
+  display(ctx: CanvasRenderingContext2D) {
+    ctx.font = 16 + "px monospace";
+    ctx.fillText("o", this.x - 4, this.y + 4);
+  }
+}
+
 let currentLine: Line;
+let cursor: Cursor;
 const lines: Line[] = [];
 const redoLines: Line[] = [];
 
 canvas.addEventListener("mousedown", (e) => {
+  cursor = new Cursor(e.offsetX, e.offsetY);
   currentLine = new Line(e.offsetX, e.offsetY, lineSize);
   lines.push(currentLine);
   redoLines.splice(0, redoLines.length);
@@ -77,7 +92,11 @@ canvas.addEventListener("mousedown", (e) => {
 });
 
 canvas.addEventListener("mousemove", (e) => {
-  if (!currentLine) return;
+  cursor = new Cursor(e.offsetX, e.offsetY);
+  if (!currentLine) {
+    canvas.dispatchEvent(new Event("tool-moved"));
+    // return;
+  }
   currentLine.drag(e.offsetX, e.offsetY);
   canvas.dispatchEvent(new Event("drawing-changed"));
 });
@@ -91,6 +110,10 @@ canvas.addEventListener("drawing-changed", () => {
   redraw();
 });
 
+canvas.addEventListener("tool-moved", () => {
+  redraw();
+});
+
 function redraw() {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
@@ -98,6 +121,7 @@ function redraw() {
   for (const line of lines) {
     line.display(ctx);
   }
+  cursor.display(ctx);
 }
 
 clearButton.addEventListener("click", () => {
