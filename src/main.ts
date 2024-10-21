@@ -101,7 +101,7 @@ const penTool: selectTool = {
     },
 
     moveCursor(){
-        redraw();
+        redraw(ctx);
         ctx.beginPath();
         ctx.font = "32px monospace";
         if(this.option == 1){
@@ -175,17 +175,18 @@ customButton.addEventListener("click", () => {
 })
 
 exportButton.addEventListener("click", () => {
-    const tempCanvas = document.getElementById("canvas");
-    const tempCtx = tempCanvas.getContext("2d");
-    tempCtx.scale(4*size, 4*size);
+    //const tempCanvas = document.getElementById("canvas");
+    //const tempCtx = tempCanvas.getContext("2d");
+    ctx.scale(4*size, 4*size);
+    //redraw(tempCtx);
     const anchor = document.createElement('a');
-    anchor.href = dataUrl;
+    anchor.href = canvas.toDataURL("image/png");
     anchor.download = 'drawing.png';
     anchor.click();
 })
 
 globalThis.addEventListener("drawing-changed", () => {
-    redraw();
+    redraw(ctx);
 })
 
 globalThis.addEventListener("tool-moved", () => {
@@ -198,7 +199,7 @@ globalThis.addEventListener("tool-moved", () => {
 })
 
 canvas.addEventListener("mouseleave", () => {
-    redraw();
+    redraw(ctx);
 })
 
 //functions borrowed from https://quant-paint.glitch.me/paint1.html 
@@ -218,28 +219,28 @@ redoButton.addEventListener("click", () => {
     }
 });
 
-function redraw() {
-    ctx.clearRect(0, 0, size, size);
-    ctx.fillRect(0,0,size, size);
+function redraw(ctxParam: CanvasRenderingContext2D ) {
+    ctxParam.clearRect(0, 0, size, size);
+    ctxParam.fillRect(0,0,size, size);
     let n = 0;
     for (const line of drawPositions) {
         
-        ctx.lineWidth = thickness[n + 1];
+        ctxParam.lineWidth = thickness[n + 1];
         if (line.length > 1) {
-            ctx.beginPath();
+            ctxParam.beginPath();
             const { x, y } = line[0];
-            ctx.moveTo(x, y);
+            ctxParam.moveTo(x, y);
             for (const { x, y } of line) {
-                ctx.lineTo(x, y);
+                ctxParam.lineTo(x, y);
             }
-            ctx.stroke();
+            ctxParam.stroke();
         }
       n++;
     }
-    ctx.fillText("🌕", emojiSticker.emojiPositions[0][0], emojiSticker.emojiPositions[0][1]);
-    ctx.fillText("🍤", emojiSticker.emojiPositions[1][0], emojiSticker.emojiPositions[1][1]);
-    ctx.fillText("☄️", emojiSticker.emojiPositions[2][0], emojiSticker.emojiPositions[2][1]);
-    ctx.fillText(custom, emojiSticker.emojiPositions[3][0], emojiSticker.emojiPositions[3][1]);
+    ctxParam.fillText("🌕", emojiSticker.emojiPositions[0][0], emojiSticker.emojiPositions[0][1]);
+    ctxParam.fillText("🍤", emojiSticker.emojiPositions[1][0], emojiSticker.emojiPositions[1][1]);
+    ctxParam.fillText("☄️", emojiSticker.emojiPositions[2][0], emojiSticker.emojiPositions[2][1]);
+    ctxParam.fillText(custom, emojiSticker.emojiPositions[3][0], emojiSticker.emojiPositions[3][1]);
 }
 
 canvas.addEventListener("mousedown", (e) => {
