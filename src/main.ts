@@ -191,7 +191,7 @@ globalThis.addEventListener("drawing-changed", () => {
 
 globalThis.addEventListener("tool-moved", () => {
     if (currentThick){
-        ctx.lineWidth = 4;
+        ctx.lineWidth = 5;
     }else{
         ctx.lineWidth = 1;
     }
