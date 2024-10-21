@@ -33,7 +33,28 @@ class MarkerLine {
   }
 }
 
-// ToolPreview class to manage render of the preview tool
+class Sticker {
+  private emoji: string;
+  private x: number;
+  private y: number;
+
+  constructor(emoji: string, x: number, y: number) {
+    this.emoji = emoji;
+    this.x = x;
+    this.y = y;
+  }
+
+  drag(newX: number, newY: number) {
+    this.x = newX;
+    this.y = newY;
+  }
+
+  display(context: CanvasRenderingContext2D) {
+    context.font = "24px serif";
+    context.fillText(this.emoji, this.x, this.y);
+  }
+}
+
 class ToolPreview {
   private x: number;
   private y: number;
@@ -75,15 +96,14 @@ app.appendChild(canvas);
 
 const context = canvas.getContext("2d")!;
 let drawing = false;
-const strokes: MarkerLine[] = [];
+const strokes: (MarkerLine | Sticker)[] = [];
 let currentStroke: MarkerLine | null = null;
-const redoStack: MarkerLine[] = [];
+const redoStack: (MarkerLine | Sticker)[] = [];
 
-// Tool Preview instance to manage drawing preview
-let toolPreview: ToolPreview | null = new ToolPreview(2); // initial thin size
-
-// Initially set to "thin" style
+let toolPreview: ToolPreview | null = new ToolPreview(2);
 let currentMarkerThickness = 2;
+
+let currentSticker: Sticker | null = null;
 
 function endStroke() {
   if (drawing && currentStroke !== null) {
@@ -91,15 +111,26 @@ function endStroke() {
     currentStroke = null;
     drawing = false;
     dispatchDrawingChangedEvent();
+  } else if (currentSticker !== null) {
+    strokes.push(currentSticker);
+    currentSticker = null;
+    dispatchDrawingChangedEvent();
   }
 }
 
 canvas.addEventListener("mousedown", (event) => {
-  if (!drawing) {
+  const rect = canvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+
+  if (!drawing && !currentSticker) {
     drawing = true;
-    const rect = canvas.getBoundingClientRect();
-    currentStroke = new MarkerLine(event.clientX - rect.left, event.clientY - rect.top, currentMarkerThickness);
+    currentStroke = new MarkerLine(x, y, currentMarkerThickness);
     addPoint(event);
+  } else if (currentSticker) {
+    currentSticker.drag(x, y);
+    dispatchDrawingChangedEvent();
+    endStroke();
   }
 });
 
@@ -116,6 +147,9 @@ canvas.addEventListener("mousemove", (event) => {
   } else if (toolPreview) {
     toolPreview.updatePosition(x, y);
     dispatchToolMovedEvent();
+  } else if (currentSticker) {
+    currentSticker.drag(x, y);
+    dispatchDrawingChangedEvent();
   }
 });
 
@@ -134,9 +168,12 @@ function redraw() {
   context.clearRect(0, 0, canvas.width, canvas.height);
   strokes.forEach((stroke) => stroke.display(context));
 
-  // Draw tool preview only if not currently drawing
   if (!drawing && toolPreview) {
     toolPreview.draw(context);
+  }
+
+  if (currentSticker) {
+    currentSticker.display(context);
   }
 }
 
@@ -173,6 +210,20 @@ const thinButton = document.createElement("button");
 thinButton.textContent = "Thin";
 app.appendChild(thinButton);
 
+// Sticker Buttons
+const stickerEmojis = ['👤', '🕶', '🧢'];
+stickerEmojis.forEach((emoji) => {
+  const button = document.createElement("button");
+  button.textContent = emoji;
+  app.appendChild(button);
+
+  button.addEventListener("click", () => {
+    toolPreview = null;
+    currentSticker = new Sticker(emoji, 0, 0);
+    dispatchToolMovedEvent();
+  });
+});
+
 clearButton.addEventListener("click", () => {
   context.clearRect(0, 0, canvas.width, canvas.height);
   strokes.length = 0;
@@ -197,14 +248,14 @@ redoButton.addEventListener("click", () => {
 });
 
 thickButton.addEventListener("click", () => {
-  currentMarkerThickness = 4; // Set thickness for thick marker
-  if (toolPreview) toolPreview = new ToolPreview(4);
+  currentMarkerThickness = 4;
+  toolPreview = new ToolPreview(4);
   updateSelectedTool(thickButton);
 });
 
 thinButton.addEventListener("click", () => {
-  currentMarkerThickness = 2; // Set thickness for thin marker
-  if (toolPreview) toolPreview = new ToolPreview(2);
+  currentMarkerThickness = 2;
+  toolPreview = new ToolPreview(2);
   updateSelectedTool(thinButton);
 });
 
