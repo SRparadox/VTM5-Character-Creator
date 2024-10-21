@@ -3,7 +3,7 @@ import "./style.css";
 let isDraw = false;
 let thisLine = null;
 let currentThick = false;
-let colors: string[] = ["black", "red", "green", "yellow", "magenta", "cyan", "white", "gray"];
+let colors: string[] = ["black", "red", "green", "yellow","orange", "magenta", "cyan", "white", "gray"];
 let colorIndex: number = 0;
 let rotated;
 let custom = prompt("Custom sticker text","🧽");
@@ -241,7 +241,7 @@ function redraw(ctxParam: CanvasRenderingContext2D ) {
     ctxParam.clearRect(0, 0, size, size);
     ctxParam.fillRect(0,0,size, size);
     let n = 0;
-    colorIndex++;
+    
     if(colorIndex >= colors.length){
         colorIndex = 0;
     }
@@ -279,6 +279,7 @@ canvas.addEventListener("mousedown", (e) => {
     if (penTool.option > 0){
         emojiSticker.drag(e.offsetX, e.offsetY);
     }
+    colorIndex++;
     thisLine = [];
     redoPositions.splice(0, redoPositions.length);
     thisLine.push({x: e.offsetX, y: e.offsetY});
