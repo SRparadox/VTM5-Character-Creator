@@ -53,7 +53,7 @@ h1 {
   margin: 0 auto;
   border: 2px solid black;
   border-radius: 12px;
-  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 5px 5px 15px rgba(175, 163, 163, 0.3);
 }
 
 .logo {
@@ -93,6 +93,23 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* Styling for the clear button */
+#clearButton {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+#clearButton:hover {
+  background-color: #0056b3;
 }
 
 @media (prefers-color-scheme: light) {

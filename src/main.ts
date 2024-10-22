@@ -21,6 +21,58 @@ function app_setup() {
     canvas.id = 'appCanvas';
     document.body.appendChild(canvas);
 
+    drawing_behavior(canvas);
+
+    return canvas;
 }
 
-document.addEventListener('DOMContentLoaded', app_setup);
+function clear_behavior(canvas: HTMLCanvasElement) {
+
+    const clear_btn = document.createElement('button');
+    clear_btn.textContent = 'CLEAR';
+    clear_btn.id = 'clearButton';
+    document.body.appendChild(clear_btn);
+
+    clear_btn.addEventListener('click', () => {
+        const ctx = canvas.getContext('2d');
+        if(ctx) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    });
+}
+
+
+function drawing_behavior(canvas: HTMLCanvasElement) {
+
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+
+    const pen_touch= (event: MouseEvent) => {
+        drawing = true;
+        ctx?.beginPath();
+        ctx?.moveTo(event.offsetX, event.offsetY);
+    };
+
+    const pen_draw = (event: MouseEvent) => {
+        if (!drawing) return;
+        ctx?.lineTo(event.offsetX, event.offsetY);
+        ctx?.stroke();
+    };
+
+    const pen_off = () => {
+        drawing = false;
+        ctx?.closePath();
+    };
+
+    canvas.addEventListener('mousedown', pen_touch);
+    canvas.addEventListener('mousemove', pen_draw);
+    canvas.addEventListener('mouseup', pen_off);
+    canvas.addEventListener('mouseleave', pen_off);
+}
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const canvas = app_setup(); 
+    clear_behavior(canvas);     
+});
