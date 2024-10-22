@@ -25,12 +25,18 @@ a:hover {
 body {
   margin: 0;
   display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  flex-direction: column;
 }
 
+
 h1 {
+  text-align: center;
+  margin-bottom: 10px;
   font-size: 3.2em;
   line-height: 1.1;
 }
@@ -40,6 +46,14 @@ h1 {
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+}
+
+#appCanvas {
+  display: block;
+  margin: 0 auto;
+  border: 2px solid black;
+  border-radius: 12px;
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 .logo {
