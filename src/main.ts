@@ -10,6 +10,7 @@ type Point = {x: number, y: number};
 
 let strokes: Point[][] = [];
 let currentStroke: Point[] = [];
+let FIFObag: Point[][] = [];
 
 function app_setup() {
 
@@ -44,6 +45,7 @@ function clear_behavior(canvas: HTMLCanvasElement) {
     clear_btn.addEventListener('click', () => {
         strokes = [];
         currentStroke = [];
+        FIFObag = [];
         const ctx = canvas.getContext('2d');
         if(ctx) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -59,8 +61,11 @@ function drawing_behavior(canvas: HTMLCanvasElement) {
     const pen_touch= (event: MouseEvent) => {
         drawing = true;
         currentStroke = [];
+        FIFObag = [];
         const initial_contact = {x: event.offsetX, y: event.offsetY};
         currentStroke.push(initial_contact); 
+        strokes.push(currentStroke);
+        dispatch_drawing_changed(canvas);
     };
 
     const pen_draw = (event: MouseEvent) => {
@@ -71,11 +76,7 @@ function drawing_behavior(canvas: HTMLCanvasElement) {
     };
 
     const pen_off = () => {
-        if (drawing) {
-            strokes.push([...currentStroke]);
-        }
         drawing = false;
-        currentStroke = [];
     };
 
     canvas.addEventListener('mousedown', pen_touch);
@@ -88,12 +89,6 @@ function dispatch_drawing_changed(canvas: HTMLCanvasElement) {
     const event = new Event('drawing changed');
     canvas.dispatchEvent(event);
 }
-
-
-document.addEventListener('DOMContentLoaded', () => {
-    const canvas = app_setup(); 
-    clear_behavior(canvas);     
-});
 
 function redraw_behavior(canvas: HTMLCanvasElement) {
     const ctx = canvas.getContext('2d');
@@ -113,3 +108,45 @@ function redraw_behavior(canvas: HTMLCanvasElement) {
         }
     }
 }
+
+
+function undo_redo_behavior( canvas: HTMLCanvasElement) {
+    //Undo button behavior
+    const undo_btn = document.createElement('button');
+    undo_btn.textContent = 'UNDO';
+    undo_btn.id = 'undoButton';
+    document.body.appendChild(undo_btn);
+
+    undo_btn.addEventListener('click', () => {
+        if (strokes.length > 0) {
+            const lastStroke = strokes.pop();
+            if (lastStroke) {
+                FIFObag.push(lastStroke);
+            }
+            dispatch_drawing_changed(canvas);
+        }
+    });
+
+
+    
+    //Redo Button behavior
+    const redo_btn = document.createElement('button');
+    redo_btn.textContent = 'REDO';
+    redo_btn.id = 'redoButton';
+    document.body.appendChild(redo_btn);
+
+    redo_btn.addEventListener('click', () => {
+        if (FIFObag.length > 0) {
+            const lastUndo = FIFObag.pop();
+            if (lastUndo) {
+                strokes.push(lastUndo);
+            }
+            dispatch_drawing_changed(canvas);
+        }
+    });
+} 
+document.addEventListener('DOMContentLoaded', () => {
+    const canvas = app_setup(); 
+    clear_behavior(canvas); 
+    undo_redo_behavior(canvas);    
+});
