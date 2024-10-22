@@ -28,14 +28,23 @@ const thickButton = document.createElement("button");
 thickButton.innerHTML = "thick";
 const customButton = document.createElement("button");
 customButton.innerHTML = "Add Custom Emoji";
+const exportButton = document.createElement("button");
+exportButton.innerHTML = "export";
 
 app.append(title);
 app.append(canvas);
 app.append(document.createElement("h2"));
-app.append(clearButton, undoButton, redoButton, thinButton, thickButton);
-app.append(document.createElement("h2"));
+app.append(
+  clearButton,
+  undoButton,
+  redoButton,
+  thinButton,
+  thickButton,
+  exportButton
+);
+app.append(document.createElement("div"));
 app.append(customButton);
-app.append(document.createElement("h2"));
+app.append(document.createElement("div"));
 
 interface Emoji {
   emoji: string;
@@ -214,7 +223,7 @@ function redraw() {
 
 clearButton.addEventListener("click", () => {
   const ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx?.clearRect(0, 0, canvas.width, canvas.height);
   lines.splice(0, lines.length);
   redoLines.splice(0, redoLines.length);
 });
@@ -235,10 +244,30 @@ redoButton.addEventListener("click", () => {
 
 thinButton.addEventListener("click", () => {
   lineSize = THIN_LINE;
+  cursorSymbol = "o";
 });
 
 thickButton.addEventListener("click", () => {
   lineSize = THICK_LINE;
+  cursorSymbol = "o";
+});
+
+exportButton.addEventListener("click", () => {
+  const tempCanvas = document.createElement("canvas");
+  tempCanvas.width = 1024;
+  tempCanvas.height = 1024;
+
+  const exportCtx = canvas.getContext("2d");
+  exportCtx?.scale(4, 4);
+
+  for (const line of lines) {
+    line.display(exportCtx);
+  }
+
+  const anchor = document.createElement("a");
+  anchor.href = canvas.toDataURL("image/png");
+  anchor.download = "sketchpad.png";
+  anchor.click();
 });
 
 customButton.addEventListener("click", () => {
