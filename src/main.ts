@@ -126,14 +126,9 @@ for (const sticker of stickers) {
   app.append(stickerButton);
 }
 
-let stickerCursor: StickerCommand | null = null;
-let currentSticker = stickers[0];
-
-canvas.addEventListener("sticker-mode", ((event: CustomEvent) => {
-  drawMode = DRAW_MODE_STICKER
-  currentSticker = event.detail;
-  stickerCursor = new StickerCommand(0, 0, currentSticker);
-}) as EventListener);
+const customStickerButton = document.createElement("button");
+customStickerButton.innerHTML = "Create Sticker";
+app.append(customStickerButton);
 
 const ctx = canvas.getContext("2d")!;
 
@@ -203,6 +198,9 @@ function redraw() {
   }
   if(drawMode == DRAW_MODE_STICKER && stickerCursor){
     stickerCursor.display(ctx);
+    if(cursor){
+      cursor.active = true;
+    }
   }
 }
 
@@ -255,3 +253,26 @@ canvas.addEventListener("marker-changed", ((event: CustomEvent) => {
   drawMode = DRAW_MODE_LINE
   lineThickness = event.detail;
 }) as EventListener);
+
+let stickerCursor: StickerCommand | null = null;
+let currentSticker = stickers[0];
+
+canvas.addEventListener("sticker-mode", ((event: CustomEvent) => {
+  drawMode = DRAW_MODE_STICKER
+  currentSticker = event.detail;
+  stickerCursor = new StickerCommand(0, 0, currentSticker);
+}) as EventListener);
+
+customStickerButton.addEventListener("click", () => {
+  const sticker = prompt("Enter a sticker");
+  if(sticker){
+    stickers.push(sticker);
+    const stickerButton = document.createElement("button");
+    stickerButton.innerHTML = sticker;
+    stickerButton.addEventListener("click", (_event) => {
+      canvas.dispatchEvent(new CustomEvent("tool-moved"));
+      canvas.dispatchEvent(new CustomEvent("sticker-mode", { detail: sticker }));
+    });
+    app.append(stickerButton);
+  }
+});
