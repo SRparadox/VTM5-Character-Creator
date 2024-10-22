@@ -13,10 +13,12 @@ interface DrawCommand {
 class LineCommand implements DrawCommand {
   points: Point[];
   thickness: number = 1;
+  color: string;
 
-  constructor(points: Point[], thickness: number) {
+  constructor(points: Point[], thickness: number, color: string = "black") {
     this.points = points;
     this.thickness = thickness;
+    this.color = color;
   }
 
   drag(x: number, y: number) {
@@ -25,6 +27,7 @@ class LineCommand implements DrawCommand {
 
   display(ctx: CanvasRenderingContext2D) {
     ctx.lineWidth = this.thickness;
+    ctx.strokeStyle = this.color;
     ctx.beginPath();
     ctx.moveTo(this.points[0].x, this.points[0].y);
     for (const point of this.points) {
@@ -51,7 +54,7 @@ class StickerCommand implements DrawCommand {
   }
 
   display(ctx: CanvasRenderingContext2D) {
-    ctx.font = "16px monospace";
+    ctx.font = `${STICKER_SIZE}px monospace`;
     ctx.fillText(this.sticker, this.x - 4, this.y + 4);
   }
 }
@@ -60,14 +63,17 @@ class CursorCommand {
   x: number;
   y: number;
   active: boolean;
+  color: string = "black";
 
-  constructor(x: number, y: number, active: boolean) {
+  constructor(x: number, y: number, active: boolean, color: string) {
     this.x = x;
     this.y = y;
     this.active = active;
+    this.color = color;
   }
 
   display(ctx: CanvasRenderingContext2D) {
+    ctx.fillStyle = this.color;
     ctx.beginPath();
     ctx.arc(this.x, this.y, Math.max(lineThickness / 2, 1), 0, Math.PI * 2);
     ctx.fill();
@@ -108,6 +114,21 @@ app.append(exportButton);
 
 app.append(document.createElement("br"));
 
+const colors = ["black", "red", "green", "blue", "purple"];
+
+for(const color of colors){
+  const colorButton = document.createElement("button");
+  colorButton.innerHTML = color;
+  colorButton.addEventListener("click", () => {
+    if(drawMode == DRAW_MODE_LINE){
+      lineColor = color;
+    }
+  });
+  app.append(colorButton);
+}
+
+app.append(document.createElement("br"));
+
 const thinMarkerButton = document.createElement("button");
 thinMarkerButton.innerHTML = "Thin";
 app.append(thinMarkerButton);
@@ -117,6 +138,7 @@ thickMarkerButton.innerHTML = "Thick";
 app.append(thickMarkerButton);
 
 const stickers = [`🗿`, `❤️`, `👹`];
+const STICKER_SIZE = 16;
 const DRAW_MODE_LINE = 12;
 const DRAW_MODE_STICKER = 13;
 
@@ -147,7 +169,7 @@ canvas.addEventListener("mouseout", (_event) => {
 });
 
 canvas.addEventListener("mouseenter", (event) => {
-  cursor = new CursorCommand(event.x, event.y, false);
+  cursor = new CursorCommand(event.x, event.y, false, lineColor);
   stickerCursor = new StickerCommand(event.x, event.y, currentSticker);
   canvas.dispatchEvent(new CustomEvent("tool-moved"));
 });
@@ -158,11 +180,12 @@ const THICK_LINE_PX = 8;
 
 let drawMode = DRAW_MODE_LINE
 let currentDrawing: DrawCommand = new LineCommand([], 1);
+let lineColor = "black";
 
 canvas.addEventListener("mousedown", (_event) => {
   if(cursor){
     if(drawMode == DRAW_MODE_LINE){
-      currentDrawing = new LineCommand([{ x: cursor.x, y: cursor.y }], lineThickness);
+      currentDrawing = new LineCommand([{ x: cursor.x, y: cursor.y }], lineThickness, lineColor);
     } else if(drawMode == DRAW_MODE_STICKER){
       currentDrawing = new StickerCommand(cursor.x, cursor.y, currentSticker);
     }
@@ -248,17 +271,16 @@ undoButton.addEventListener("click", () => {
 
 let lineThickness = THIN_LINE_PX;
 thinMarkerButton.addEventListener("click", () => {
-  //detail is the thickness of the marker
   canvas.dispatchEvent(new CustomEvent("marker-changed", { detail: THIN_LINE_PX }));
 });
 
 thickMarkerButton.addEventListener("click", () => {
-  //detail is the thickness of the marker
   canvas.dispatchEvent(new CustomEvent("marker-changed", { detail: THICK_LINE_PX }));
 });
 
 canvas.addEventListener("marker-changed", ((event: CustomEvent) => {
   drawMode = DRAW_MODE_LINE
+  lineColor = colors[Math.floor(Math.random() * colors.length)];
   lineThickness = event.detail;
 }) as EventListener);
 
