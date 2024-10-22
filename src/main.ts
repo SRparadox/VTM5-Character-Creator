@@ -258,10 +258,13 @@ exportButton.addEventListener("click", () => {
   tempCanvas.height = 1024;
 
   const exportCtx = canvas.getContext("2d");
-  exportCtx?.scale(4, 4);
 
-  for (const line of lines) {
-    line.display(exportCtx);
+  if (exportCtx) {
+    exportCtx?.scale(4, 4);
+
+    for (const line of lines) {
+      line.display(exportCtx);
+    }
   }
 
   const anchor = document.createElement("a");
