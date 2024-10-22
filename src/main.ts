@@ -3,10 +3,12 @@ import "./style.css";
 class MarkerLine {
   private points: Array<{ x: number; y: number }> = [];
   private thickness: number;
+  private color: string;
 
-  constructor(initialX: number, initialY: number, thickness: number) {
+  constructor(initialX: number, initialY: number, thickness: number, color: string) {
     this.points.push({ x: initialX, y: initialY });
     this.thickness = thickness;
+    this.color = color;
   }
 
   drag(x: number, y: number) {
@@ -25,7 +27,7 @@ class MarkerLine {
       }
     });
 
-    context.strokeStyle = "black";
+    context.strokeStyle = this.color;
     context.lineWidth = this.thickness;
     context.lineCap = "round";
     context.stroke();
@@ -37,11 +39,13 @@ class Sticker {
   private emoji: string;
   private x: number;
   private y: number;
+  private rotation: number;
 
-  constructor(emoji: string, x: number, y: number) {
+  constructor(emoji: string, x: number, y: number, rotation: number) {
     this.emoji = emoji;
     this.x = x;
     this.y = y;
+    this.rotation = rotation;
   }
 
   drag(newX: number, newY: number) {
@@ -50,8 +54,12 @@ class Sticker {
   }
 
   display(context: CanvasRenderingContext2D) {
+    context.save();
+    context.translate(this.x, this.y);
+    context.rotate((this.rotation * Math.PI) / 180);
     context.font = "24px serif";
-    context.fillText(this.emoji, this.x, this.y);
+    context.fillText(this.emoji, 0, 0);
+    context.restore();
   }
 }
 
@@ -59,11 +67,18 @@ class ToolPreview {
   private x: number;
   private y: number;
   private thickness: number;
+  private color: string;
 
-  constructor(thickness: number) {
+  constructor(thickness: number, color: string) {
     this.x = 0;
     this.y = 0;
     this.thickness = thickness;
+    this.color = color;
+  }
+
+  update(newThickness: number, newColor: string) {
+    this.thickness = newThickness;
+    this.color = newColor;
   }
 
   updatePosition(x: number, y: number) {
@@ -74,7 +89,7 @@ class ToolPreview {
   draw(context: CanvasRenderingContext2D) {
     context.beginPath();
     context.arc(this.x, this.y, this.thickness / 2, 0, 2 * Math.PI);
-    context.strokeStyle = "gray";
+    context.strokeStyle = this.color;
     context.lineWidth = 1;
     context.stroke();
   }
@@ -100,7 +115,10 @@ const strokes: (MarkerLine | Sticker)[] = [];
 let currentStroke: MarkerLine | null = null;
 const redoStack: (MarkerLine | Sticker)[] = [];
 
-let toolPreview: ToolPreview | null = new ToolPreview(2);
+let currentColor = generateRandomColor();
+let currentRotation = 0;
+
+let toolPreview: ToolPreview = new ToolPreview(2, currentColor); // Ensure always initialized
 let currentMarkerThickness = 2;
 
 let currentSticker: Sticker | null = null;
@@ -112,28 +130,35 @@ const stickers = [
   { emoji: "🧢" }
 ];
 
+function generateRandomColor(): string {
+  const letters = "0123456789ABCDEF";
+  let color = "#";
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
+function generateRandomRotation(): number {
+  return Math.floor(Math.random() * 360);
+}
+
 function exportCanvas() {
-  // Step 1: Create a new temporary canvas
   const exportCanvas = document.createElement("canvas");
   exportCanvas.width = 1024;
   exportCanvas.height = 1024;
 
   const exportContext = exportCanvas.getContext("2d")!;
-  
-  // Step 2: Scale context
-  exportContext.scale(4, 4); // Since our original canvas is 256x256, this scales everything up by 4x
+  exportContext.scale(4, 4);
 
-  // Step 3: Redraw all strokes onto the exportCanvas
   strokes.forEach(stroke => stroke.display(exportContext));
 
-  // Step 4: Trigger a download of the canvas content as a PNG file
   const anchor = document.createElement("a");
   anchor.href = exportCanvas.toDataURL("image/png");
   anchor.download = "sketchpad.png";
   anchor.click();
 }
 
-// Create the export button and append it to the UI
 const exportButton = document.createElement("button");
 exportButton.textContent = "Export as PNG";
 app.appendChild(exportButton);
@@ -159,7 +184,7 @@ canvas.addEventListener("mousedown", (event) => {
 
   if (!drawing && !currentSticker) {
     drawing = true;
-    currentStroke = new MarkerLine(x, y, currentMarkerThickness);
+    currentStroke = new MarkerLine(x, y, currentMarkerThickness, currentColor);
     addPoint(event);
   } else if (currentSticker) {
     currentSticker.drag(x, y);
@@ -181,9 +206,6 @@ canvas.addEventListener("mousemove", (event) => {
   } else if (toolPreview) {
     toolPreview.updatePosition(x, y);
     dispatchToolMovedEvent();
-  } else if (currentSticker) {
-    currentSticker.drag(x, y);
-    dispatchDrawingChangedEvent();
   }
 });
 
@@ -202,13 +224,7 @@ function redraw() {
   context.clearRect(0, 0, canvas.width, canvas.height);
   strokes.forEach((stroke) => stroke.display(context));
 
-  if (!drawing && toolPreview) {
-    toolPreview.draw(context);
-  }
-
-  if (currentSticker) {
-    currentSticker.display(context);
-  }
+  toolPreview?.draw(context); // Use optional chaining to safely call draw
 }
 
 function dispatchDrawingChangedEvent() {
@@ -224,7 +240,6 @@ function dispatchToolMovedEvent() {
 canvas.addEventListener("drawing-changed", redraw);
 canvas.addEventListener("tool-moved", redraw);
 
-// Controls for other features
 const controlsDiv = document.createElement("div");
 controlsDiv.id = "controls";
 app.appendChild(controlsDiv);
@@ -267,8 +282,10 @@ stickers.forEach(sticker => {
   stickerControlsDiv.appendChild(button);
 
   button.addEventListener("click", () => {
-    toolPreview = null;
-    currentSticker = new Sticker(sticker.emoji, 0, 0);
+    currentRotation = generateRandomRotation();
+    currentColor = generateRandomColor();
+    toolPreview = new ToolPreview(24, currentColor); // Reinitialize for sticker tool preview
+    currentSticker = new Sticker(sticker.emoji, 0, 0, currentRotation);
     dispatchToolMovedEvent();
   });
 });
@@ -282,15 +299,16 @@ customStickerButton.addEventListener("click", () => {
   }
 });
 
-// Function to create a sticker button
 function createStickerButton(sticker: { emoji: string }) {
   const button = document.createElement("button");
   button.textContent = sticker.emoji;
   stickerControlsDiv.appendChild(button);
 
   button.addEventListener("click", () => {
-    toolPreview = null;
-    currentSticker = new Sticker(sticker.emoji, 0, 0);
+    currentRotation = generateRandomRotation();
+    currentColor = generateRandomColor();
+    toolPreview = new ToolPreview(24, currentColor);
+    currentSticker = new Sticker(sticker.emoji, 0, 0, currentRotation);
     dispatchToolMovedEvent();
   });
 }
@@ -320,19 +338,21 @@ redoButton.addEventListener("click", () => {
 
 thickButton.addEventListener("click", () => {
   currentMarkerThickness = 4;
-  toolPreview = new ToolPreview(4);
+  currentColor = generateRandomColor();
+  toolPreview.update(currentMarkerThickness, currentColor);
   updateSelectedTool(thickButton);
 });
 
 thinButton.addEventListener("click", () => {
   currentMarkerThickness = 2;
-  toolPreview = new ToolPreview(2);
+  currentColor = generateRandomColor();
+  toolPreview.update(currentMarkerThickness, currentColor);
   updateSelectedTool(thinButton);
 });
 
 function updateSelectedTool(selectedButton: HTMLButtonElement) {
   const buttons = [thinButton, thickButton];
-  buttons.forEach(button => {
+  buttons.forEach((button) => {
     if (button === selectedButton) {
       button.classList.add("selectedTool");
     } else {
@@ -341,5 +361,7 @@ function updateSelectedTool(selectedButton: HTMLButtonElement) {
   });
 }
 
-// Initialize with the thin marker selected
+// Initialize with the thin marker selected and randomize its color
 updateSelectedTool(thinButton);
+currentColor = generateRandomColor();
+toolPreview.update(currentMarkerThickness, currentColor);
