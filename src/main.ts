@@ -51,8 +51,8 @@ class StickerCommand implements DrawCommand {
   }
 
   display(ctx: CanvasRenderingContext2D) {
-    ctx.font = "32px monospace";
-    ctx.fillText(this.sticker, this.x - 16, this.y + 16);
+    ctx.font = "16px monospace";
+    ctx.fillText(this.sticker, this.x - 4, this.y + 4);
   }
 }
 
@@ -153,6 +153,8 @@ canvas.addEventListener("mouseenter", (event) => {
 });
 
 const drawings: DrawCommand[] = [];
+const THIN_LINE_PX = 2;
+const THICK_LINE_PX = 8;
 
 let drawMode = DRAW_MODE_LINE
 let currentDrawing: DrawCommand = new LineCommand([], 1);
@@ -244,15 +246,15 @@ undoButton.addEventListener("click", () => {
   }
 });
 
-let lineThickness = 1;
+let lineThickness = THIN_LINE_PX;
 thinMarkerButton.addEventListener("click", () => {
   //detail is the thickness of the marker
-  canvas.dispatchEvent(new CustomEvent("marker-changed", { detail: 1 }));
+  canvas.dispatchEvent(new CustomEvent("marker-changed", { detail: THIN_LINE_PX }));
 });
 
 thickMarkerButton.addEventListener("click", () => {
   //detail is the thickness of the marker
-  canvas.dispatchEvent(new CustomEvent("marker-changed", { detail: 5 }));
+  canvas.dispatchEvent(new CustomEvent("marker-changed", { detail: THICK_LINE_PX }));
 });
 
 canvas.addEventListener("marker-changed", ((event: CustomEvent) => {
