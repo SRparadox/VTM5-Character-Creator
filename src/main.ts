@@ -112,6 +112,33 @@ const stickers = [
   { emoji: "🧢" }
 ];
 
+function exportCanvas() {
+  // Step 1: Create a new temporary canvas
+  const exportCanvas = document.createElement("canvas");
+  exportCanvas.width = 1024;
+  exportCanvas.height = 1024;
+
+  const exportContext = exportCanvas.getContext("2d")!;
+  
+  // Step 2: Scale context
+  exportContext.scale(4, 4); // Since our original canvas is 256x256, this scales everything up by 4x
+
+  // Step 3: Redraw all strokes onto the exportCanvas
+  strokes.forEach(stroke => stroke.display(exportContext));
+
+  // Step 4: Trigger a download of the canvas content as a PNG file
+  const anchor = document.createElement("a");
+  anchor.href = exportCanvas.toDataURL("image/png");
+  anchor.download = "sketchpad.png";
+  anchor.click();
+}
+
+// Create the export button and append it to the UI
+const exportButton = document.createElement("button");
+exportButton.textContent = "Export as PNG";
+app.appendChild(exportButton);
+exportButton.addEventListener("click", exportCanvas);
+
 function endStroke() {
   if (drawing && currentStroke !== null) {
     strokes.push(currentStroke);
