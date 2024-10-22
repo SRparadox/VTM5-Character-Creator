@@ -45,7 +45,7 @@ h1 {
 #my_canvas{
   border: rgb(0, 0, 0);
   border-radius: 30px;
-  filter: drop-shadow(30px 10px 4px #581052);
+  filter: drop-shadow(5px 5px 4px #581052);
   outline: black 6px solid;
 }
 
