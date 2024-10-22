@@ -5,7 +5,6 @@ let thisLine = null;
 let currentThick = false;
 let colors: string[] = ["black", "red", "green", "yellow","orange", "magenta", "cyan", "white", "gray"];
 let colorIndex: number = 0;
-let rotated;
 let custom = prompt("Custom sticker text","🧽");
 let drawPositions = [];
 let redoPositions = [];
@@ -203,6 +202,10 @@ rotation.addEventListener("input", (e) =>{
     }
 });
 
+canvas.addEventListener("mouseleave", () => {
+    redraw(ctx);
+})
+
 globalThis.addEventListener("drawing-changed", () => {
     redraw(ctx);
 })
@@ -214,10 +217,6 @@ globalThis.addEventListener("tool-moved", () => {
         ctx.lineWidth = 1;
     }
     penTool.moveCursor();
-})
-
-canvas.addEventListener("mouseleave", () => {
-    redraw(ctx);
 })
 
 //functions borrowed from https://quant-paint.glitch.me/paint1.html 
