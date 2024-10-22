@@ -26,12 +26,16 @@ const thinButton = document.createElement("button");
 thinButton.innerHTML = "thin";
 const thickButton = document.createElement("button");
 thickButton.innerHTML = "thick";
+const customButton = document.createElement("button");
+customButton.innerHTML = "Add Custom Emoji";
 
 app.append(title);
 app.append(canvas);
-app.append(document.createElement("h1"));
+app.append(document.createElement("h2"));
 app.append(clearButton, undoButton, redoButton, thinButton, thickButton);
-app.append(document.createElement("h1"));
+app.append(document.createElement("h2"));
+app.append(customButton);
+app.append(document.createElement("h2"));
 
 interface Emoji {
   emoji: string;
@@ -200,7 +204,6 @@ canvas.addEventListener("tool-moved", () => {
 function redraw() {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
-  // cursor.display(ctx);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (const line of lines) {
     line.display(ctx);
@@ -236,4 +239,21 @@ thinButton.addEventListener("click", () => {
 
 thickButton.addEventListener("click", () => {
   lineSize = THICK_LINE;
+});
+
+customButton.addEventListener("click", () => {
+  const text = prompt("Add a new emoji:", "❤️");
+  if (text) {
+    const emojiButton = document.createElement("button");
+    emojiButton.innerHTML = text;
+    emojiButton.onclick = () => {
+      if (cursorSymbol != text) {
+        cursorSymbol = text;
+      } else {
+        cursorSymbol = "o";
+      }
+      canvas.dispatchEvent(new Event("tool-moved"));
+    };
+    app.append(emojiButton);
+  }
 });
