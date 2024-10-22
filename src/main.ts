@@ -224,45 +224,54 @@ function dispatchToolMovedEvent() {
 canvas.addEventListener("drawing-changed", redraw);
 canvas.addEventListener("tool-moved", redraw);
 
+// Controls for other features
+const controlsDiv = document.createElement("div");
+controlsDiv.id = "controls";
+app.appendChild(controlsDiv);
+
 const clearButton = document.createElement("button");
 clearButton.textContent = "Clear";
-app.appendChild(clearButton);
+controlsDiv.appendChild(clearButton);
 
 const undoButton = document.createElement("button");
 undoButton.textContent = "Undo";
-app.appendChild(undoButton);
+controlsDiv.appendChild(undoButton);
 
 const redoButton = document.createElement("button");
 redoButton.textContent = "Redo";
-app.appendChild(redoButton);
+controlsDiv.appendChild(redoButton);
 
 const thickButton = document.createElement("button");
 thickButton.textContent = "Thick";
-app.appendChild(thickButton);
+controlsDiv.appendChild(thickButton);
 
 const thinButton = document.createElement("button");
 thinButton.textContent = "Thin";
-app.appendChild(thinButton);
+controlsDiv.appendChild(thinButton);
 
-// Create and append buttons for each initial sticker
-function createStickerButton(sticker: { emoji: string }) {
+// Sticker controls
+const stickerControlsDiv = document.createElement("div");
+stickerControlsDiv.id = "sticker-controls";
+stickerControlsDiv.style.display = "flex";
+app.appendChild(stickerControlsDiv);
+
+// Add custom sticker button to the sticker controls
+const customStickerButton = document.createElement("button");
+customStickerButton.textContent = "Add Custom Sticker";
+stickerControlsDiv.appendChild(customStickerButton);
+
+// Add sticker buttons
+stickers.forEach(sticker => {
   const button = document.createElement("button");
   button.textContent = sticker.emoji;
-  app.appendChild(button);
+  stickerControlsDiv.appendChild(button);
 
   button.addEventListener("click", () => {
     toolPreview = null;
     currentSticker = new Sticker(sticker.emoji, 0, 0);
     dispatchToolMovedEvent();
   });
-}
-
-stickers.forEach(createStickerButton);
-
-// Custom sticker button to allow users to add stickers
-const customStickerButton = document.createElement("button");
-customStickerButton.textContent = "Add Custom Sticker";
-app.appendChild(customStickerButton);
+});
 
 customStickerButton.addEventListener("click", () => {
   const inputEmoji = prompt("Enter emoji for a new sticker:", "🙂");
@@ -272,6 +281,19 @@ customStickerButton.addEventListener("click", () => {
     createStickerButton(newSticker);
   }
 });
+
+// Function to create a sticker button
+function createStickerButton(sticker: { emoji: string }) {
+  const button = document.createElement("button");
+  button.textContent = sticker.emoji;
+  stickerControlsDiv.appendChild(button);
+
+  button.addEventListener("click", () => {
+    toolPreview = null;
+    currentSticker = new Sticker(sticker.emoji, 0, 0);
+    dispatchToolMovedEvent();
+  });
+}
 
 clearButton.addEventListener("click", () => {
   context.clearRect(0, 0, canvas.width, canvas.height);

@@ -71,6 +71,19 @@ h1 {
   color: #888;
 }
 
+#controls {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+#sticker-controls {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: 10px;
+}
+
 button {
   border-radius: 8px;
   border: 1px solid transparent;
