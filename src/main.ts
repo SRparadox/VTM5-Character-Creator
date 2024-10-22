@@ -3,12 +3,9 @@ import "./style.css";
 const APP_NAME = "Hello. I hope you're doing better!";
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
-//const canvas_div = document.createElement("canvas");
-//document.body.append(canvas_div); canvas_div.innerHTML = "my_canvas";
-
 const canvas = document.createElement("canvas");
 document.body.append(canvas); 
-canvas.id = "my_canvas"; //canvas_div.appendChild
+canvas.id = "my_canvas"; 
 
 const ctx = canvas.getContext("2d");
 canvas.width = 256; canvas.height = 256;
@@ -25,22 +22,14 @@ canvas.addEventListener("mousemove", (event) => {
         ctx.fillStyle = 'black';
         const x = event.clientX - ctx.canvas.offsetLeft;
         const y = event.clientY - ctx.canvas.offsetTop;
-        //if(oldx == null){
-            //ctx.moveTo(x,y);
-       // }
-        //else{
 
-            ctx.beginPath();
-            if(oldx != -1){ctx.moveTo(oldx,oldy);}
+        ctx.beginPath();
+        if(oldx != -1){ctx.moveTo(oldx,oldy);}   
+        ctx.lineTo(x,y); 
+        ctx.stroke();
+        ctx.closePath();
             
-            ctx.lineTo(x,y); 
-            ctx.stroke();
-            ctx.closePath();
-            
-            
-        //}
         oldx = x; oldy = y;
-        
     }
 });
 canvas.addEventListener("mouseup", () => {
