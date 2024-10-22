@@ -26,13 +26,11 @@ app.appendChild(clearButton);
 // Add an undo button
 const undoButton = document.createElement("button");
 undoButton.textContent = "Undo";
-undoButton.id = "undoButton";
 app.appendChild(undoButton);
 
 // Add a redo button
 const redoButton = document.createElement("button");
 redoButton.textContent = "Redo";
-redoButton.id = "redoButton";
 app.appendChild(redoButton);
 
 // Add thin and thick marker tool buttons
@@ -47,31 +45,54 @@ thickButton.textContent = "Thick";
 thickButton.id = "thickButton";
 app.appendChild(thickButton);
 
-// Add sticker buttons
-const stickers = ["🎃", "👻", "🕸️"];
-stickers.forEach((sticker, index) => {
-    const stickerButton = document.createElement("button");
-    stickerButton.textContent = sticker;
-    stickerButton.id = `stickerButton${index}`;
-    app.appendChild(stickerButton);
+// Define an array of stickers
+let stickers = ["🎃", "👻", "🕸️"];
 
-    stickerButton.addEventListener("click", () => {
-        currentTool = "sticker";
-        currentSticker = sticker;
-        toolPreview = new ToolPreview(0, 0, currentThickness, currentSticker);
+// Function to create sticker buttons
+const createStickerButtons = () => {
+    stickers.forEach((sticker, index) => {
+        let stickerButton = document.getElementById(`stickerButton${index}`);
+        if (!stickerButton) {
+            stickerButton = document.createElement("button");
+            stickerButton.id = `stickerButton${index}`;
+            app.appendChild(stickerButton);
+        }
+        stickerButton.textContent = sticker;
 
-        // Remove "selectedTool" class from all sticker buttons
-        stickers.forEach((_, i) => {
-            document.getElementById(`stickerButton${i}`)?.classList.remove("selectedTool");
+        stickerButton.addEventListener("click", () => {
+            currentTool = "sticker";
+            currentSticker = sticker;
+            toolPreview = new ToolPreview(0, 0, currentThickness, currentSticker);
+
+            // Remove "selectedTool" class from all sticker buttons
+            stickers.forEach((_, i) => {
+                document.getElementById(`stickerButton${i}`)?.classList.remove("selectedTool");
+            });
+
+            // Add "selectedTool" class to the clicked sticker button
+            stickerButton.classList.add("selectedTool");
+
+            thinButton.classList.remove("selectedTool");
+            thickButton.classList.remove("selectedTool");
+            canvasElement.dispatchEvent(new Event("tool-moved"));
         });
-
-        // Add "selectedTool" class to the clicked sticker button
-        stickerButton.classList.add("selectedTool");
-
-        thinButton.classList.remove("selectedTool");
-        thickButton.classList.remove("selectedTool");
-        canvasElement.dispatchEvent(new Event("tool-moved"));
     });
+};
+
+// Create initial sticker buttons
+createStickerButtons();
+
+// Add a button for creating a custom sticker
+const customStickerButton = document.createElement("button");
+customStickerButton.textContent = "Add Custom Sticker";
+app.appendChild(customStickerButton);
+
+customStickerButton.addEventListener("click", () => {
+    const customSticker = prompt("Enter your custom sticker:", "😊");
+    if (customSticker) {
+        stickers.push(customSticker);
+        createStickerButtons();
+    }
 });
 
 const ctx = canvasElement.getContext("2d")!;
@@ -79,6 +100,7 @@ let drawing = false;
 let points: Array<Drawable> = [];
 let redoStack: Array<Drawable> = [];
 let currentLine: MarkerLine | null = null;
+let currentStickerObj: Sticker | null = null;
 let currentThickness = 2; // Default thickness
 let toolPreview: ToolPreview | null = null;
 let currentTool: "marker" | "sticker" = "marker";
@@ -179,8 +201,8 @@ canvasElement.addEventListener("mousedown", (event) => {
         currentLine = new MarkerLine(event.offsetX, event.offsetY, currentThickness);
         points.push(currentLine);
     } else if (currentTool === "sticker" && currentSticker) {
-        const sticker = new Sticker(event.offsetX, event.offsetY, currentSticker);
-        points.push(sticker);
+        currentStickerObj = new Sticker(event.offsetX, event.offsetY, currentSticker);
+        points.push(currentStickerObj);
         toolPreview = null; // Hide tool preview when placing sticker
     }
 });
@@ -188,6 +210,7 @@ canvasElement.addEventListener("mousedown", (event) => {
 canvasElement.addEventListener("mouseup", () => {
     drawing = false;
     currentLine = null;
+    currentStickerObj = null;
     ctx.beginPath(); // Reset the path to avoid connecting lines
 });
 
@@ -202,6 +225,9 @@ canvasElement.addEventListener("mousemove", (event) => {
         canvasElement.dispatchEvent(new Event("tool-moved"));
     } else if (currentLine) {
         currentLine.drag(event.offsetX, event.offsetY);
+        canvasElement.dispatchEvent(new Event("drawing-changed"));
+    } else if (currentStickerObj) {
+        currentStickerObj.drag(event.offsetX, event.offsetY);
         canvasElement.dispatchEvent(new Event("drawing-changed"));
     }
 });
@@ -282,5 +308,3 @@ thickButton.addEventListener("click", () => {
     });
     canvasElement.dispatchEvent(new Event("tool-moved"));
 });
-
- fdsaf
