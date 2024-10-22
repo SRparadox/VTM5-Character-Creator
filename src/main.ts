@@ -74,6 +74,7 @@ for (let i = 0; i < availableEmojis.length; i++) {
   emojiButton.onclick = () => {
     if (cursorSymbol != availableEmojis[i].emoji) {
       cursorSymbol = availableEmojis[i].emoji;
+      rotation = Math.random() * 360;
     } else {
       cursorSymbol = "o";
     }
@@ -85,15 +86,19 @@ for (let i = 0; i < availableEmojis.length; i++) {
 const THIN_LINE = 2;
 const THICK_LINE = 6;
 let lineSize = THIN_LINE;
+let color: string = "#000";
+
 let cursorSymbol = "o";
 
 class Line {
   points: [{ x: number; y: number }];
   size: number;
+  color: string;
 
-  constructor(x: number, y: number, s: number) {
+  constructor(x: number, y: number, s: number, c: string) {
     this.points = [{ x, y }];
     this.size = s;
+    this.color = c;
   }
 
   drag(x: number, y: number) {
@@ -101,7 +106,7 @@ class Line {
   }
 
   display(ctx: CanvasRenderingContext2D) {
-    ctx.strokeStyle = "black";
+    ctx.strokeStyle = this.color;
     ctx.lineWidth = this.size;
     ctx.beginPath();
     const { x, y } = this.points[0];
@@ -125,10 +130,12 @@ class Cursor {
   display(ctx: CanvasRenderingContext2D) {
     if (this.symbol == "o") {
       ctx.font = "16px monospace";
+      ctx.fillStyle = color;
       ctx.fillText(this.symbol, this.x - 6, this.y + 4);
     } else {
       ctx.font = "32px monospace";
       ctx.fillText(this.symbol, this.x - 16, this.y + 16);
+      // ctx.rotate(rotation*Math.PI/180);
     }
   }
 }
@@ -160,6 +167,8 @@ let sticker: Sticker;
 
 canvas.addEventListener("mouseout", (e) => {
   cursor = null;
+  currentLine = null;
+  sticker = null;
   canvas.dispatchEvent(new Event("drawing-changed"));
 });
 
@@ -174,7 +183,7 @@ canvas.addEventListener("mousedown", (e) => {
     sticker = new Sticker(e.offsetX, e.offsetY, cursorSymbol);
     lines.push(sticker);
   } else {
-    currentLine = new Line(e.offsetX, e.offsetY, lineSize);
+    currentLine = new Line(e.offsetX, e.offsetY, lineSize, color);
     lines.push(currentLine);
   }
   redoLines.splice(0, redoLines.length);
@@ -245,11 +254,13 @@ redoButton.addEventListener("click", () => {
 thinButton.addEventListener("click", () => {
   lineSize = THIN_LINE;
   cursorSymbol = "o";
+  random_color();
 });
 
 thickButton.addEventListener("click", () => {
   lineSize = THICK_LINE;
   cursorSymbol = "o";
+  random_color();
 });
 
 exportButton.addEventListener("click", () => {
@@ -289,3 +300,7 @@ customButton.addEventListener("click", () => {
     app.append(emojiButton);
   }
 });
+
+function random_color() {
+  color = "#" + (0x1000 + Math.random() * 0xfff).toString(16).substr(1, 3);
+}
