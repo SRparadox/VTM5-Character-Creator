@@ -105,6 +105,13 @@ let currentMarkerThickness = 2;
 
 let currentSticker: Sticker | null = null;
 
+// Initial set of stickers with new options added.
+const stickers = [
+  { emoji: "👤" },
+  { emoji: "🕶" },
+  { emoji: "🧢" }
+];
+
 function endStroke() {
   if (drawing && currentStroke !== null) {
     strokes.push(currentStroke);
@@ -210,18 +217,33 @@ const thinButton = document.createElement("button");
 thinButton.textContent = "Thin";
 app.appendChild(thinButton);
 
-// Sticker Buttons
-const stickerEmojis = ['👤', '🕶', '🧢'];
-stickerEmojis.forEach((emoji) => {
+// Create and append buttons for each initial sticker
+function createStickerButton(sticker: { emoji: string }) {
   const button = document.createElement("button");
-  button.textContent = emoji;
+  button.textContent = sticker.emoji;
   app.appendChild(button);
 
   button.addEventListener("click", () => {
     toolPreview = null;
-    currentSticker = new Sticker(emoji, 0, 0);
+    currentSticker = new Sticker(sticker.emoji, 0, 0);
     dispatchToolMovedEvent();
   });
+}
+
+stickers.forEach(createStickerButton);
+
+// Custom sticker button to allow users to add stickers
+const customStickerButton = document.createElement("button");
+customStickerButton.textContent = "Add Custom Sticker";
+app.appendChild(customStickerButton);
+
+customStickerButton.addEventListener("click", () => {
+  const inputEmoji = prompt("Enter emoji for a new sticker:", "🙂");
+  if (inputEmoji) {
+    const newSticker = { emoji: inputEmoji };
+    stickers.push(newSticker);
+    createStickerButton(newSticker);
+  }
 });
 
 clearButton.addEventListener("click", () => {
