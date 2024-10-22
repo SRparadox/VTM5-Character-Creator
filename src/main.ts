@@ -94,13 +94,17 @@ const clearButton = document.createElement("button");
 clearButton.innerHTML = "clear";
 app.append(clearButton);
 
+const undoButton = document.createElement("button");
+undoButton.innerHTML = "undo";
+app.append(undoButton);
+
 const redoButton = document.createElement("button");
 redoButton.innerHTML = "redo";
 app.append(redoButton);
 
-const undoButton = document.createElement("button");
-undoButton.innerHTML = "undo";
-app.append(undoButton);
+const exportButton = document.createElement("button");
+exportButton.innerHTML = "Export";
+app.append(exportButton);
 
 app.append(document.createElement("br"));
 
@@ -129,6 +133,8 @@ for (const sticker of stickers) {
 const customStickerButton = document.createElement("button");
 customStickerButton.innerHTML = "Create Sticker";
 app.append(customStickerButton);
+
+app.append(document.createElement("br"));
 
 const ctx = canvas.getContext("2d")!;
 
@@ -275,4 +281,19 @@ customStickerButton.addEventListener("click", () => {
     });
     app.append(stickerButton);
   }
+});
+
+exportButton.addEventListener("click", () => {
+  const highDef = document.createElement("canvas");
+  highDef.width = 1024;
+  highDef.height = 1024;
+  const hdctx = highDef.getContext("2d")!;
+  hdctx.scale(4, 4);
+  for (const drawing of drawings) {3
+    drawing.display(hdctx);
+  }
+  const anchor = document.createElement("a");
+  anchor.href = highDef.toDataURL("image/png");
+  anchor.download = "sketchpad.png";
+  anchor.click();
 });
