@@ -33,6 +33,37 @@ const redoButton = document.createElement("button");
 redoButton.textContent = "Redo";
 app.appendChild(redoButton);
 
+// Add an export button
+const exportButton = document.createElement("button");
+exportButton.textContent = "Export";
+app.appendChild(exportButton);
+
+exportButton.addEventListener("click", () => {
+    // Create a new canvas object of size 1024x1024
+    const exportCanvas = document.createElement("canvas");
+    exportCanvas.width = 1024;
+    exportCanvas.height = 1024;
+    const exportCtx = exportCanvas.getContext("2d")!;
+
+    // Scale the context to fill the larger canvas
+    exportCtx.scale(4, 4);
+
+    // Execute all items on the display list against the new canvas
+    points.forEach(item => item.display(exportCtx));
+
+    // Trigger a file download with the contents of the canvas as a PNG file
+    exportCanvas.toBlob(blob => {
+        if (blob) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "sketch.png";
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    });
+});
+
 // Add thin and thick marker tool buttons
 const thinButton = document.createElement("button");
 thinButton.textContent = "Thin";
