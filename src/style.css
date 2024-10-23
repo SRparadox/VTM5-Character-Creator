@@ -112,6 +112,11 @@ button:focus-visible {
   background-color: #0056b3;
 }
 
+.selectedTool {
+  background-color: #646464;
+  color: white;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

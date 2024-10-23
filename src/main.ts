@@ -62,10 +62,12 @@ function drawing_behavior(canvas: HTMLCanvasElement) {
 
     let drawing = false;
 
+    const lineThickness = marker_behavior();
+
     const pen_touch= (event: MouseEvent) => {
         drawing = true;
         FIFObag = [];
-        currentStroke = createLine(event.offsetX, event.offsetY);
+        currentStroke = createLine(event.offsetX, event.offsetY, lineThickness());
         strokes.push(currentStroke);
         dispatch_drawing_changed(canvas);
     };
@@ -141,7 +143,7 @@ function undo_redo_behavior( canvas: HTMLCanvasElement) {
     });
 } 
 
-function createLine(startX: number, startY: number): Drawable {
+function createLine(startX: number, startY: number, thickness: number): Drawable {
     const points: Point[] = [{ x: startX, y: startY }];
 
     return {
@@ -157,6 +159,7 @@ function createLine(startX: number, startY: number): Drawable {
                 for (let i = 1; i < points.length; i++) {
                     ctx.lineTo(points[i].x, points[i].y);
                 }
+                ctx.lineWidth = thickness;
                 ctx.stroke();
                 ctx.closePath();
             }
@@ -164,8 +167,40 @@ function createLine(startX: number, startY: number): Drawable {
     };
 }
 
+function marker_behavior() {
+    const thin_btn = document.createElement('button');
+    thin_btn.textContent = 'THIN';
+    thin_btn.id = 'thinButton';
+    document.body.appendChild(thin_btn);
+
+    const thick_btn = document.createElement('button');
+    thick_btn.textContent = 'THICK';
+    thick_btn.id = 'thickButton';
+    document.body.appendChild(thick_btn);
+
+    let lineThickness = 2; 
+
+    thin_btn.addEventListener('click', () => {
+        lineThickness = 2; 
+        updateSelectedTool(thin_btn, thick_btn);
+    });
+
+    thick_btn.addEventListener('click', () => {
+        lineThickness = 8; 
+        updateSelectedTool(thick_btn, thin_btn);
+    });
+
+    return () => lineThickness;
+}
+
+function updateSelectedTool(selectedButton: HTMLButtonElement, otherButton: HTMLButtonElement) {
+    selectedButton.classList.add('selectedTool'); 
+    otherButton.classList.remove('selectedTool');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = app_setup(); 
     clear_behavior(canvas); 
-    undo_redo_behavior(canvas);    
+    undo_redo_behavior(canvas);
+    marker_behavior();    
 });
