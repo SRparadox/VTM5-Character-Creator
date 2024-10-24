@@ -81,6 +81,13 @@ thickButton.textContent = "Thick";
 thickButton.id = "thickButton";
 toolsContainer.appendChild(thickButton);
 
+// Add a color input element
+const colorInput = document.createElement("input");
+colorInput.type = "color";
+colorInput.id = "colorInput";
+colorInput.value = "#000000"; // Default color is black
+toolsContainer.appendChild(colorInput);
+
 // Define an array of stickers
 let stickers = ["🎃", "👻", "🕸️"];
 
@@ -98,7 +105,7 @@ const createStickerButtons = () => {
         stickerButton.addEventListener("click", () => {
             currentTool = "sticker";
             currentSticker = sticker;
-            toolPreview = new ToolPreview(0, 0, currentThickness, currentSticker);
+            toolPreview = new ToolPreview(0, 0, currentThickness, currentSticker, currentColor);
 
             // Remove "selectedTool" class from all sticker buttons
             stickers.forEach((_, i) => {
@@ -141,105 +148,46 @@ let currentThickness = 3; // Default thickness
 let toolPreview: ToolPreview | null = null;
 let currentTool: "marker" | "sticker" = "marker";
 let currentSticker: string | null = null;
+let currentColor = "#000000"; // Default color is black
 
-interface Drawable {
-    display(ctx: CanvasRenderingContext2D): void;
-}
-
-class MarkerLine implements Drawable {
-    private points: Array<{ x: number, y: number }> = [];
-    private thickness: number;
-
-    constructor(initialX: number, initialY: number, thickness: number) {
-        this.points.push({ x: initialX, y: initialY });
-        this.thickness = thickness;
-    }
-
-    drag(x: number, y: number) {
-        this.points.push({ x, y });
-    }
-
-    display(ctx: CanvasRenderingContext2D) {
-        ctx.beginPath();
-        ctx.lineWidth = this.thickness;
-        this.points.forEach((point, index) => {
-            if (index === 0) {
-                ctx.moveTo(point.x, point.y);
-            } else {
-                ctx.lineTo(point.x, point.y);
-            }
-        });
-        ctx.stroke();
-    }
-}
-
-class Sticker implements Drawable {
-    private x: number;
-    private y: number;
-    private emoji: string;
-
-    constructor(x: number, y: number, emoji: string) {
-        this.x = x;
-        this.y = y;
-        this.emoji = emoji;
-    }
-
-    drag(x: number, y: number) {
-        this.x = x;
-        this.y = y;
-    }
-
-    display(ctx: CanvasRenderingContext2D) {
-        ctx.font = "24px Arial";
-        ctx.fillText(this.emoji, this.x, this.y);
-    }
-}
-
-class ToolPreview implements Drawable {
-    private x: number;
-    private y: number;
-    private thickness: number;
-    private emoji: string | null;
-
-    constructor(x: number, y: number, thickness: number, emoji: string | null) {
-        this.x = x;
-        this.y = y;
-        this.thickness = thickness;
-        this.emoji = emoji;
-    }
-
-    updatePosition(x: number, y: number) {
-        this.x = x;
-        this.y = y;
-    }
-
-    updateTool(thickness: number, emoji: string | null) {
-        this.thickness = thickness;
-        this.emoji = emoji;
-    }
-
-    display(ctx: CanvasRenderingContext2D) {
-        if (this.emoji) {
-            ctx.font = "24px Arial";
-            ctx.fillText(this.emoji, this.x, this.y);
-        } else {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.thickness / 2, 0, Math.PI * 2);
-            ctx.fillStyle = "black"; // Fill the circle to avoid a hole in the middle
-            ctx.fill();
-        }
-    }
-}
+colorInput.addEventListener("input", (event) => {
+    currentColor = (event.target as HTMLInputElement).value;
+});
 
 canvasElement.addEventListener("mousedown", (event) => {
     drawing = true;
+    const rect = canvasElement.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
     if (currentTool === "marker") {
-        currentLine = new MarkerLine(event.offsetX, event.offsetY, currentThickness);
+        currentLine = new MarkerLine(x, y, currentThickness, currentColor);
         points.push(currentLine);
     } else if (currentTool === "sticker" && currentSticker) {
-        currentStickerObj = new Sticker(event.offsetX, event.offsetY, currentSticker);
+        currentStickerObj = new Sticker(x, y, currentSticker);
         points.push(currentStickerObj);
-        toolPreview = null; // Hide tool preview when placing sticker
+    }
+});
+
+canvasElement.addEventListener("mousemove", (event) => {
+    const rect = canvasElement.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    if (!drawing) {
+        if (!toolPreview) {
+            toolPreview = new ToolPreview(x, y, currentThickness, currentSticker, currentColor);
+        } else {
+            toolPreview.updatePosition(x, y);
+            toolPreview.updateTool(currentThickness, currentSticker, currentColor);
+        }
+        canvasElement.dispatchEvent(new Event("tool-moved"));
+    } else if (currentLine) {
+        currentLine.drag(x, y);
+        canvasElement.dispatchEvent(new Event("drawing-changed"));
+    } else if (currentStickerObj) {
+        currentStickerObj.drag(x, y);
+        canvasElement.dispatchEvent(new Event("drawing-changed"));
     }
 });
 
@@ -247,25 +195,6 @@ canvasElement.addEventListener("mouseup", () => {
     drawing = false;
     currentLine = null;
     currentStickerObj = null;
-    ctx.beginPath(); // Reset the path to avoid connecting lines
-});
-
-canvasElement.addEventListener("mousemove", (event) => {
-    if (!drawing) {
-        if (!toolPreview) {
-            toolPreview = new ToolPreview(event.offsetX, event.offsetY, currentThickness, currentSticker);
-        } else {
-            toolPreview.updatePosition(event.offsetX, event.offsetY);
-            toolPreview.updateTool(currentThickness, currentSticker);
-        }
-        canvasElement.dispatchEvent(new Event("tool-moved"));
-    } else if (currentLine) {
-        currentLine.drag(event.offsetX, event.offsetY);
-        canvasElement.dispatchEvent(new Event("drawing-changed"));
-    } else if (currentStickerObj) {
-        currentStickerObj.drag(event.offsetX, event.offsetY);
-        canvasElement.dispatchEvent(new Event("drawing-changed"));
-    }
 });
 
 canvasElement.addEventListener("mouseleave", () => {
@@ -321,9 +250,9 @@ redoButton.addEventListener("click", () => {
 
 thinButton.addEventListener("click", () => {
     currentTool = "marker";
-    currentThickness = 3;
+    currentThickness = 4;
     currentSticker = null;
-    toolPreview = new ToolPreview(0, 0, currentThickness, currentSticker);
+    toolPreview = new ToolPreview(0, 0, currentThickness, currentSticker, currentColor);
     thinButton.classList.add("selectedTool");
     thickButton.classList.remove("selectedTool");
     stickers.forEach((_, index) => {
@@ -334,9 +263,9 @@ thinButton.addEventListener("click", () => {
 
 thickButton.addEventListener("click", () => {
     currentTool = "marker";
-    currentThickness = 5;
+    currentThickness = 7;
     currentSticker = null;
-    toolPreview = new ToolPreview(0, 0, currentThickness, currentSticker);
+    toolPreview = new ToolPreview(0, 0, currentThickness, currentSticker, currentColor);
     thickButton.classList.add("selectedTool");
     thinButton.classList.remove("selectedTool");
     stickers.forEach((_, index) => {
@@ -344,3 +273,98 @@ thickButton.addEventListener("click", () => {
     });
     canvasElement.dispatchEvent(new Event("tool-moved"));
 });
+
+interface Drawable {
+    display(ctx: CanvasRenderingContext2D): void;
+}
+
+class MarkerLine implements Drawable {
+    private points: Array<{ x: number, y: number }> = [];
+    private thickness: number;
+    private color: string;
+
+    constructor(initialX: number, initialY: number, thickness: number, color: string) {
+        this.points.push({ x: initialX, y: initialY });
+        this.thickness = thickness;
+        this.color = color;
+    }
+
+    drag(x: number, y: number) {
+        this.points.push({ x, y });
+    }
+
+    display(ctx: CanvasRenderingContext2D) {
+        ctx.beginPath();
+        ctx.lineWidth = this.thickness;
+        ctx.strokeStyle = this.color;
+        this.points.forEach((point, index) => {
+            if (index === 0) {
+                ctx.moveTo(point.x, point.y);
+            } else {
+                ctx.lineTo(point.x, point.y);
+            }
+        });
+        ctx.stroke();
+    }
+}
+
+class Sticker implements Drawable {
+    private x: number;
+    private y: number;
+    private emoji: string;
+
+    constructor(x: number, y: number, emoji: string) {
+        this.x = x;
+        this.y = y;
+        this.emoji = emoji;
+    }
+
+    drag(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+    }
+
+    display(ctx: CanvasRenderingContext2D) {
+        ctx.font = "24px Arial";
+        ctx.fillText(this.emoji, this.x, this.y);
+    }
+}
+
+class ToolPreview implements Drawable {
+    private x: number;
+    private y: number;
+    private thickness: number;
+    private emoji: string | null;
+    private color: string;
+
+    constructor(x: number, y: number, thickness: number, emoji: string | null, color: string) {
+        this.x = x;
+        this.y = y;
+        this.thickness = thickness;
+        this.emoji = emoji;
+        this.color = color;
+    }
+
+    updatePosition(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+    }
+
+    updateTool(thickness: number, emoji: string | null, color: string) {
+        this.thickness = thickness;
+        this.emoji = emoji;
+        this.color = color;
+    }
+
+    display(ctx: CanvasRenderingContext2D) {
+        if (this.emoji) {
+            ctx.font = "24px Arial";
+            ctx.fillText(this.emoji, this.x, this.y);
+        } else {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.thickness / 2, 0, Math.PI * 2);
+            ctx.fillStyle = this.color; // Fill the circle with the current color
+            ctx.fill();
+        }
+    }
+}

@@ -38,8 +38,7 @@ body {
 h1 {
   font-size: 3.2em;
   line-height: 1.2;
-  color: black
-  
+  color: black;
 }
 
 #app {
@@ -95,24 +94,28 @@ button:focus-visible {
 
 /* Add styles for the canvas */
 #sketchCanvas {
-    border: 1px solid black;
-    border-radius: 8px; /* Rounded corners */
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* Drop shadow */
-    background-color: white; /* Canvas background to white */
-    cursor: none; /* Hide the cursor */
-    margin: auto;
+  border: 1px solid black;
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* Drop shadow */
+  background-color: white; /* Canvas background to white */
+  cursor: none; /* Hide the cursor */
+  margin: auto;
 }
 
 /* Add styles for selected tool buttons */
 .selectedTool {
-    background-color: #aaaaaa; /* Light gray background for selected tool */
+  background-color: #d3d3d3; /* Light gray background for selected tool */
 }
 
 #toolsContainer {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+button, #colorInput {
+  margin: 5px;
 }
 
 @media (prefers-color-scheme: light) {
