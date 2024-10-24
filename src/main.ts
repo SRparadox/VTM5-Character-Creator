@@ -9,10 +9,12 @@ app.innerHTML = APP_NAME;
 type Point = {x: number, y: number};
 
 let drawing = false;
+let Sticker = false;
 
 let strokes: Drawable[] = [];
 let currentStroke: Drawable | null = null;
 let FIFObag: Drawable[] = [];
+let selectedSticker: string | null = null;
 
 interface Drawable {
     display(ctx: CanvasRenderingContext2D): void;
@@ -65,15 +67,20 @@ function clear_behavior(canvas: HTMLCanvasElement) {
 
 function drawing_behavior(canvas: HTMLCanvasElement) {
 
-    //const lineThickness = marker_behavior();
-
     const pen_touch= (event: MouseEvent) => {
-        drawing = true;
-        FIFObag = [];
-        currentStroke = createLine(event.offsetX, event.offsetY, lineThickness);
-        strokes.push(currentStroke);
-        toolPreview = null;
-        dispatch_drawing_changed(canvas);
+        if (Sticker && selectedSticker) {
+            currentStroke = createSticker(event.offsetX, event.offsetY, selectedSticker);
+            strokes.push(currentStroke);
+            Sticker = false;
+            dispatch_drawing_changed(canvas);
+        } else {
+            drawing = true;
+            FIFObag = [];
+            currentStroke = createLine(event.offsetX, event.offsetY, lineThickness);
+            strokes.push(currentStroke);
+            toolPreview = null;
+            dispatch_drawing_changed(canvas);
+        }
     };
 
     const pen_draw = (event: MouseEvent) => {
@@ -103,7 +110,11 @@ function tool_moved_behavior(canvas: HTMLCanvasElement) {
     canvas.addEventListener('mousemove', (event: MouseEvent) => {
         if (!drawing) {
             const { offsetX, offsetY } = event;
-            toolPreview = createToolPreview(offsetX, offsetY, lineThickness);
+            if (Sticker && selectedSticker) {
+                toolPreview = createStickerPreview(offsetX, offsetY, selectedSticker);
+            } else {
+                toolPreview = createToolPreview(offsetX, offsetY, lineThickness);
+            }
             dispatch_tool_moved(canvas);
         }
     });
@@ -147,12 +158,10 @@ function undo_redo_behavior( canvas: HTMLCanvasElement) {
             const lastStroke = strokes.pop();
             if (lastStroke) {
                 FIFObag.push(lastStroke);
+                redraw_behavior(canvas);
             }
-            dispatch_drawing_changed(canvas);
         }
     });
-
-
     
     //Redo Button behavior
     const redo_btn = document.createElement('button');
@@ -165,8 +174,8 @@ function undo_redo_behavior( canvas: HTMLCanvasElement) {
             const lastUndo = FIFObag.pop();
             if (lastUndo) {
                 strokes.push(lastUndo);
+                redraw_behavior(canvas);
             }
-            dispatch_drawing_changed(canvas);
         }
     });
 } 
@@ -192,6 +201,33 @@ function createLine(startX: number, startY: number, thickness: number): Drawable
                 ctx.closePath();
             }
         },
+    };
+}
+
+function createSticker(x: number, y: number, sticker: string): Drawable {
+    return {
+        drag(newX: number, newY: number) {
+            x = newX;
+            y = newY;
+        },
+        display(ctx: CanvasRenderingContext2D) {
+            ctx.font = "32px Arial";
+            ctx.fillText(sticker, x, y);
+        },
+    };
+}
+
+function createStickerPreview(x: number, y: number, sticker: string | null): Drawable {
+    return {
+        display(ctx: CanvasRenderingContext2D) {
+            if (sticker) {
+                ctx.font = "32px Arial";
+                ctx.globalAlpha = 0.5; 
+                ctx.fillText(sticker, x, y);
+                ctx.globalAlpha = 1.0; 
+            }
+        },
+        drag(x: number, y: number) {}
     };
 }
 
@@ -235,6 +271,22 @@ function marker_behavior() {
     updateSelectedTool(thin_btn, thick_btn);
 }
 
+function sticker_behavior(canvas: HTMLCanvasElement) {
+    const sticker_btns = ["❤️", "🌟", "🍀"].map(sticker => {
+        const btn = document.createElement('button');
+        btn.textContent = sticker;
+        document.body.appendChild(btn);
+
+        btn.addEventListener('click', () => {
+            selectedSticker = sticker;
+            Sticker = true;
+            dispatch_tool_moved(canvas);
+        });
+
+        return btn;
+    });
+}
+
 function updateSelectedTool(selectedButton: HTMLButtonElement, otherButton: HTMLButtonElement) {
     selectedButton.classList.add('selectedTool'); 
     otherButton.classList.remove('selectedTool');
@@ -247,6 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
     marker_behavior();
     drawing_behavior(canvas);
     tool_moved_behavior(canvas);
+    sticker_behavior(canvas);
 
     canvas.addEventListener('tool-moved', () => {
         redraw_behavior(canvas); 
