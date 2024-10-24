@@ -17,26 +17,31 @@ canvasElement.height = 256;
 canvasElement.id = "sketchCanvas";
 app.appendChild(canvasElement);
 
+// Create a container for the tools
+const toolsContainer = document.createElement("div");
+toolsContainer.id = "toolsContainer";
+app.appendChild(toolsContainer);
+
 // Add a clear button
 const clearButton = document.createElement("button");
 clearButton.textContent = "Clear";
 clearButton.id = "clearButton";
-app.appendChild(clearButton);
+toolsContainer.appendChild(clearButton);
 
 // Add an undo button
 const undoButton = document.createElement("button");
 undoButton.textContent = "Undo";
-app.appendChild(undoButton);
+toolsContainer.appendChild(undoButton);
 
 // Add a redo button
 const redoButton = document.createElement("button");
 redoButton.textContent = "Redo";
-app.appendChild(redoButton);
+toolsContainer.appendChild(redoButton);
 
 // Add an export button
 const exportButton = document.createElement("button");
 exportButton.textContent = "Export";
-app.appendChild(exportButton);
+toolsContainer.appendChild(exportButton);
 
 exportButton.addEventListener("click", () => {
     // Create a new canvas object of size 1024x1024
@@ -69,12 +74,12 @@ const thinButton = document.createElement("button");
 thinButton.textContent = "Thin";
 thinButton.id = "thinButton";
 thinButton.classList.add("selectedTool"); // Start with thin marker selected
-app.appendChild(thinButton);
+toolsContainer.appendChild(thinButton);
 
 const thickButton = document.createElement("button");
 thickButton.textContent = "Thick";
 thickButton.id = "thickButton";
-app.appendChild(thickButton);
+toolsContainer.appendChild(thickButton);
 
 // Define an array of stickers
 let stickers = ["🎃", "👻", "🕸️"];
@@ -86,7 +91,7 @@ const createStickerButtons = () => {
         if (!stickerButton) {
             stickerButton = document.createElement("button");
             stickerButton.id = `stickerButton${index}`;
-            app.appendChild(stickerButton);
+            toolsContainer.appendChild(stickerButton);
         }
         stickerButton.textContent = sticker;
 
@@ -116,10 +121,10 @@ createStickerButtons();
 // Add a button for creating a custom sticker
 const customStickerButton = document.createElement("button");
 customStickerButton.textContent = "Add Custom Sticker";
-app.appendChild(customStickerButton);
+toolsContainer.appendChild(customStickerButton);
 
 customStickerButton.addEventListener("click", () => {
-    const customSticker = prompt("Enter your custom sticker:", "😊");
+    const customSticker = prompt("Enter your custom sticker:", "😱");
     if (customSticker) {
         stickers.push(customSticker);
         createStickerButtons();
@@ -132,7 +137,7 @@ let points: Array<Drawable> = [];
 let redoStack: Array<Drawable> = [];
 let currentLine: MarkerLine | null = null;
 let currentStickerObj: Sticker | null = null;
-let currentThickness = 2; // Default thickness
+let currentThickness = 3; // Default thickness
 let toolPreview: ToolPreview | null = null;
 let currentTool: "marker" | "sticker" = "marker";
 let currentSticker: string | null = null;
@@ -316,7 +321,7 @@ redoButton.addEventListener("click", () => {
 
 thinButton.addEventListener("click", () => {
     currentTool = "marker";
-    currentThickness = 2;
+    currentThickness = 3;
     currentSticker = null;
     toolPreview = new ToolPreview(0, 0, currentThickness, currentSticker);
     thinButton.classList.add("selectedTool");
