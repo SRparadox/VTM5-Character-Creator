@@ -8,6 +8,8 @@ app.innerHTML = APP_NAME;
 
 type Point = {x: number, y: number};
 
+let drawing = false;
+
 let strokes: Drawable[] = [];
 let currentStroke: Drawable | null = null;
 let FIFObag: Drawable[] = [];
@@ -16,6 +18,9 @@ interface Drawable {
     display(ctx: CanvasRenderingContext2D): void;
     drag(x: number, y: number): void;
 }
+
+let toolPreview: Drawable | null = null;
+let lineThickness: number = 2;
 
 function app_setup() {
 
@@ -60,15 +65,14 @@ function clear_behavior(canvas: HTMLCanvasElement) {
 
 function drawing_behavior(canvas: HTMLCanvasElement) {
 
-    let drawing = false;
-
-    const lineThickness = marker_behavior();
+    //const lineThickness = marker_behavior();
 
     const pen_touch= (event: MouseEvent) => {
         drawing = true;
         FIFObag = [];
-        currentStroke = createLine(event.offsetX, event.offsetY, lineThickness());
+        currentStroke = createLine(event.offsetX, event.offsetY, lineThickness);
         strokes.push(currentStroke);
+        toolPreview = null;
         dispatch_drawing_changed(canvas);
     };
 
@@ -95,6 +99,26 @@ function dispatch_drawing_changed(canvas: HTMLCanvasElement) {
     canvas.dispatchEvent(event);
 }
 
+function tool_moved_behavior(canvas: HTMLCanvasElement) {
+    canvas.addEventListener('mousemove', (event: MouseEvent) => {
+        if (!drawing) {
+            const { offsetX, offsetY } = event;
+            toolPreview = createToolPreview(offsetX, offsetY, lineThickness);
+            dispatch_tool_moved(canvas);
+        }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+        toolPreview = null;
+        dispatch_tool_moved(canvas);
+    });
+}
+
+function dispatch_tool_moved(canvas: HTMLCanvasElement) {
+    const event = new Event('tool-moved');
+    canvas.dispatchEvent(event);
+}
+
 function redraw_behavior(canvas: HTMLCanvasElement) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -103,6 +127,10 @@ function redraw_behavior(canvas: HTMLCanvasElement) {
 
     for (const stroke of strokes) {
         stroke.display(ctx);
+    }
+
+    if (toolPreview && !drawing) {
+        toolPreview.display(ctx);
     }
 }
 
@@ -167,6 +195,22 @@ function createLine(startX: number, startY: number, thickness: number): Drawable
     };
 }
 
+function createToolPreview(x: number, y: number, radius: number): Drawable {
+    return {
+        display(ctx: CanvasRenderingContext2D) {
+            ctx.beginPath();
+            ctx.arc(x, y, radius / 2, 0, 2 * Math.PI);
+            ctx.strokeStyle = '#888';
+            ctx.lineWidth = 1; // Outline the circle with thin stroke
+            ctx.stroke();
+            ctx.closePath();
+        },
+
+        drag(x: number, y: number) {
+        }
+    };
+}
+
 function marker_behavior() {
     const thin_btn = document.createElement('button');
     thin_btn.textContent = 'THIN';
@@ -176,9 +220,7 @@ function marker_behavior() {
     const thick_btn = document.createElement('button');
     thick_btn.textContent = 'THICK';
     thick_btn.id = 'thickButton';
-    document.body.appendChild(thick_btn);
-
-    let lineThickness = 2; 
+    document.body.appendChild(thick_btn); 
 
     thin_btn.addEventListener('click', () => {
         lineThickness = 2; 
@@ -190,7 +232,7 @@ function marker_behavior() {
         updateSelectedTool(thick_btn, thin_btn);
     });
 
-    return () => lineThickness;
+    updateSelectedTool(thin_btn, thick_btn);
 }
 
 function updateSelectedTool(selectedButton: HTMLButtonElement, otherButton: HTMLButtonElement) {
@@ -202,5 +244,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = app_setup(); 
     clear_behavior(canvas); 
     undo_redo_behavior(canvas);
-    marker_behavior();    
+    marker_behavior();
+    drawing_behavior(canvas);
+    tool_moved_behavior(canvas);
+
+    canvas.addEventListener('tool-moved', () => {
+        redraw_behavior(canvas); 
+    });   
 });
