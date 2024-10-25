@@ -1,6 +1,7 @@
 import "./style.css";
 
 const APP_NAME = "Make your canvas!";
+document.title = APP_NAME;
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
 //let points:number[][] = [];
@@ -38,9 +39,31 @@ class Line{
             }
             ctx?.stroke();
             ctx?.closePath();
+            ctx.lineWidth = 1;
         }
     }
 }
+
+class tool{
+    x:number
+    y:number
+
+    constructor(x_:number, y_:number){
+        this.x = x_;  this.y = y_;
+    }
+    update_position(x_:number, y_:number){
+        this.x = x_;  this.y = y_;
+    }
+
+    display(ctx:CanvasRenderingContext2D):void{
+        if(is_mouse_down == false){
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, marker_size, 0, 2 * Math.PI);
+            ctx.stroke();
+        }
+    }
+}
+const preview_tool = new tool(0,0);
 
 const canvas = document.createElement("canvas");
 document.body.append(canvas); 
@@ -65,12 +88,16 @@ function clearctx(clear:boolean){
 clearctx(true);
 
 canvas.addEventListener("mousemove", (event) => {
-    if(ctx != null && is_mouse_down){
+    if(ctx != null){
         const x = event.clientX - ctx.canvas.offsetLeft;
         const y = event.clientY - ctx.canvas.offsetTop;
-
-        lines[lines.length - 1].addPoint(x,y);
-        canvas.dispatchEvent(drawing_changed);
+        //mouse_pos.x = x; mouse_pos.y = y;
+        preview_tool.update_position(x,y);
+        if(is_mouse_down){
+            lines[lines.length - 1].addPoint(x,y);
+            //canvas.dispatchEvent(drawing_changed);
+        }
+    canvas.dispatchEvent(tool_moved);
     }
 });
 
@@ -82,7 +109,19 @@ canvas.addEventListener('drawing_changed', () => {
     }
 })
 
-canvas.dispatchEvent(drawing_changed)
+const tool_moved = new CustomEvent('tool_moved', {});
+canvas.addEventListener('tool_moved', () => {
+    if(ctx != null){
+        clearctx(false);
+        for(let i = 0; i < lines.length; i++){
+            lines[i].display(ctx);
+        }
+        if(is_mouse_down == false){
+            preview_tool.display(ctx);
+        }
+    }
+    
+})
 
 canvas.addEventListener("mouseup", () => {
     is_mouse_down = false; 
@@ -133,10 +172,6 @@ redo.addEventListener("click", () => {
         lines[i].display(ctx); 
     }
 });
-
-document.title = APP_NAME;
-//app.innerHTML = APP_NAME;
-
 
 const thicken = document.createElement("button");
 document.body.append(thicken); thicken.innerHTML = "thicken marker";
