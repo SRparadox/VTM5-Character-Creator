@@ -18,8 +18,9 @@ const context = canvas.getContext("2d")!;
 context.fillStyle = "white";
 context.fillRect(0, 0, canvas.height, canvas.width);
 
+const smallLineSize = 1; const bigLineSize = 4;
 let isMouseDown = false;
-let lineSize = 1;
+let lineSize = smallLineSize;
 let lineColor = "black";
 
 interface Point {
@@ -191,22 +192,22 @@ const smallLineButton = document.createElement("button");
 smallLineButton.innerHTML = "small line";
 buttonPanel.append(smallLineButton);
 smallLineButton.addEventListener("mousedown", (e) => {
-    lineSize = 1;
+    lineSize = smallLineSize;
     lineColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
     cursorCommand = new Cursor(e.offsetX, e.offsetY);
     canvas.dispatchEvent(toolMovedEvent);
-    changeButton(smallLineButton);
+    setSelectedButton(smallLineButton);
 });
 
 const bigLineButton = document.createElement("button");
 bigLineButton.innerHTML = "big line";
 buttonPanel.append(bigLineButton);
 bigLineButton.addEventListener("mousedown", (e) => {
-    lineSize = 4;
+    lineSize = bigLineSize;
     lineColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
     cursorCommand = new Cursor(e.offsetX, e.offsetY);
     canvas.dispatchEvent(toolMovedEvent);
-    changeButton(bigLineButton);
+    setSelectedButton(bigLineButton);
 });
 
 const stickerPanel = document.createElement("div");
@@ -225,7 +226,7 @@ function createStickerButton(s: string) {
             Math.floor(Math.random() * (200 - (-200)) + -200),
         );
         canvas.dispatchEvent(toolMovedEvent);
-        changeButton(sticker);
+        setSelectedButton(sticker);
     });
 }
 for (let i = 0; i < stickerList.length; i++) {
@@ -274,7 +275,7 @@ exportButton.addEventListener("mousedown", () => {
 
 let selectedButton: HTMLButtonElement = smallLineButton;
 selectedButton.style.backgroundColor = "grey";
-function changeButton(button: HTMLButtonElement) {
+function setSelectedButton(button: HTMLButtonElement) {
     button.style.backgroundColor = "grey";
     selectedButton.style.backgroundColor = "";
     selectedButton = button;
