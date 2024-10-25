@@ -1,11 +1,12 @@
 import "./style.css";
 
-const APP_NAME = "Hello. I hope you're doing better!";
+const APP_NAME = "Make your canvas!";
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
 //let points:number[][] = [];
 let lines:Line[] = [];
 let undoed_lines:Line[] = [];
+let marker_size = 1;
 
 interface Point{
     x: number,
@@ -14,9 +15,11 @@ interface Point{
 
 class Line{
     points: Point[]
+    thickness: number
 
-    constructor(){
+    constructor(thickness:number){
         this.points = [];
+        this.thickness = thickness;
     }
 
     addPoint(x_:number, y_:number){
@@ -29,7 +32,7 @@ class Line{
         for(let i = 0; i < this.points.length; i++){
             if(ctx != null)ctx.fillStyle = 'black';
             ctx?.beginPath();
-        
+            ctx.lineWidth = this.thickness;
             for(let i = 0; i < this.points.length; i++){
                 ctx?.lineTo(this.points[i].x,this.points[i].y); 
             }
@@ -86,7 +89,7 @@ canvas.addEventListener("mouseup", () => {
 })
 canvas.addEventListener("mousedown", () => {
     is_mouse_down = true
-    const newline = new Line();
+    const newline = new Line(marker_size);
     lines.push(newline);
     undoed_lines = [];
 })
@@ -132,4 +135,30 @@ redo.addEventListener("click", () => {
 });
 
 document.title = APP_NAME;
-app.innerHTML = APP_NAME;
+//app.innerHTML = APP_NAME;
+
+
+const thicken = document.createElement("button");
+document.body.append(thicken); thicken.innerHTML = "thicken marker";
+thicken.addEventListener("click", () => {
+    if(marker_size < 10){
+        marker_size += 1;
+    }
+    updateMarkertxt(marker_size);
+});
+
+const thin = document.createElement("button");
+document.body.append(thin); thin.innerHTML = "thin marker";
+thin.addEventListener("click", () => {
+    if(marker_size > 1){
+        marker_size -= 1;
+    }
+    updateMarkertxt(marker_size);
+});
+
+const markertxt = document.createElement("p");
+document.body.append(markertxt);
+function updateMarkertxt(size:number){
+    markertxt.innerHTML = "Marker thickness is: " + size;
+}
+updateMarkertxt(marker_size);
