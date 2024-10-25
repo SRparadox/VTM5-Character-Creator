@@ -143,8 +143,7 @@ canvas.addEventListener("mouseup", (e) => {
 
 const drawingChangedEvent = new Event("drawing-changed");
 canvas.addEventListener("drawing-changed", () => {
-    context.fillStyle = "white";
-    context.fillRect(0, 0, canvas.height, canvas.width);
+    clearScreen();
     for (const command of displayCommands) {
         command.display(context);
     }
@@ -164,8 +163,7 @@ clearButton.innerHTML = "CLEAR";
 buttonPanel.append(clearButton);
 clearButton.addEventListener("mousedown", () => {
     displayCommands = [];
-    context.fillStyle = "white";
-    context.fillRect(0, 0, canvas.height, canvas.width);
+    clearScreen();
 });
 
 const undoButton = document.createElement("button");
@@ -279,4 +277,9 @@ function setSelectedButton(button: HTMLButtonElement) {
     button.style.backgroundColor = "grey";
     selectedButton.style.backgroundColor = "";
     selectedButton = button;
+}
+
+function clearScreen(){
+    context.fillStyle = "white";
+    context.fillRect(0, 0, canvas.height, canvas.width);
 }
