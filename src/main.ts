@@ -4,23 +4,47 @@ const APP_NAME = "Make your canvas!";
 document.title = APP_NAME;
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
-//let points:number[][] = [];
-let lines:Line[] = [];
-let undoed_lines:Line[] = [];
+let lines:(Line|Sticker)[] = [];
+let undoed_lines:(Line|Sticker)[] = [];
 let marker_size = 1;
+
+let tool_display:string = "circle";
 
 interface Point{
     x: number,
     y: number
 }
 
+class Sticker{
+    x: number
+    y: number
+    text: string
+    size: number
+
+    constructor(x_:number, y_:number, text_:string, size_:number){
+        this.x = x_; this.y = y_; 
+        this.text = text_; this.size = size_;
+    }
+
+    addPoint(x_:number, y_:number){
+    }
+
+    display(ctx:CanvasRenderingContext2D):void{
+        ctx.font = (10 * this.size) + "px serif";
+        ctx.fillText(this.text, this.x, this.y);
+    }
+}
+
 class Line{
+    x: number
+    y: number
     points: Point[]
     thickness: number
 
     constructor(thickness:number){
         this.points = [];
         this.thickness = thickness;
+        this.x = 0; this.y = 0;
     }
 
     addPoint(x_:number, y_:number){
@@ -47,21 +71,41 @@ class Line{
 class tool{
     x:number
     y:number
+    text:string
+    display_type:string
 
     constructor(x_:number, y_:number){
         this.x = x_;  this.y = y_;
+        this.text = ""; this.display_type = "circle";
     }
+
     update_position(x_:number, y_:number){
         this.x = x_;  this.y = y_;
     }
 
+    update_display(display_type_:string,  text_:string = ""){
+        this.display_type = display_type_;
+        this.text = text_;
+    }
+
     display(ctx:CanvasRenderingContext2D):void{
         if(is_mouse_down == false){
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, marker_size, 0, 2 * Math.PI);
-            ctx.stroke();
+            if(this.display_type == "circle"){
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, marker_size, 0, 2 * Math.PI);
+                ctx.stroke();
+            }
+            if(this.display_type == "string"){
+                ctx.font = (10 * marker_size) + "px serif";
+                ctx.fillText(this.text, this.x, this.y);
+            }
         }
     }
+
+    assign_text(text:string){
+        this.text = text;
+    }
+
 }
 const preview_tool = new tool(0,0);
 
@@ -91,23 +135,19 @@ canvas.addEventListener("mousemove", (event) => {
     if(ctx != null){
         const x = event.clientX - ctx.canvas.offsetLeft;
         const y = event.clientY - ctx.canvas.offsetTop;
-        //mouse_pos.x = x; mouse_pos.y = y;
         preview_tool.update_position(x,y);
         if(is_mouse_down){
-            lines[lines.length - 1].addPoint(x,y);
-            //canvas.dispatchEvent(drawing_changed);
+            if((lines[lines.length - 1]) instanceof Line){
+                lines[lines.length - 1].addPoint(x,y);
+            }
+            if((lines[lines.length - 1]) instanceof Sticker){
+                lines[lines.length - 1].x = x;
+                lines[lines.length - 1].y = y;
+            }
         }
-    canvas.dispatchEvent(tool_moved);
+            canvas.dispatchEvent(tool_moved);   
     }
 });
-
-const drawing_changed = new CustomEvent('drawing_changed', {});
-canvas.addEventListener('drawing_changed', () => {
-    if(ctx != null)
-    for(let i = 0; i < lines.length; i++){
-        lines[i].display(ctx);
-    }
-})
 
 const tool_moved = new CustomEvent('tool_moved', {});
 canvas.addEventListener('tool_moved', () => {
@@ -118,6 +158,7 @@ canvas.addEventListener('tool_moved', () => {
         }
         if(is_mouse_down == false){
             preview_tool.display(ctx);
+
         }
     }
     
@@ -128,8 +169,15 @@ canvas.addEventListener("mouseup", () => {
 })
 canvas.addEventListener("mousedown", () => {
     is_mouse_down = true
-    const newline = new Line(marker_size);
-    lines.push(newline);
+    let newline;
+    if(preview_tool.display_type == "circle"){
+        newline = new Line(marker_size);
+    }
+    else if(preview_tool.display_type == "string"){
+        newline = new Sticker(preview_tool.x, preview_tool.y,
+        preview_tool.text, marker_size);
+    }
+    if(newline != undefined){lines.push(newline);}
     undoed_lines = [];
 })
 
@@ -197,3 +245,24 @@ function updateMarkertxt(size:number){
     markertxt.innerHTML = "Marker thickness is: " + size;
 }
 updateMarkertxt(marker_size);
+
+const emoji1 = document.createElement("button");
+document.body.append(emoji1); emoji1.innerHTML = "👾";
+emoji1.addEventListener("click", () => {
+    preview_tool.update_display("string", "👾");
+});
+const emoji2 = document.createElement("button");
+document.body.append(emoji2); emoji2.innerHTML = "🎃";
+emoji2.addEventListener("click", () => {
+    preview_tool.update_display("string", "🎃");
+});
+const emoji3 = document.createElement("button");
+document.body.append(emoji3); emoji3.innerHTML = "😇";
+emoji3.addEventListener("click", () => {
+    preview_tool.update_display("string", "😇");
+});
+const emoji0 = document.createElement("button");
+document.body.append(emoji0); emoji0.innerHTML = "Unselect Sticker";
+emoji0.addEventListener("click", () => {
+    preview_tool.update_display("circle");
+});
