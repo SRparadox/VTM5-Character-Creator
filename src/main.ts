@@ -3,10 +3,41 @@ import "./style.css";
 const APP_NAME = "Hello. I hope you're doing better!";
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
-let points:number[][] = [];
-let lines:number[][][] = [];
-let undoed_lines:number[][][] = [];
+//let points:number[][] = [];
+let lines:Line[] = [];
+let undoed_lines:Line[] = [];
 
+interface Point{
+    x: number,
+    y: number
+}
+
+class Line{
+    points: Point[]
+
+    constructor(){
+        this.points = [];
+    }
+
+    addPoint(x_:number, y_:number){
+        this.points.push({x:x_, y:y_});
+    }
+
+    display(ctx:CanvasRenderingContext2D):void{
+        ctx.fillStyle = 'black';
+
+        for(let i = 0; i < this.points.length; i++){
+            if(ctx != null)ctx.fillStyle = 'black';
+            ctx?.beginPath();
+        
+            for(let i = 0; i < this.points.length; i++){
+                ctx?.lineTo(this.points[i].x,this.points[i].y); 
+            }
+            ctx?.stroke();
+            ctx?.closePath();
+        }
+    }
+}
 
 const canvas = document.createElement("canvas");
 document.body.append(canvas); 
@@ -23,8 +54,8 @@ function clearctx(clear:boolean){
         ctx.fillStyle = 'black';
 
         if(clear == true){
-            points = [];
             lines = [];
+            undoed_lines = [];
         }
     }
 }
@@ -35,43 +66,29 @@ canvas.addEventListener("mousemove", (event) => {
         const x = event.clientX - ctx.canvas.offsetLeft;
         const y = event.clientY - ctx.canvas.offsetTop;
 
-        lines[lines.length - 1]?.push([x, y]);
+        lines[lines.length - 1].addPoint(x,y);
         canvas.dispatchEvent(drawing_changed);
     }
 });
 
 const drawing_changed = new CustomEvent('drawing_changed', {});
 canvas.addEventListener('drawing_changed', () => {
+    if(ctx != null)
     for(let i = 0; i < lines.length; i++){
-        drawPoints(lines[i]);
+        lines[i].display(ctx);
     }
 })
 
 canvas.dispatchEvent(drawing_changed)
 
-function drawPoints(pnts:number[][]){
-
-    if(pnts != undefined && pnts.length >= 1){
-
-        if(ctx != null)ctx.fillStyle = 'black';
-        ctx?.beginPath();
-
-        for(let i = 0; i < pnts.length; i++){
-            ctx?.lineTo(pnts[i][0],pnts[i][1]); 
-        }
-        ctx?.stroke();
-        ctx?.closePath();
-    }
-}
 canvas.addEventListener("mouseup", () => {
     is_mouse_down = false; 
-    //console.log("finished line: " + lines.length)
 })
 canvas.addEventListener("mousedown", () => {
     is_mouse_down = true
-    lines.push([]);
+    const newline = new Line();
+    lines.push(newline);
     undoed_lines = [];
-    //console.log("adding line: " + lines.length)
 })
 
 const clear = document.createElement("button");
@@ -93,7 +110,8 @@ undo.addEventListener("click", () => {
         lines = lines.slice(0, -1)      
     }
     for(let i = 0; i < lines.length; i++){
-        drawPoints(lines[i]); 
+        if(ctx != null)
+        lines[i].display(ctx); 
     }
 });
 
@@ -106,11 +124,10 @@ redo.addEventListener("click", () => {
 
         lines.push(undoed_lines[undoed_lines.length -1]);
         undoed_lines.pop();
-
-
     }
     for(let i = 0; i < lines.length; i++){
-        drawPoints(lines[i]); 
+        if(ctx != null)
+        lines[i].display(ctx); 
     }
 });
 
