@@ -309,6 +309,37 @@ function updateSelectedTool(selectedButton: HTMLButtonElement, otherButton: HTML
     otherButton.classList.remove('selectedTool');
 }
 
+function export_behavior() {
+    const export_btn = document.createElement('button');
+    export_btn.textContent = 'EXPORT';
+    export_btn.id = 'exportButton';
+    document.body.appendChild(export_btn);
+
+    export_btn.addEventListener('click', () => {
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = 1024;
+        exportCanvas.height = 1024;
+        const exportCtx = exportCanvas.getContext('2d');
+        if (!exportCtx) return;
+        exportCtx.scale(4, 4);
+
+        for (const stroke of strokes) {
+            stroke.display(exportCtx);
+        }
+
+        exportCanvas.toBlob((blob) => {
+            if (blob) {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'drawing.png';
+                link.click();
+
+                URL.revokeObjectURL(link.href);
+            }
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = app_setup(); 
     clear_behavior(canvas); 
@@ -317,6 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
     drawing_behavior(canvas);
     tool_moved_behavior(canvas);
     sticker_behavior(canvas);
+    export_behavior();
 
     canvas.addEventListener('tool-moved', () => {
         redraw_behavior(canvas); 
