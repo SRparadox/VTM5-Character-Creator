@@ -30,7 +30,7 @@ class Sticker{
     }
 
     display(ctx:CanvasRenderingContext2D):void{
-        ctx.font = (10 * this.size) + "px serif";
+        ctx.font = (5 + 5 * this.size) + "px serif";
         ctx.fillText(this.text, this.x, this.y);
     }
 }
@@ -96,7 +96,7 @@ class tool{
                 ctx.stroke();
             }
             if(this.display_type == "string"){
-                ctx.font = (10 * marker_size) + "px serif";
+                ctx.font = (5 + 5 * marker_size) + "px serif";
                 ctx.fillText(this.text, this.x, this.y);
             }
         }
@@ -260,6 +260,13 @@ const emoji3 = document.createElement("button");
 document.body.append(emoji3); emoji3.innerHTML = "😇";
 emoji3.addEventListener("click", () => {
     preview_tool.update_display("string", "😇");
+});
+const customemoji = document.createElement("button");
+document.body.append(customemoji); customemoji.innerHTML = "Custom Sticker";
+customemoji.addEventListener("click", () => {
+    const stickertxt =  prompt("Input text for custom sticker.");
+    if(stickertxt != null)
+    preview_tool.update_display("string", stickertxt);
 });
 const emoji0 = document.createElement("button");
 document.body.append(emoji0); emoji0.innerHTML = "Unselect Sticker";
