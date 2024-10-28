@@ -25,12 +25,10 @@ interface Drawable {
 let toolPreview: Drawable | null = null;
 let lineThickness: number = 2;
 
-function app_setup() {
+let currentColor = getRandomColor(); 
+let currentRotation: number = getRandomRotation();
 
-    //App Title Settings
-    // const title = document.createElement('h1');
-    // title.textContent = 'Colors of the Wind';
-    // document.body.appendChild(title);
+function app_setup() {;
 
     //Canvas Settings
     const canvas = document.createElement('canvas');
@@ -42,6 +40,7 @@ function app_setup() {
     drawing_behavior(canvas);
 
     canvas.addEventListener('drawing changed', () => {
+        
         redraw_behavior(canvas);
     });
 
@@ -65,6 +64,20 @@ function clear_behavior(canvas: HTMLCanvasElement) {
     });
 }
 
+function getRandomColor(): string {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+//let currentColor = getRandomColor();
+
+function getRandomRotation(): number {
+    return Math.random() * 360; 
+}
 
 function drawing_behavior(canvas: HTMLCanvasElement) {
 
@@ -183,6 +196,7 @@ function undo_redo_behavior( canvas: HTMLCanvasElement) {
 
 function createLine(startX: number, startY: number, thickness: number): Drawable {
     const points: Point[] = [{ x: startX, y: startY }];
+    const color = currentColor;
 
     return {
         
@@ -198,6 +212,7 @@ function createLine(startX: number, startY: number, thickness: number): Drawable
                     ctx.lineTo(points[i].x, points[i].y);
                 }
                 ctx.lineWidth = thickness;
+                ctx.strokeStyle = color;
                 ctx.stroke();
                 ctx.closePath();
             }
@@ -206,6 +221,8 @@ function createLine(startX: number, startY: number, thickness: number): Drawable
 }
 
 function createSticker(x: number, y: number, sticker: string): Drawable {
+    const color = currentColor;
+
     return {
         drag(newX: number, newY: number) {
             x = newX;
@@ -213,6 +230,7 @@ function createSticker(x: number, y: number, sticker: string): Drawable {
         },
         display(ctx: CanvasRenderingContext2D) {
             ctx.font = "32px Arial";
+            ctx.fillStyle = color;
             ctx.fillText(sticker, x, y);
         },
     };
@@ -237,7 +255,7 @@ function createToolPreview(x: number, y: number, radius: number): Drawable {
         display(ctx: CanvasRenderingContext2D) {
             ctx.beginPath();
             ctx.arc(x, y, radius / 2, 0, 2 * Math.PI);
-            ctx.strokeStyle = '#888';
+            ctx.strokeStyle = currentColor;
             ctx.lineWidth = 1; // Outline the circle with thin stroke
             ctx.stroke();
             ctx.closePath();
@@ -261,11 +279,13 @@ function marker_behavior() {
 
     thin_btn.addEventListener('click', () => {
         lineThickness = 2; 
+        randomizeToolAppearance();
         updateSelectedTool(thin_btn, thick_btn);
     });
 
     thick_btn.addEventListener('click', () => {
-        lineThickness = 8; 
+        lineThickness = 10; 
+        randomizeToolAppearance();
         updateSelectedTool(thick_btn, thin_btn);
     });
 
@@ -300,6 +320,7 @@ function createStickerButton(sticker: string, container: HTMLElement, canvas: HT
     btn.addEventListener('click', () => {
         selectedSticker = sticker;
         Sticker = true;
+        randomizeToolAppearance();
         dispatch_tool_moved(canvas);
     });
 }
@@ -307,6 +328,19 @@ function createStickerButton(sticker: string, container: HTMLElement, canvas: HT
 function updateSelectedTool(selectedButton: HTMLButtonElement, otherButton: HTMLButtonElement) {
     selectedButton.classList.add('selectedTool'); 
     otherButton.classList.remove('selectedTool');
+
+    currentColor = getRandomColor();
+
+    // Update tool preview to show the new color
+    toolPreview = selectedSticker 
+        ? createStickerPreview(0, 0, selectedSticker) 
+        : createToolPreview(0, 0, lineThickness);
+}
+
+function randomizeToolAppearance() {
+    currentColor = getRandomColor();
+    currentRotation = getRandomRotation();
+    toolPreview = createToolPreview(0, 0, lineThickness);
 }
 
 function export_behavior() {
