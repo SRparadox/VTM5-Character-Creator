@@ -117,7 +117,7 @@ const ctx = canvas.getContext("2d");
 canvas.width = 256; canvas.height = 256;
 let is_mouse_down = false;
 
-function clearctx(clear:boolean){
+function clearctx(clear:boolean, ctx:CanvasRenderingContext2D){
     if(ctx != null){
         ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, 256, 256);
@@ -129,7 +129,8 @@ function clearctx(clear:boolean){
         }
     }
 }
-clearctx(true);
+if(ctx != null)
+clearctx(true, ctx);
 
 canvas.addEventListener("mousemove", (event) => {
     if(ctx != null){
@@ -152,7 +153,8 @@ canvas.addEventListener("mousemove", (event) => {
 const tool_moved = new CustomEvent('tool_moved', {});
 canvas.addEventListener('tool_moved', () => {
     if(ctx != null){
-        clearctx(false);
+        if(ctx != null)
+            clearctx(false, ctx);
         for(let i = 0; i < lines.length; i++){
             lines[i].display(ctx);
         }
@@ -184,13 +186,15 @@ canvas.addEventListener("mousedown", () => {
 const clear = document.createElement("button");
 document.body.append(clear); clear.innerHTML = "clear canvas";
 clear.addEventListener("click", () => {
-    clearctx(true);
+    if(ctx != null)
+        clearctx(true, ctx);
 });
 
 const undo = document.createElement("button");
 document.body.append(undo); undo.innerHTML = "undo";
 undo.addEventListener("click", () => {
-    clearctx(false);
+    if(ctx != null)
+        clearctx(false, ctx);
 
     if(lines.length > 0){
 
@@ -208,7 +212,8 @@ undo.addEventListener("click", () => {
 const redo = document.createElement("button");
 document.body.append(redo); redo.innerHTML = "redo";
 redo.addEventListener("click", () => {
-    clearctx(false);
+    if(ctx != null)
+        clearctx(false, ctx);
 
     if(undoed_lines.length > 0){
 
@@ -273,3 +278,34 @@ document.body.append(emoji0); emoji0.innerHTML = "Unselect Sticker";
 emoji0.addEventListener("click", () => {
     preview_tool.update_display("circle");
 });
+
+const export_button = document.createElement("button");
+document.body.append(export_button); export_button.innerHTML = "Export Canvas";
+export_button.addEventListener("click", () => {
+
+    const export_canvas = document.createElement("canvas");
+    document.body.append(export_canvas); 
+    const export_ctx = export_canvas.getContext("2d");
+    export_canvas.width = 1024; export_canvas.height =  1024;
+
+    export_ctx?.scale(4,4);
+    for(let i = 0; i < lines.length; i++){
+        if(export_ctx != null)
+        lines[i].display(export_ctx); 
+    }
+    //export_ctx?.scale(4,4);
+
+    //const image = export_canvas.toDataURL("image/png");
+    globalThis.open(export_canvas.toDataURL("image/png"))
+
+    if(export_ctx != null)
+    clearctx(false, export_ctx);
+    
+    export_canvas.remove();
+});
+
+/*const export_canvas = document.createElement("canvas");
+//document.body.append(canvas); 
+export_canvas.id = "export_canvas"; 
+const export_ctx = export_canvas.getContext("2d");
+export_canvas.width = 1024; export_canvas.height = 1024;*/
