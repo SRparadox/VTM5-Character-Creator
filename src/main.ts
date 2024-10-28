@@ -1,12 +1,15 @@
 import "./style.css";
 
-const APP_NAME = "Make your canvas!";
+const APP_NAME = "Canvas Craft";
 document.title = APP_NAME;
+const Title = document.createElement("h2");
+Title.innerHTML = APP_NAME; document.body.append(Title);
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
 let lines:(Line|Sticker)[] = [];
 let undoed_lines:(Line|Sticker)[] = [];
 let marker_size = 1;
+let current_color: string = "black";
 
 let tool_display:string = "circle";
 
@@ -40,11 +43,13 @@ class Line{
     y: number
     points: Point[]
     thickness: number
+    color: string
 
     constructor(thickness:number){
         this.points = [];
         this.thickness = thickness;
         this.x = 0; this.y = 0;
+        this.color = current_color;
     }
 
     addPoint(x_:number, y_:number){
@@ -52,10 +57,11 @@ class Line{
     }
 
     display(ctx:CanvasRenderingContext2D):void{
-        ctx.fillStyle = 'black';
+        ctx.strokeStyle = this.color;
 
         for(let i = 0; i < this.points.length; i++){
-            if(ctx != null)ctx.fillStyle = 'black';
+            //if(ctx != null)ctx.fillStyle = 'black';
+            if(ctx != null)ctx.fillStyle = this.color;
             ctx?.beginPath();
             ctx.lineWidth = this.thickness;
             for(let i = 0; i < this.points.length; i++){
@@ -183,6 +189,12 @@ canvas.addEventListener("mousedown", () => {
     undoed_lines = [];
 })
 
+function setting(sett:string){
+    const newline = document.createElement("h3");
+    newline.innerHTML = sett; document.body.append(newline);
+}
+setting("Ordering");
+
 const clear = document.createElement("button");
 document.body.append(clear); clear.innerHTML = "clear canvas";
 clear.addEventListener("click", () => {
@@ -225,6 +237,7 @@ redo.addEventListener("click", () => {
         lines[i].display(ctx); 
     }
 });
+setting("Marker & Sticker Resizing");
 
 const thicken = document.createElement("button");
 document.body.append(thicken); thicken.innerHTML = "thicken marker";
@@ -244,6 +257,8 @@ thin.addEventListener("click", () => {
     updateMarkertxt(marker_size);
 });
 
+
+
 const markertxt = document.createElement("p");
 document.body.append(markertxt);
 function updateMarkertxt(size:number){
@@ -251,6 +266,33 @@ function updateMarkertxt(size:number){
 }
 updateMarkertxt(marker_size);
 
+setting("Color");
+const color = document.createElement("select");
+document.body.append(color); 
+addoption("black");addoption("red");addoption("green");addoption("blue");
+color.addEventListener('change', (event) => {
+    const target = event.target as HTMLSelectElement;
+    current_color = target.value;
+
+    updatecolortxt()
+    //updatecolortxt(value);
+})
+
+function addoption(str:string){
+    const option = document.createElement("option");
+    option.value = str; option.text = str;
+    color.appendChild(option);
+}
+
+const colortxt = document.createElement("p");
+document.body.append(colortxt);
+function updatecolortxt(){
+    colortxt.innerHTML = "Color is " + current_color;
+
+}
+updatecolortxt()
+
+setting("Stickers");
 const emoji1 = document.createElement("button");
 document.body.append(emoji1); emoji1.innerHTML = "👾";
 emoji1.addEventListener("click", () => {
@@ -266,6 +308,16 @@ document.body.append(emoji3); emoji3.innerHTML = "😇";
 emoji3.addEventListener("click", () => {
     preview_tool.update_display("string", "😇");
 });
+const emoji4 = document.createElement("button");
+document.body.append(emoji4); emoji4.innerHTML = ":3";
+emoji4.addEventListener("click", () => {
+    preview_tool.update_display("string", ":3");
+});
+const emoji5 = document.createElement("button");
+document.body.append(emoji5); emoji5.innerHTML = "👻";
+emoji5.addEventListener("click", () => {
+    preview_tool.update_display("string", "👻");
+});
 const customemoji = document.createElement("button");
 document.body.append(customemoji); customemoji.innerHTML = "Custom Sticker";
 customemoji.addEventListener("click", () => {
@@ -278,6 +330,7 @@ document.body.append(emoji0); emoji0.innerHTML = "Unselect Sticker";
 emoji0.addEventListener("click", () => {
     preview_tool.update_display("circle");
 });
+setting("Export");
 
 const export_button = document.createElement("button");
 document.body.append(export_button); export_button.innerHTML = "Export Canvas";
@@ -293,9 +346,7 @@ export_button.addEventListener("click", () => {
         if(export_ctx != null)
         lines[i].display(export_ctx); 
     }
-    //export_ctx?.scale(4,4);
 
-    //const image = export_canvas.toDataURL("image/png");
     globalThis.open(export_canvas.toDataURL("image/png"))
 
     if(export_ctx != null)
@@ -303,9 +354,3 @@ export_button.addEventListener("click", () => {
     
     export_canvas.remove();
 });
-
-/*const export_canvas = document.createElement("canvas");
-//document.body.append(canvas); 
-export_canvas.id = "export_canvas"; 
-const export_ctx = export_canvas.getContext("2d");
-export_canvas.width = 1024; export_canvas.height = 1024;*/
