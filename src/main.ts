@@ -11,7 +11,7 @@ type Point = {x: number, y: number};
 let drawing = false;
 let Sticker = false;
 
-let stickerOptions = ["❤️", "🌟", "🍀"];
+let stickerOptions = ["👁", "💖", "🍑"];
 let strokes: Drawable[] = [];
 let currentStroke: Drawable | null = null;
 let FIFObag: Drawable[] = [];
@@ -28,9 +28,9 @@ let lineThickness: number = 2;
 function app_setup() {
 
     //App Title Settings
-    const title = document.createElement('h1');
-    title.textContent = 'Colors of the Wind';
-    document.body.appendChild(title);
+    // const title = document.createElement('h1');
+    // title.textContent = 'Colors of the Wind';
+    // document.body.appendChild(title);
 
     //Canvas Settings
     const canvas = document.createElement('canvas');
@@ -284,7 +284,7 @@ function sticker_behavior(canvas: HTMLCanvasElement) {
     document.body.appendChild(customStickerBtn);
 
     customStickerBtn.addEventListener('click', () => {
-        const customSticker = prompt("Custom sticker text","🧽");
+        const customSticker = prompt("Custom sticker text","🌟");
         if (customSticker) {
             stickerOptions.push(customSticker); 
             createStickerButton(customSticker, stickerContainer, canvas); // Create button for new sticker

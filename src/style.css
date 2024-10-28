@@ -76,46 +76,73 @@ h1 {
   color: #888;
 }
 
+/* Button Styling */
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-/* Styling for the clear button */
-#clearButton {
-  display: block;
-  margin: 20px auto;
-  padding: 10px 20px;
-  background-color: #007BFF;
-  color: white;
+  font-size: 16px;
+  color: #fff;
+  background-color: #5c6bc0;
   border: none;
   border-radius: 5px;
-  font-size: 16px;
+  padding: 8px 16px;
+  margin: 5px;
   cursor: pointer;
+  transition: background-color 0.3s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-#clearButton:hover {
-  background-color: #0056b3;
+button:hover {
+  background-color: #3f51b5;
 }
 
+button:active {
+  background-color: #303f9f;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Specific Buttons */
+button#clearButton {
+  background-color: #d32f2f;
+}
+
+button#clearButton:hover {
+  background-color: #c62828;
+}
+
+button#undoButton, button#redoButton {
+  background-color: #ffa726;
+}
+
+button#undoButton:hover, button#redoButton:hover {
+  background-color: #fb8c00;
+}
+
+button#exportButton {
+  background-color: #4caf50;
+}
+
+button#exportButton:hover {
+  background-color: #388e3c;
+}
+
+/* Selected Tool Highlight */
 .selectedTool {
-  background-color: #646464;
-  color: white;
+  background-color: #ffffff;
+  color: #333;
 }
+
+/* Sticker Button Styling */
+div button {
+  font-size: 20px;
+  padding: 5px 10px;
+  margin: 5px;
+  background-color: #90caf9;
+}
+
+div button:hover {
+  background-color: #64b5f6;
+}
+
+/* All button styling code^ was provided by ChatGPT*/
 
 @media (prefers-color-scheme: light) {
   :root {
