@@ -11,8 +11,6 @@ let undoed_lines:(Line|Sticker)[] = [];
 let marker_size = 1;
 let current_color: string = "black";
 
-let tool_display:string = "circle";
-
 interface Point{
     x: number,
     y: number
@@ -23,18 +21,24 @@ class Sticker{
     y: number
     text: string
     size: number
+    rotation: string
 
     constructor(x_:number, y_:number, text_:string, size_:number){
         this.x = x_; this.y = y_; 
         this.text = text_; this.size = size_;
+        this.rotation = current_rotation;
     }
 
     addPoint(x_:number, y_:number){
     }
 
     display(ctx:CanvasRenderingContext2D):void{
-        ctx.font = (5 + 5 * this.size) + "px serif";
-        ctx.fillText(this.text, this.x, this.y);
+        ctx.save(); ctx.translate(this.x,this.y);
+        ctx.font = (10 + 5 * marker_size) + "px serif";
+        ctx.rotate((parseFloat(this.rotation)*Math.PI/180));
+        ctx.fillText(this.text, 0,0);
+        ctx.restore();
+
     }
 }
 
@@ -60,7 +64,7 @@ class Line{
         ctx.strokeStyle = this.color;
 
         for(let i = 0; i < this.points.length; i++){
-            //if(ctx != null)ctx.fillStyle = 'black';
+
             if(ctx != null)ctx.fillStyle = this.color;
             ctx?.beginPath();
             ctx.lineWidth = this.thickness;
@@ -102,8 +106,12 @@ class tool{
                 ctx.stroke();
             }
             if(this.display_type == "string"){
-                ctx.font = (5 + 5 * marker_size) + "px serif";
-                ctx.fillText(this.text, this.x, this.y);
+                ctx.save(); ctx.translate(this.x,this.y);
+                ctx.font = (10 + 5 * marker_size) + "px serif";
+                ctx.rotate((parseFloat(current_rotation)*Math.PI/180));
+                ctx.fillText(this.text, 0,0);
+                ctx.restore();
+
             }
         }
     }
@@ -237,7 +245,7 @@ redo.addEventListener("click", () => {
         lines[i].display(ctx); 
     }
 });
-setting("Marker & Sticker Resizing");
+setting("Resizing & Rotation (right slider is rotation)");
 
 const thicken = document.createElement("button");
 document.body.append(thicken); thicken.innerHTML = "thicken marker";
@@ -257,7 +265,14 @@ thin.addEventListener("click", () => {
     updateMarkertxt(marker_size);
 });
 
-
+const rotation = document.createElement("input"); 
+rotation.type = "range"; rotation.min = "0"; rotation.max="360";
+let current_rotation = '0';
+rotation.addEventListener("input", (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    current_rotation = target.value;
+});
+document.body.append(rotation);
 
 const markertxt = document.createElement("p");
 document.body.append(markertxt);
@@ -270,12 +285,11 @@ setting("Color");
 const color = document.createElement("select");
 document.body.append(color); 
 addoption("black");addoption("red");addoption("green");addoption("blue");
+addoption("yellow"); addoption("purple");
 color.addEventListener('change', (event) => {
     const target = event.target as HTMLSelectElement;
     current_color = target.value;
 
-    updatecolortxt()
-    //updatecolortxt(value);
 })
 
 function addoption(str:string){
@@ -290,7 +304,7 @@ function updatecolortxt(){
     colortxt.innerHTML = "Color is " + current_color;
 
 }
-updatecolortxt()
+
 
 setting("Stickers");
 const emoji1 = document.createElement("button");
