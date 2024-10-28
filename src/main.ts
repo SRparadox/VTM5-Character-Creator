@@ -11,6 +11,7 @@ type Point = {x: number, y: number};
 let drawing = false;
 let Sticker = false;
 
+let stickerOptions = ["❤️", "🌟", "🍀"];
 let strokes: Drawable[] = [];
 let currentStroke: Drawable | null = null;
 let FIFObag: Drawable[] = [];
@@ -272,18 +273,34 @@ function marker_behavior() {
 }
 
 function sticker_behavior(canvas: HTMLCanvasElement) {
-    const sticker_btns = ["❤️", "🌟", "🍀"].map(sticker => {
-        const btn = document.createElement('button');
-        btn.textContent = sticker;
-        document.body.appendChild(btn);
+    const stickerContainer = document.createElement('div');
+    document.body.appendChild(stickerContainer);
 
-        btn.addEventListener('click', () => {
-            selectedSticker = sticker;
-            Sticker = true;
-            dispatch_tool_moved(canvas);
-        });
+    stickerOptions.forEach(sticker => createStickerButton(sticker, stickerContainer, canvas));
 
-        return btn;
+    // Button for adding a custom sticker
+    const customStickerBtn = document.createElement('button');
+    customStickerBtn.textContent = "Create Custom Sticker";
+    document.body.appendChild(customStickerBtn);
+
+    customStickerBtn.addEventListener('click', () => {
+        const customSticker = prompt("Custom sticker text","🧽");
+        if (customSticker) {
+            stickerOptions.push(customSticker); 
+            createStickerButton(customSticker, stickerContainer, canvas); // Create button for new sticker
+        }
+    });
+}
+
+function createStickerButton(sticker: string, container: HTMLElement, canvas: HTMLCanvasElement) {
+    const btn = document.createElement('button');
+    btn.textContent = sticker;
+    container.appendChild(btn);
+
+    btn.addEventListener('click', () => {
+        selectedSticker = sticker;
+        Sticker = true;
+        dispatch_tool_moved(canvas);
     });
 }
 
