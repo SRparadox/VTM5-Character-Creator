@@ -35,6 +35,15 @@ class LineCommand implements DrawCommand {
     }
     ctx.stroke();
   }
+   // Implement serialization for saving/loading
+   toJSON() {
+    return {
+      type: 'line',
+      points: this.points,
+      thickness: this.thickness,
+      color: this.color
+    };
+  }
 }
 
 class StickerCommand implements DrawCommand {
@@ -56,6 +65,14 @@ class StickerCommand implements DrawCommand {
   display(ctx: CanvasRenderingContext2D) {
     ctx.font = `${STICKER_SIZE}px monospace`;
     ctx.fillText(this.sticker, this.x - 4, this.y + 4);
+  }
+  toJSON() {
+    return {
+      type: 'sticker',
+      x: this.x,
+      y: this.y,
+      sticker: this.sticker
+    };
   }
 }
 
@@ -313,11 +330,37 @@ exportButton.addEventListener("click", () => {
   highDef.height = 1024;
   const hdctx = highDef.getContext("2d")!;
   hdctx.scale(4, 4);
-  for (const drawing of drawings) {3
+  for (const drawing of drawings) {
     drawing.display(hdctx);
   }
   const anchor = document.createElement("a");
   anchor.href = highDef.toDataURL("image/png");
   anchor.download = "sketchpad.png";
   anchor.click();
+
+  // Save the drawings to localStorage
+  localStorage.setItem("drawings", JSON.stringify(drawings));
 });
+
+// load button
+const loadButton = document.createElement("button");
+loadButton.innerHTML = "Load";
+app.append(loadButton);
+
+loadButton.addEventListener("click", () => {
+  const storedDrawings = localStorage.getItem("drawings");
+  if (storedDrawings) {
+    const parsedDrawings = JSON.parse(storedDrawings);
+    drawings.length = 0; // Clear the current drawings
+    parsedDrawings.forEach((drawing: any) => {
+      if (drawing.type === 'line') {
+        drawings.push(new LineCommand(drawing.points, drawing.thickness, drawing.color));
+      } else if (drawing.type === 'sticker') {
+        drawings.push(new StickerCommand(drawing.x, drawing.y, drawing.sticker));
+      }
+    });
+    canvas.dispatchEvent(new CustomEvent("drawing-changed"));
+  }
+});
+
+
