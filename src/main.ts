@@ -23,36 +23,43 @@ const rotation = document.querySelector("#Rotation");
 rotation.value = 0;
 degrees.textContent = rotation.value;
 
+const toolDiv = document.createElement("div")
+app.append(toolDiv)
 const clearButton = document.createElement("button");
 const undoButton = document.createElement("button");
 const redoButton = document.createElement("button");
 const thinButton = document.createElement("button");
 const thickButton = document.createElement("button");
+clearButton.textContent = "Clear";
+toolDiv.append(clearButton);
+undoButton.textContent = "Undo";
+toolDiv.append(undoButton);
+redoButton.textContent = "Redo";
+toolDiv.append(redoButton);
+thinButton.textContent = "Thin";
+toolDiv.append(thinButton);
+thickButton.textContent = "Thick";
+toolDiv.append(thickButton);
+
+const emoteDiv = document.createElement("div")
+app.append(emoteDiv)
 const emoteButton1 = document.createElement("button");
 const emoteButton2 = document.createElement("button");
 const emoteButton3 = document.createElement("button");
 const customButton = document.createElement("button");
 const exportButton = document.createElement("button");
-clearButton.textContent = "Clear";
-app.append(clearButton);
-undoButton.textContent = "Undo";
-app.append(undoButton);
-redoButton.textContent = "Redo";
-app.append(redoButton);
-thinButton.textContent = "Thin";
-app.append(thinButton);
-thickButton.textContent = "Thick";
-app.append(thickButton);
+
 emoteButton1.textContent = "🌕";
-app.append(emoteButton1);
+emoteDiv.append(emoteButton1);
 emoteButton2.textContent = "🍤";
-app.append(emoteButton2);
+emoteDiv.append(emoteButton2);
 emoteButton3.textContent = "☄️";
-app.append(emoteButton3);
+emoteDiv.append(emoteButton3);
 customButton.textContent = custom;
-app.append(customButton);
+emoteDiv.append(customButton);
 exportButton.textContent = "export";
-app.append(exportButton);
+emoteDiv.append(exportButton);
+
 
 const changEvent = new Event("drawing-changed");
 const toolMoved = new Event("tool-moved");
@@ -306,5 +313,4 @@ globalThis.addEventListener("mouseup", (e) => {
     }
 });
 
-  
 console.log("test")
