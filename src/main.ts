@@ -23,6 +23,10 @@ let isMouseDown = false;
 let lineSize = smallLineSize;
 let lineColor = "black";
 
+function getRandomColor(): string {
+    return "#" + Math.floor(Math.random() * 16777215).toString(16);
+}
+
 interface Point {
     x: number;
     y: number;
@@ -55,28 +59,26 @@ let redoCommands: Displayable[] = [];
 class Cursor implements Displayable {
     x: number;
     y: number;
+    
     constructor(x: number, y: number) {
         this.x = x;
         this.y = y;
     }
+    
     display(context: CanvasRenderingContext2D) {
         context.beginPath();
         context.strokeStyle = lineColor;
-        context.lineWidth = lineSize;
-        context.moveTo(this.x, this.y);
-        context.lineTo(this.x + 1, this.y);
-        context.lineTo(this.x + 1, this.y - 1);
-        context.lineTo(this.x, this.y - 1);
-        context.lineTo(this.x, this.y);
+        context.lineWidth = 1;
+        context.arc(this.x, this.y, lineSize, 0, 2 * Math.PI); // Draw a circle with lineSize as radius
         context.stroke();
         context.closePath();
     }
+    
     drag(x: number, y: number) {
         this.x = x;
         this.y = y;
     }
 }
-
 class Sticker implements Displayable {
     x: number = 0;
     y: number = 0;
@@ -191,7 +193,7 @@ smallLineButton.innerHTML = "small line";
 buttonPanel.append(smallLineButton);
 smallLineButton.addEventListener("mousedown", (e) => {
     lineSize = smallLineSize;
-    lineColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
+    lineColor = getRandomColor();
     cursorCommand = new Cursor(e.offsetX, e.offsetY);
     canvas.dispatchEvent(toolMovedEvent);
     setSelectedButton(smallLineButton);
@@ -202,7 +204,7 @@ bigLineButton.innerHTML = "big line";
 buttonPanel.append(bigLineButton);
 bigLineButton.addEventListener("mousedown", (e) => {
     lineSize = bigLineSize;
-    lineColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
+    lineColor = getRandomColor();
     cursorCommand = new Cursor(e.offsetX, e.offsetY);
     canvas.dispatchEvent(toolMovedEvent);
     setSelectedButton(bigLineButton);
