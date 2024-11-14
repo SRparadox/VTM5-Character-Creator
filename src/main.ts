@@ -1,4 +1,7 @@
 import "./style.css";
+import {Point, Displayable} from "./helper.ts";
+
+
 
 const APP_NAME = "Jack's Great, Amazing Game!";
 const app = document.querySelector<HTMLDivElement>("#app")!;
@@ -11,29 +14,20 @@ appTitle.textContent = "My Cool App"
 app.append(appTitle);
 
 const canvas = document.createElement("canvas") as HTMLCanvasElement;
-app.append(canvas);
 canvas.width = 256;
 canvas.height = 256;
+app.append(canvas);
 
 const drawing = canvas.getContext('2d') as CanvasRenderingContext2D;
 
 const thickLine = 20;
 const thinLine = 2;
-let nextLineWidth = thinLine;
 const fontSize = 25;
 const strokeColors = ["black", "red", "orange", "yellow", "green", "blue", "purple"]
+let nextLineWidth = thinLine;
 let nextLineColor: string = strokeColors[0];
 let nextStickerRotation: number = Math.floor(Math.random() * 360);
 
-interface Point {
-    x: number,
-    y: number,
-}
-
-interface Displayable {
-    display(ctx: CanvasRenderingContext2D): void
-    drag(x: number, y:number): void;
-}
 
 class MarkerCommand {
     constructor(lineWidth: number, lineColor: string){
@@ -146,17 +140,19 @@ class StickerCommand {
     }
 }
 
+
+
 const availableStickers = [
     "🍔",
     "👨",
     "👩"
 ];
-
 let nextSticker = availableStickers[0];
 
 const displayableCommands: Displayable[] = [];
 let currentCommand: Displayable = new MarkerCommand(nextLineWidth, nextLineColor);
 const redoCommands: Displayable[] = [];
+
 const cursorDrawing = new cursorPreviewCommand(0, 0, nextLineWidth, true, nextLineColor);
 const stickerPreviewDrawing = new stickerPreviewCommand(0, 0, nextSticker, false, nextStickerRotation);
 
@@ -183,6 +179,8 @@ canvas.addEventListener("mouseup", ()=> {
 })
 
 canvas.addEventListener("mousemove", (e) => {
+    globalThis.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) { console.log('changed!!');})
+
     if (cursor.active) {
         if(currentCommand instanceof MarkerCommand){
             currentCommand.line.push({x: e.offsetX, y: e.offsetY});
@@ -225,6 +223,7 @@ app.append(clearButton);
 clearButton.addEventListener("click", () => {
     drawing.clearRect(0, 0, canvas.width, canvas.height);
     displayableCommands.length = 0;
+
 })
 
 const undoButton = document.createElement("button");
@@ -254,6 +253,7 @@ function mover (source: Displayable[], dest: Displayable[]) {
 const thinButton = document.createElement("button");
 thinButton.innerHTML = "thin";
 app.append(thinButton);
+
 thinButton.addEventListener("click", () => {
     cursorDrawing.active = true;
     stickerPreviewDrawing.active = false;
@@ -266,6 +266,7 @@ thinButton.addEventListener("click", () => {
 const thickButton = document.createElement("button");
 thickButton.innerHTML = "thick";
 app.append(thickButton);
+
 thickButton.addEventListener("click", () => {
     cursorDrawing.active = true;
     stickerPreviewDrawing.active = false;
@@ -275,17 +276,17 @@ thickButton.addEventListener("click", () => {
     currentCommand = new MarkerCommand(nextLineWidth, nextLineColor);
  });
 
- const customStickerButton = document.createElement("button");
- customStickerButton.innerHTML = "custom sticker";
- app.append(customStickerButton);
- customStickerButton.addEventListener("click", () => {
+const customStickerButton = document.createElement("button");
+customStickerButton.innerHTML = "custom sticker";
+app.append(customStickerButton);
+customStickerButton.addEventListener("click", () => {
     const customStickerEmoji = prompt("Custom sticker text","🧽");
     if (customStickerEmoji) {
         const customSticker: string = customStickerEmoji;
         availableStickers.push(customSticker);
         createStickerButton(customSticker);
     }
- })
+});
 
 function createStickerButton(sticker: string) {
     const currentButton = document.createElement("button");
@@ -310,6 +311,7 @@ for (const sticker of availableStickers) {
 const exportButton = document.createElement("button");
 exportButton.innerHTML = "export";
 app.append(exportButton);
+
 exportButton.addEventListener("click", () => {
     const tempCanvas = document.createElement("canvas") as HTMLCanvasElement;
     tempCanvas.width = 1024;
@@ -327,4 +329,23 @@ exportButton.addEventListener("click", () => {
     anchor.href = tempCanvas.toDataURL("image/png");
     anchor.download = "sketchpad.png";
     anchor.click();
-})
+});
+
+//// Change button text colors based on browser theme 
+// Function to set button colors based on the color scheme
+function updateButtonColors(scheme: 'dark' | 'light') {
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(button => {
+        button.style.color = scheme === 'dark' ? 'white' : 'black'; // Set text color
+    });
+}
+
+// Initial color scheme check
+const currentScheme = globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+updateButtonColors(currentScheme);
+
+// Listen for color scheme changes
+globalThis.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+    const newColorScheme = event.matches ? 'dark' : 'light';
+    updateButtonColors(newColorScheme);
+});
