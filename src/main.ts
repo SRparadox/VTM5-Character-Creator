@@ -13,6 +13,7 @@ let redoThickness: number[] = [];
 
 const size = 256;
 const app = document.querySelector<HTMLDivElement>("#app")!;
+
 const canvas = document.getElementById("canvas");
 canvas.style.cursor = "none";
 const ctx = canvas.getContext("2d");
@@ -23,42 +24,44 @@ const rotation = document.querySelector("#Rotation");
 rotation.value = 0;
 degrees.textContent = rotation.value;
 
-const toolDiv = document.createElement("div")
-app.append(toolDiv)
 const clearButton = document.createElement("button");
 const undoButton = document.createElement("button");
 const redoButton = document.createElement("button");
 const thinButton = document.createElement("button");
 const thickButton = document.createElement("button");
 clearButton.textContent = "Clear";
-toolDiv.append(clearButton);
+app.append(clearButton);
 undoButton.textContent = "Undo";
-toolDiv.append(undoButton);
+app.append(undoButton);
 redoButton.textContent = "Redo";
-toolDiv.append(redoButton);
+app.append(redoButton);
 thinButton.textContent = "Thin";
-toolDiv.append(thinButton);
+app.append(thinButton);
 thickButton.textContent = "Thick";
-toolDiv.append(thickButton);
+app.append(thickButton);
 
-const emoteDiv = document.createElement("div")
-app.append(emoteDiv)
-const emoteButton1 = document.createElement("button");
-const emoteButton2 = document.createElement("button");
-const emoteButton3 = document.createElement("button");
+function createEmoteButton(text: string, num: number){
+    const button= document.createElement("button");
+    button.textContent = text;
+    app.append(button);
+    button.addEventListener("click", () => {
+        if(penTool.option != num){
+            penTool.option = num;
+        }else{
+            penTool.option = 0;
+        }
+        dispatchEvent(toolMoved);
+    })
+}
+createEmoteButton("🌕", 1);
+createEmoteButton("🍤", 2);
+createEmoteButton("☄️", 3);
 const customButton = document.createElement("button");
 const exportButton = document.createElement("button");
-
-emoteButton1.textContent = "🌕";
-emoteDiv.append(emoteButton1);
-emoteButton2.textContent = "🍤";
-emoteDiv.append(emoteButton2);
-emoteButton3.textContent = "☄️";
-emoteDiv.append(emoteButton3);
 customButton.textContent = custom;
-emoteDiv.append(customButton);
+app.append(customButton);
 exportButton.textContent = "export";
-emoteDiv.append(exportButton);
+app.append(exportButton);
 
 
 const changEvent = new Event("drawing-changed");
@@ -150,6 +153,8 @@ clearButton.addEventListener("click", () => {
     drawPositions = [];
     thickness = [];
 })
+
+
 
 emoteButton1.addEventListener("click", () => {
     if(penTool.option != 1){
@@ -312,5 +317,3 @@ globalThis.addEventListener("mouseup", (e) => {
         dispatchEvent(changEvent);
     }
 });
-
-console.log("test")
