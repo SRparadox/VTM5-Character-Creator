@@ -3,6 +3,11 @@ import "./style.css";
 const APP_NAME = "Draw your hearts content";
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
+const DEFAULT_CANVAS_WIDTH = 256;
+const DEFAULT_CANVAS_HEIGHT = 256;
+const DEFAULT_EXPORT_WIDTH = 1024;
+const DEFAULT_EXPORT_HEIGHT = 1024;
+
 document.title = APP_NAME;
 app.innerHTML = APP_NAME;
 
@@ -32,8 +37,8 @@ function app_setup() {;
 
     //Canvas Settings
     const canvas = document.createElement('canvas');
-    canvas.width = 256;
-    canvas.height = 256;
+    canvas.width = DEFAULT_CANVAS_WIDTH;
+    canvas.height = DEFAULT_CANVAS_HEIGHT;
     canvas.id = 'appCanvas';
     document.body.appendChild(canvas);
 
@@ -351,11 +356,11 @@ function export_behavior() {
 
     export_btn.addEventListener('click', () => {
         const exportCanvas = document.createElement('canvas');
-        exportCanvas.width = 1024;
-        exportCanvas.height = 1024;
+        exportCanvas.width = DEFAULT_EXPORT_WIDTH;
+        exportCanvas.height = DEFAULT_EXPORT_HEIGHT;
         const exportCtx = exportCanvas.getContext('2d');
         if (!exportCtx) return;
-        exportCtx.scale(4, 4);
+        exportCtx.scale(DEFAULT_EXPORT_HEIGHT/DEFAULT_CANVAS_HEIGHT, DEFAULT_EXPORT_WIDTH/DEFAULT_CANVAS_WIDTH);
 
         for (const stroke of strokes) {
             stroke.display(exportCtx);
