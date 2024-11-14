@@ -154,35 +154,6 @@ clearButton.addEventListener("click", () => {
     thickness = [];
 })
 
-
-
-emoteButton1.addEventListener("click", () => {
-    if(penTool.option != 1){
-        penTool.option = 1;
-    }else{
-        penTool.option = 0;
-    }
-    dispatchEvent(toolMoved);
-})
-
-emoteButton2.addEventListener("click", () => {
-    if(penTool.option != 2){
-        penTool.option = 2;
-    }else{
-        penTool.option = 0;
-    }
-    dispatchEvent(toolMoved);
-})
-
-emoteButton3.addEventListener("click", () => {
-    if(penTool.option != 3){
-        penTool.option = 3;
-    }else{
-        penTool.option = 0;
-    }
-    dispatchEvent(toolMoved);
-})
-
 customButton.addEventListener("click", () => {
     if(penTool.option != 4){
         penTool.option = 4;
