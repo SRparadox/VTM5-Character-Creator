@@ -169,11 +169,11 @@ function endStroke() {
     strokes.push(currentStroke);
     currentStroke = null;
     drawing = false;
-    dispatchDrawingChangedEvent();
+    canvas.dispatchEvent(drawingChangedEvent);
   } else if (currentSticker !== null) {
     strokes.push(currentSticker);
     currentSticker = null;
-    dispatchDrawingChangedEvent();
+    canvas.dispatchEvent(drawingChangedEvent);
   }
 }
 
@@ -188,7 +188,7 @@ canvas.addEventListener("mousedown", (event) => {
     addPoint(event);
   } else if (currentSticker) {
     currentSticker.drag(x, y);
-    dispatchDrawingChangedEvent();
+    canvas.dispatchEvent(drawingChangedEvent);
     endStroke();
   }
 });
@@ -205,7 +205,7 @@ canvas.addEventListener("mousemove", (event) => {
     addPoint(event);
   } else if (toolPreview) {
     toolPreview.updatePosition(x, y);
-    dispatchToolMovedEvent();
+    canvas.dispatchEvent(toolMovedEvent);
   }
 });
 
@@ -216,7 +216,7 @@ function addPoint(event: MouseEvent) {
 
   if (currentStroke) {
     currentStroke.drag(x, y);
-    dispatchDrawingChangedEvent();
+    canvas.dispatchEvent(drawingChangedEvent);
   }
 }
 
@@ -227,18 +227,14 @@ function redraw() {
   toolPreview?.draw(context); // Use optional chaining to safely call draw
 }
 
-function dispatchDrawingChangedEvent() {
-  const event = new Event("drawing-changed");
-  canvas.dispatchEvent(event);
-}
-
-function dispatchToolMovedEvent() {
-  const event = new Event("tool-moved");
-  canvas.dispatchEvent(event);
-}
-
+const drawingChangedEvent = new Event("drawing-changed")
 canvas.addEventListener("drawing-changed", redraw);
+
+const toolMovedEvent = new Event("tool-moved");
 canvas.addEventListener("tool-moved", redraw);
+
+
+
 
 const controlsDiv = document.createElement("div");
 controlsDiv.id = "controls";
@@ -286,7 +282,7 @@ stickers.forEach(sticker => {
     currentColor = generateRandomColor();
     toolPreview = new ToolPreview(24, currentColor); // Reinitialize for sticker tool preview
     currentSticker = new Sticker(sticker.emoji, 0, 0, currentRotation);
-    dispatchToolMovedEvent();
+    canvas.dispatchEvent(toolMovedEvent);
   });
 });
 
@@ -309,7 +305,7 @@ function createStickerButton(sticker: { emoji: string }) {
     currentColor = generateRandomColor();
     toolPreview = new ToolPreview(24, currentColor);
     currentSticker = new Sticker(sticker.emoji, 0, 0, currentRotation);
-    dispatchToolMovedEvent();
+    canvas.dispatchEvent(toolMovedEvent);
   });
 }
 
@@ -317,22 +313,22 @@ clearButton.addEventListener("click", () => {
   context.clearRect(0, 0, canvas.width, canvas.height);
   strokes.length = 0;
   redoStack.length = 0;
-  dispatchDrawingChangedEvent();
+  canvas.dispatchEvent(drawingChangedEvent);
 });
 
 undoButton.addEventListener("click", () => {
-  if (strokes.length !== 0) {
+  if (strokes.length > 0) {
     const stroke = strokes.pop()!;
     redoStack.push(stroke);
-    dispatchDrawingChangedEvent();
+    canvas.dispatchEvent(drawingChangedEvent);
   }
 });
 
 redoButton.addEventListener("click", () => {
-  if (redoStack.length !== 0) {
+  if (redoStack.length > 0) {
     const stroke = redoStack.pop()!;
     strokes.push(stroke);
-    dispatchDrawingChangedEvent();
+    canvas.dispatchEvent(drawingChangedEvent);
   }
 });
 
