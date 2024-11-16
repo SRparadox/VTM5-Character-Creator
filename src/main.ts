@@ -204,7 +204,7 @@ const thickMarkerButton = makeButton("Thick", app, ()=>{
 })
 
 for (const sticker of stickers) {
-  const stickerButton = makeButton("sticker", app, ()=>{
+  const stickerButton = makeButton(sticker, app, ()=>{
     canvas.dispatchEvent(new CustomEvent("tool-moved"));
     canvas.dispatchEvent(new CustomEvent("sticker-mode", { detail: sticker }));
   });
