@@ -13,6 +13,15 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.selectedTool {
+  background-color: #dddddd;
+}
+
+canvas {
+  border: 1px solid black; /* Adds a thin black border */
+  border-radius: 25% 10%;
+}
+
 a {
   font-weight: 500;
   color: #646cff;
@@ -60,6 +69,19 @@ h1 {
 
 .read-the-docs {
   color: #888;
+}
+
+#controls {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+#sticker-controls {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: 10px;
 }
 
 button {
