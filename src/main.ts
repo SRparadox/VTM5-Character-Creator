@@ -43,6 +43,11 @@ const exportButton = document.createElement("button");
 exportButton.textContent = "Export";
 toolsContainer.appendChild(exportButton);
 
+// Add an export button
+const stickerSidebar = document.createElement("div");
+stickerSidebar.id = "stickerSidebar";
+app.appendChild(stickerSidebar);
+
 exportButton.addEventListener("click", () => {
     // Create a new canvas object of size 1024x1024
     const exportCanvas = document.createElement("canvas");
@@ -98,7 +103,7 @@ const createStickerButtons = () => {
         if (!stickerButton) {
             stickerButton = document.createElement("button");
             stickerButton.id = `stickerButton${index}`;
-            toolsContainer.appendChild(stickerButton);
+            stickerSidebar.appendChild(stickerButton);
         }
         stickerButton.textContent = sticker;
 
@@ -128,7 +133,7 @@ createStickerButtons();
 // Add a button for creating a custom sticker
 const customStickerButton = document.createElement("button");
 customStickerButton.textContent = "Add Custom Sticker";
-toolsContainer.appendChild(customStickerButton);
+stickerSidebar.appendChild(customStickerButton);
 
 customStickerButton.addEventListener("click", () => {
     const customSticker = prompt("Enter your custom sticker:", "😱");
