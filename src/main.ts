@@ -74,7 +74,7 @@ for (let i = 0; i < availableEmojis.length; i++) {
   emojiButton.onclick = () => {
     if (cursorSymbol != availableEmojis[i].emoji) {
       cursorSymbol = availableEmojis[i].emoji;
-      rotation = Math.random() * 360;
+      // rotation = Math.random() * 360;
     } else {
       cursorSymbol = "o";
     }
@@ -159,13 +159,13 @@ class Sticker {
   }
 }
 
-let currentLine: Line;
-let cursor: Cursor;
+let currentLine: Line | null;
+let cursor: Cursor | null;
 const lines: (Line | Sticker)[] = [];
 const redoLines: Line[] = [];
-let sticker: Sticker;
+let sticker: Sticker | null;
 
-canvas.addEventListener("mouseout", (e) => {
+canvas.addEventListener("mouseout", () => {
   cursor = null;
   currentLine = null;
   sticker = null;
@@ -195,7 +195,7 @@ canvas.addEventListener("mousemove", (e) => {
   if (!currentLine) {
     if (cursorSymbol != "o") {
       canvas.dispatchEvent(new Event("tool-moved"));
-      sticker.drag(e.offsetX, e.offsetY);
+      sticker?.drag(e.offsetX, e.offsetY);
     }
     canvas.dispatchEvent(new Event("tool-moved"));
   } else {
@@ -226,8 +226,8 @@ function redraw() {
   for (const line of lines) {
     line.display(ctx);
   }
-  cursor.display(ctx);
-  sticker.display(ctx);
+  cursor?.display(ctx);
+  sticker?.display(ctx);
 }
 
 clearButton.addEventListener("click", () => {
@@ -239,14 +239,14 @@ clearButton.addEventListener("click", () => {
 
 undoButton.addEventListener("click", () => {
   if (lines.length > 0) {
-    redoLines.push(lines.pop());
+    redoLines.push(lines.pop() as Line);
     canvas.dispatchEvent(new Event("drawing-changed"));
   }
 });
 
 redoButton.addEventListener("click", () => {
   if (redoLines.length > 0) {
-    lines.push(redoLines.pop());
+    lines.push(redoLines.pop() as Line);
     canvas.dispatchEvent(new Event("drawing-changed"));
   }
 });
@@ -268,7 +268,7 @@ exportButton.addEventListener("click", () => {
   tempCanvas.width = 1024;
   tempCanvas.height = 1024;
 
-  const exportCtx = canvas.getContext("2d");
+  const exportCtx = tempCanvas.getContext("2d");
 
   if (exportCtx) {
     exportCtx?.scale(4, 4);
