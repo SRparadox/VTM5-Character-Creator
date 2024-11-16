@@ -233,9 +233,6 @@ canvas.addEventListener("drawing-changed", redraw);
 const toolMovedEvent = new Event("tool-moved");
 canvas.addEventListener("tool-moved", redraw);
 
-
-
-
 const controlsDiv = document.createElement("div");
 controlsDiv.id = "controls";
 app.appendChild(controlsDiv);
