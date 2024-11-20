@@ -43,7 +43,7 @@ const exportButton = document.createElement("button");
 exportButton.textContent = "Export";
 toolsContainer.appendChild(exportButton);
 
-// Add an export button
+// Add a sticker sidebar
 const stickerSidebar = document.createElement("div");
 stickerSidebar.id = "stickerSidebar";
 app.appendChild(stickerSidebar);
@@ -74,17 +74,30 @@ exportButton.addEventListener("click", () => {
     });
 });
 
-// Add thin and thick marker tool buttons
-const thinButton = document.createElement("button");
-thinButton.textContent = "Thin";
-thinButton.id = "thinButton";
-thinButton.classList.add("selectedTool"); // Start with thin marker selected
-toolsContainer.appendChild(thinButton);
+// Tool button creation and selection
+const selectableToolButtons = new Map<string, HTMLButtonElement>(); // Reference to all selectable tool buttons
+const createSelectableToolButton = (id: string, buttonText: string) => {
+    const button: HTMLButtonElement = document.createElement("button");
+    button.id = id;
+    button.textContent = buttonText;
+    toolsContainer.appendChild(button); // Add to tools container div
+    selectableToolButtons.set(button.id, button); // Add to group of selectable buttons
 
-const thickButton = document.createElement("button");
-thickButton.textContent = "Thick";
-thickButton.id = "thickButton";
-toolsContainer.appendChild(thickButton);
+    return button
+}
+const selectToolButton = (id: string) => {
+    const newButton = selectableToolButtons.get(id);
+    if (newButton) {
+        selectableToolButtons.forEach(button => button.classList.remove("selectedTool"));
+        newButton.classList.add("selectedTool");
+    }
+}
+
+// Add thin and thick marker tool buttons
+const thinButton = createSelectableToolButton("thinButton", "Thin");
+selectToolButton(thinButton.id); // Start with thin marker selected
+
+const thickButton = createSelectableToolButton("thickButton", "Thick");
 
 // Add a color input element
 const colorInput = document.createElement("input");
@@ -94,34 +107,25 @@ colorInput.value = "#000000"; // Default color is black
 toolsContainer.appendChild(colorInput);
 
 // Define an array of stickers
-let stickers = ["🎃", "👻", "🕸️"];
+const stickers = ["🎃", "👻", "🕸️"];
 
 // Function to create sticker buttons
 const createStickerButtons = () => {
     stickers.forEach((sticker, index) => {
-        let stickerButton = document.getElementById(`stickerButton${index}`);
+        let stickerButton = document.getElementById(`stickerButton${index}`) as (HTMLButtonElement | null);
         if (!stickerButton) {
-            stickerButton = document.createElement("button");
-            stickerButton.id = `stickerButton${index}`;
+            stickerButton = createSelectableToolButton(`stickerButton${index}`, sticker);
             stickerSidebar.appendChild(stickerButton);
         }
-        stickerButton.textContent = sticker;
 
         stickerButton.addEventListener("click", () => {
             currentTool = "sticker";
             currentSticker = sticker;
             toolPreview = new ToolPreview(0, 0, currentThickness, currentSticker, currentColor);
 
-            // Remove "selectedTool" class from all sticker buttons
-            stickers.forEach((_, i) => {
-                document.getElementById(`stickerButton${i}`)?.classList.remove("selectedTool");
-            });
+            // Move "selectedTool" class to the clicked sticker button
+            selectToolButton(stickerButton.id);
 
-            // Add "selectedTool" class to the clicked sticker button
-            stickerButton.classList.add("selectedTool");
-
-            thinButton.classList.remove("selectedTool");
-            thickButton.classList.remove("selectedTool");
             canvasElement.dispatchEvent(new Event("tool-moved"));
         });
     });
@@ -258,11 +262,7 @@ thinButton.addEventListener("click", () => {
     currentThickness = 4;
     currentSticker = null;
     toolPreview = new ToolPreview(0, 0, currentThickness, currentSticker, currentColor);
-    thinButton.classList.add("selectedTool");
-    thickButton.classList.remove("selectedTool");
-    stickers.forEach((_, index) => {
-        document.getElementById(`stickerButton${index}`)?.classList.remove("selectedTool");
-    });
+    selectToolButton(thinButton.id);
     canvasElement.dispatchEvent(new Event("tool-moved"));
 });
 
@@ -271,11 +271,7 @@ thickButton.addEventListener("click", () => {
     currentThickness = 7;
     currentSticker = null;
     toolPreview = new ToolPreview(0, 0, currentThickness, currentSticker, currentColor);
-    thickButton.classList.add("selectedTool");
-    thinButton.classList.remove("selectedTool");
-    stickers.forEach((_, index) => {
-        document.getElementById(`stickerButton${index}`)?.classList.remove("selectedTool");
-    });
+    selectToolButton(thickButton.id);
     canvasElement.dispatchEvent(new Event("tool-moved"));
 });
 
