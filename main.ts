@@ -110,8 +110,9 @@ class tool{
                 ctx.rotate((parseFloat(current_rotation)*Math.PI/180));
                 ctx.fillText(this.text, 0,0);
                 ctx.restore();
-
             }
+
+
         }
     }
 
@@ -261,6 +262,15 @@ thin.addEventListener("click", () => {
     if(marker_size > 1){
         marker_size -= 1;
     }
+    updateMarkertxt(marker_size);
+});
+
+const markersize = document.createElement("button");
+document.body.append(markersize); markersize.innerHTML = "markersize";
+markersize.addEventListener("click", () => {
+    let newprompt = window.prompt("Choose marker size");
+    if(newprompt != null)
+    marker_size = parseInt(newprompt);
     updateMarkertxt(marker_size);
 });
 
