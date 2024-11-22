@@ -4,7 +4,6 @@ const APP_NAME = "Canvas Craft";
 document.title = APP_NAME;
 const Title = document.createElement("h2");
 Title.innerHTML = APP_NAME; document.body.append(Title);
-const app = document.querySelector<HTMLDivElement>("#app")!;
 
 let lines:(Line|Sticker)[] = [];
 let undoed_lines:(Line|Sticker)[] = [];
@@ -111,8 +110,9 @@ class tool{
                 ctx.rotate((parseFloat(current_rotation)*Math.PI/180));
                 ctx.fillText(this.text, 0,0);
                 ctx.restore();
-
             }
+
+
         }
     }
 
@@ -265,6 +265,15 @@ thin.addEventListener("click", () => {
     updateMarkertxt(marker_size);
 });
 
+const markersize = document.createElement("button");
+document.body.append(markersize); markersize.innerHTML = "markersize";
+markersize.addEventListener("click", () => {
+    let newprompt = window.prompt("Choose marker size");
+    if(newprompt != null)
+    marker_size = parseInt(newprompt);
+    updateMarkertxt(marker_size);
+});
+
 const rotation = document.createElement("input"); 
 rotation.type = "range"; rotation.min = "0"; rotation.max="360";
 let current_rotation = '0';
@@ -300,11 +309,6 @@ function addoption(str:string){
 
 const colortxt = document.createElement("p");
 document.body.append(colortxt);
-function updatecolortxt(){
-    colortxt.innerHTML = "Color is " + current_color;
-
-}
-
 
 setting("Stickers");
 const emoji1 = document.createElement("button");
