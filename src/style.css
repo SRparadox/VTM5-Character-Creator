@@ -5,7 +5,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: rgb(184, 101, 201);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -23,11 +23,7 @@ a:hover {
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  text-align: center;
 }
 
 h1 {
@@ -40,6 +36,13 @@ h1 {
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+}
+
+#my_canvas{
+  border: rgb(0, 0, 0);
+  border-radius: 30px;
+  filter: drop-shadow(5px 5px 4px #581052);
+  outline: black 6px solid;
 }
 
 .logo {
