@@ -232,6 +232,29 @@ const disciplines = [
   // ...add more disciplines as needed...
 ];
 
+// Example discipline powers (expand as needed)
+const disciplinePowers: Record<string, { level: number; name: string }[]> = {
+  Animalism: [
+    { level: 1, name: "Sense the Beast" },
+    { level: 2, name: "Feral Whispers" },
+    { level: 3, name: "Animal Succulence" },
+    // ...add more...
+  ],
+  Auspex: [
+    { level: 1, name: "Heightened Senses" },
+    { level: 1, name: "Sense the Unseen" },
+    { level: 2, name: "Premonition" },
+    { level: 3, name: "Scry the Soul" },
+    // ...add more...
+  ],
+  Celerity: [
+    { level: 1, name: "Cat's Grace" },
+    { level: 2, name: "Rapid Reflexes" },
+    // ...add more...
+  ],
+  // ...add more disciplines and their powers...
+};
+
 import { defineConfig } from 'vite';
 
 const appElement = document.getElementById('app');
@@ -325,22 +348,64 @@ if (appElement) {
   function renderCollectedDisciplines() {
     collectedDisciplines.innerHTML = collected
       .map(
-        (entry, i) => `
-          <li>
-            ${disciplines[entry.idx].name}
-            (<span id="discipline-level-${i}">${entry.level}</span>)
-            <button type="button" id="inc-discipline-${i}">+</button>
-            <button type="button" id="dec-discipline-${i}">-</button>
-          </li>
-        `
+        (entry, i) => {
+          const disciplineName = disciplines[entry.idx].name;
+          const powers = entry.powers || [];
+          const availablePowers = disciplinePowers[disciplineName] || [];
+          // Powers dropdown
+          const powersDropdown = `
+            <select id="powerSelect-${i}" style="max-width:180px;">
+              <option value="">-- Select Power --</option>
+              ${availablePowers
+                .map(
+                  (p, pi) =>
+                    `<option value="${pi}">Level ${p.level}: ${p.name}</option>`
+                )
+                .join('')}
+            </select>
+            <button type="button" id="addPowerBtn-${i}">Add Power</button>
+          `;
+          // Collected powers list with remove buttons
+          const powersList = `
+            <ul id="collectedPowers-${i}" style="margin:0.5em 0 0 1em;padding:0;">
+              ${powers
+                .map(
+                  (p: { level: number; name: string }, pi: number) =>
+                    `<li>
+                      Level ${p.level}: ${p.name}
+                      <button type="button" id="removePowerBtn-${i}-${pi}" style="margin-left:0.5em;">Remove</button>
+                    </li>`
+                )
+                .join('')}
+            </ul>
+          `;
+          return `
+            <li style="margin-bottom:1em;">
+              ${disciplineName}
+              (<span id="discipline-level-${i}">${entry.level}</span>)
+              <button type="button" id="inc-discipline-${i}">+</button>
+              <button type="button" id="dec-discipline-${i}">-</button>
+              <button type="button" id="removeDisciplineBtn-${i}" style="margin-left:0.5em;">Remove Discipline</button>
+              <div class="mini-panel" style="margin-top:0.5em; border:1px solid #800020; border-radius:6px; padding:0.5em; background:rgba(30,0,30,0.5);">
+                <div><b>Powers</b></div>
+                ${powersDropdown}
+                ${powersList}
+              </div>
+            </li>
+          `;
+        }
       )
       .join('');
 
-    // Add event listeners for + and - buttons
+    // Add event listeners for +, -, remove discipline, and power selection
     collected.forEach((entry, i) => {
       const incBtn = document.getElementById(`inc-discipline-${i}`) as HTMLButtonElement;
       const decBtn = document.getElementById(`dec-discipline-${i}`) as HTMLButtonElement;
       const levelSpan = document.getElementById(`discipline-level-${i}`) as HTMLSpanElement;
+      const powerSelect = document.getElementById(`powerSelect-${i}`) as HTMLSelectElement;
+      const addPowerBtn = document.getElementById(`addPowerBtn-${i}`) as HTMLButtonElement;
+      const powersList = document.getElementById(`collectedPowers-${i}`) as HTMLUListElement;
+      const removeDisciplineBtn = document.getElementById(`removeDisciplineBtn-${i}`) as HTMLButtonElement;
 
       incBtn?.addEventListener('click', () => {
         if (entry.level < 10) {
@@ -353,6 +418,42 @@ if (appElement) {
           entry.level--;
           levelSpan.textContent = entry.level.toString();
         }
+      });
+
+      // Remove discipline
+      removeDisciplineBtn?.addEventListener('click', () => {
+        collected.splice(i, 1);
+        renderCollectedDisciplines();
+      });
+
+      // Add power to discipline
+      addPowerBtn?.addEventListener('click', () => {
+        if (!powerSelect || !powerSelect.value) return;
+        const disciplineName = disciplines[entry.idx].name;
+        const availablePowers = disciplinePowers[disciplineName] || [];
+        const powerIdx = parseInt(powerSelect.value, 10);
+        if (
+          !isNaN(powerIdx) &&
+          availablePowers[powerIdx] &&
+          !(entry.powers || []).some(
+            (p: { level: number; name: string }) =>
+              p.name === availablePowers[powerIdx].name &&
+              p.level === availablePowers[powerIdx].level
+          )
+        ) {
+          if (!entry.powers) entry.powers = [];
+          entry.powers.push(availablePowers[powerIdx]);
+          renderCollectedDisciplines();
+        }
+      });
+
+      // Remove power from discipline
+      (entry.powers || []).forEach((p: { level: number; name: string }, pi: number) => {
+        const removePowerBtn = document.getElementById(`removePowerBtn-${i}-${pi}`) as HTMLButtonElement;
+        removePowerBtn?.addEventListener('click', () => {
+          entry.powers.splice(pi, 1);
+          renderCollectedDisciplines();
+        });
       });
     });
   }
@@ -367,7 +468,7 @@ if (appElement) {
     ) {
       const idx = parseInt(disciplineSelect.options[selectedIdx].value, 10);
       if (!collected.some(e => e.idx === idx)) {
-        collected.push({ idx, level: 1 });
+        collected.push({ idx, level: 1, powers: [] });
         renderCollectedDisciplines();
       }
     }
