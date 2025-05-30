@@ -7,7 +7,9 @@ import {
   disciplinePowers,
   clanInfo,
   archetypes,
-  predatorTypes
+  predatorTypes,
+  rituals,
+  ritualsImages
 } from "./data.ts";
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
@@ -119,21 +121,39 @@ if (appElement) {
           </div>
         </div>
       </section>
-      <section class="panel panel-discipline" style="margin-bottom:2em;">
-        <h2>Discipline Selection</h2>
-        <label for="disciplineSelect" style="display:block;margin-bottom:0.5em;">Disciplines:</label>
-        <div style="display: flex; align-items: flex-start; gap: 1em;">
-          <select id="disciplineSelect" size="8" style="width:100%;max-width:220px;">
-            ${disciplines.map((d, i) => `<option value="${i}">${d.name}</option>`).join('')}
+      <div style="display: flex; flex-direction: row; gap: 2em;">
+        <section class="panel panel-discipline" style="margin-bottom:2em; flex:1;">
+          <h2>Discipline Selection</h2>
+          <label for="disciplineSelect" style="display:block;margin-bottom:0.5em;">Disciplines:</label>
+          <div style="display: flex; align-items: flex-start; gap: 1em;">
+            <select id="disciplineSelect" size="8" style="width:100%;max-width:220px;">
+              ${disciplines.map((d, i) => `<option value="${i}">${d.name}</option>`).join('')}
+            </select>
+            <button id="addDisciplineBtn" type="button" style="height:2.2em;">Add</button>
+          </div>
+          <div id="disciplineInfo" style="margin-top:1em;">
+            <div style="display:flex;align-items:flex-start;gap:1em;">
+              <img id="disciplineImage" src="" alt="" style="width:48px;height:48px;object-fit:contain;display:none;border-radius:6px;background:#1a1a1a;" />
+              <div class="sect-description" id="disciplineDescription"></div>
+            </div>
+            <div style="margin-top:1em;"><b>Collected Disciplines:</b></div>
+            <ul id="collectedDisciplines" style="margin:0.5em 0 0 1em;padding:0;"></ul>
+          </div>
+        </section>
+        <section class="panel panel-rituals" style="margin-bottom:2em; flex:1;">
+          <h2>Rituals</h2>
+          <label for="ritualSelect" style="display:block;margin-bottom:0.5em;">Rituals:</label>
+          <select id="ritualSelect" size="8" style="width:100%;max-width:220px;">
+            ${rituals.map((r, i) => `<option value="${i}">${r.name}</option>`).join('')}
           </select>
-          <button id="addDisciplineBtn" type="button" style="height:2.2em;">Add</button>
-        </div>
-        <div id="disciplineInfo" style="margin-top:1em;">
-          <div class="sect-description" id="disciplineDescription"></div>
-          <div style="margin-top:1em;"><b>Collected Disciplines:</b></div>
-          <ul id="collectedDisciplines" style="margin:0.5em 0 0 1em;padding:0;"></ul>
-        </div>
-      </section>
+          <div id="ritualInfo" style="margin-top:1em;">
+            <div style="display:flex;align-items:flex-start;gap:1em;">
+              <img id="ritualImage" src="" alt="" style="width:48px;height:48px;object-fit:contain;display:none;border-radius:6px;background:#1a1a1a;" />
+              <div class="sect-description" id="ritualDescription"></div>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
   `;
 
@@ -412,5 +432,33 @@ if (appElement) {
         demeanorDescription.textContent = "";
       }
     });
+  }
+
+  // Rituals logic
+  const ritualSelect = document.getElementById('ritualSelect') as HTMLSelectElement;
+  const ritualDescription = document.getElementById('ritualDescription') as HTMLElement;
+  const ritualImage = document.getElementById('ritualImage') as HTMLImageElement;
+
+  function updateRitualDescription() {
+    const selectedIdx = ritualSelect.selectedIndex;
+    if (selectedIdx >= 0) {
+      const ritual = rituals[ritualSelect.options[selectedIdx].value];
+      ritualDescription.textContent = ritual.description;
+      const imgUrl = ritualsImages[ritual.name];
+      if (imgUrl) {
+        ritualImage.src = imgUrl;
+        ritualImage.alt = ritual.name;
+        ritualImage.style.display = "inline-block";
+      } else {
+        ritualImage.style.display = "none";
+      }
+    } else {
+      ritualDescription.textContent = "";
+      ritualImage.style.display = "none";
+    }
+  }
+  if (ritualSelect) {
+    ritualSelect.addEventListener('change', updateRitualDescription);
+    updateRitualDescription();
   }
 }

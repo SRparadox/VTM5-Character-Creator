@@ -30,10 +30,6 @@ import * as toreador from './clan_images/Toreador.png?url';
 import * as truebruja from './clan_images/TrueBrujah.png?url';
 import * as tzimisce from './clan_images/Tzimisce.png?url';
 
-// Add discipline images (if you want to use them in the future)
-// import * as animalismImg from './discipline_images/Animalism.png?url';
-// import * as auspexImg from './discipline_images/Auspex.png?url';
-// ...etc...
 
 export const sects = [
   { name: "Camarilla", description: "The Camarilla is a secret society of vampires dedicated to maintaining the Masquerade.", image: camarilla.default },
@@ -82,31 +78,84 @@ export const clans = [
 ];
 
 export const disciplines = [
+  { name: "Abombwe", description: "Bestial powers unique to the Laibon, allowing communion with animal spirits and the Beast." },
   { name: "Animalism", description: "Allows communication and control over animals, and can tap into the beast within." },
   { name: "Auspex", description: "Heightened senses, telepathy, and the ability to perceive auras." },
-  { name: "Celerity", description: "Supernatural speed and reflexes." },
-  { name: "Dominate", description: "Mind control and the ability to bend others to your will." },
-  { name: "Fortitude", description: "Supernatural resilience and toughness." },
-  { name: "Obfuscate", description: "The power to remain hidden or appear as someone else." },
-  { name: "Potence", description: "Supernatural strength and physical power." },
-  { name: "Presence", description: "Supernatural charisma and the ability to inspire or terrify." },
-  { name: "Protean", description: "Shape-shifting and animalistic powers." },
   { name: "Blood Sorcery", description: "Magical manipulation of vitae, including Thaumaturgy and related arts." },
-  { name: "Oblivion", description: "Necromantic and shadow-based powers." },
-  { name: "Thin-Blood Alchemy", description: "Alchemy unique to thin-blooded vampires." },
-  { name: "Vicissitude", description: "Fleshcrafting and body manipulation." },
+  { name: "Celerity", description: "Supernatural speed and reflexes." },
+  { name: "Chimerstry", description: "Illusions, unique to Ravnos." },
+  { name: "Daimonon", description: "Infernal powers, unique to the Baali." },
   { name: "Dementation", description: "Powers of madness and insight." },
+  { name: "Dominate", description: "Mind control and the ability to bend others to your will." },
+  { name: "Flight", description: "The supernatural ability to fly, found in some rare bloodlines." },
+  { name: "Fortitude", description: "Supernatural resilience and toughness." },
+  { name: "Maleficia", description: "Witchcraft and curses, unique to the Lamia and Baali." },
   { name: "Melpominee", description: "Supernatural vocal powers, unique to Daughters of Cacophony." },
   { name: "Mytherceria", description: "Fae-related powers, unique to Kiasyd." },
   { name: "Necromancy", description: "Death magic, practiced by Giovanni and Hecata." },
   { name: "Obeah", description: "Healing and spiritual powers, unique to Salubri." },
+  { name: "Obfuscate", description: "The power to remain hidden or appear as someone else." },
+  { name: "Obtenebration", description: "Control over shadows and darkness, unique to Lasombra." },
+  { name: "Potence", description: "Supernatural strength and physical power." },
+  { name: "Presence", description: "Supernatural charisma and the ability to inspire or terrify." },
+  { name: "Protean", description: "Shape-shifting and animalistic powers." },
   { name: "Quietus", description: "Assassin's arts, unique to Banu Haqim." },
+  { name: "Sanguinus", description: "Blood-bonding and group powers, unique to the Blood Brothers." },
   { name: "Serpentis", description: "Serpentine powers, unique to Ministry/Setites." },
+  { name: "Spiritus", description: "Spiritual and animalistic powers, unique to the Ahrimanes." },
+  { name: "Striga", description: "Witchcraft and curses, unique to the Lhiannan." },
   { name: "Temporis", description: "Time manipulation, unique to True Brujah." },
+  { name: "Thanatosis", description: "Death and decay powers, unique to Samedi and Cappadocians." },
   { name: "Valeren", description: "Warrior and healer powers, unique to Salubri." },
-  { name: "Chimerstry", description: "Illusions, unique to Ravnos." },
-  // ...existing disciplines, add more if you have more PNGs...
+  { name: "Vicissitude", description: "Fleshcrafting and body manipulation." },
+  { name: "Visceratik", description: "Stone and earth manipulation, unique to Gargoyles." }
 ];
+
+// Add rituals array
+export const rituals = [
+  { name: "Thin-Blood Alchemy", description: "Alchemy unique to thin-blooded vampires." },
+  { name: "Oblivion Ceremonies", description: "Ceremonial rituals tied to the powers of Oblivion." },
+  { name: "Path of Blood", description: "Thaumaturgical path focused on vitae and blood magic." },
+  { name: "Path of Creation", description: "Thaumaturgical path focused on creation and crafting." },
+  { name: "Path of Destruction", description: "Thaumaturgical path focused on destruction and decay." },
+  { name: "Path of Life", description: "Thaumaturgical path focused on life and healing." },
+  { name: "Path of Morpheus", description: "Thaumaturgical path focused on dreams and sleep." },
+  { name: "Path of Warding", description: "Thaumaturgical path focused on protection and wards." },
+  { name: "Path of Hexes", description: "Thaumaturgical path focused on curses and hexes." },
+  { name: "Path of Elements", description: "Thaumaturgical path focused on elemental forces." },
+  { name: "Path of Flames", description: "Thaumaturgical path focused on fire and flame." },
+  { name: "Path of Mars", description: "Thaumaturgical path focused on war and conflict." },
+  { name: "Path of Mercury", description: "Thaumaturgical path focused on travel and movement." },
+  { name: "Path of Souls", description: "Thaumaturgical path focused on spirits and souls." },
+  { name: "Path of Technomancy", description: "Thaumaturgical path focused on technology and machines." },
+  { name: "Path of Serpents", description: "Thaumaturgical path focused on serpents and Setite magic." },
+  { name: "Path of Shadows", description: "Thaumaturgical path focused on darkness and shadows." },
+  { name: "Fera Magic", description: "Rituals and magic of the Fera (shapeshifters)." },
+  { name: "Infernalism Rituals", description: "Rituals tied to infernal and demonic powers." }
+];
+
+// Ritual images (add imports if you have them, otherwise leave empty or add as needed)
+export const ritualsImages: Record<string, string> = {
+  "Thin-Blood Alchemy": "", // e.g. ThinBloodAlchemyImg.default,
+  "Oblivion Ceremonies": "",
+  "Path of Blood": "",
+  "Path of Creation": "",
+  "Path of Destruction": "",
+  "Path of Life": "",
+  "Path of Morpheus": "",
+  "Path of Warding": "",
+  "Path of Hexes": "",
+  "Path of Elements": "",
+  "Path of Flames": "",
+  "Path of Mars": "",
+  "Path of Mercury": "",
+  "Path of Souls": "",
+  "Path of Technomancy": "",
+  "Path of Serpents": "",
+  "Path of Shadows": "",
+  "Fera Magic": "",
+  "Infernalism Rituals": ""
+};
 
 // Add empty or sample powers for new disciplines if not already present
 export const disciplinePowers: Record<string, { level: number; name: string }[]> = {
@@ -134,7 +183,11 @@ export const disciplinePowers: Record<string, { level: number; name: string }[]>
   Potence: [],
   Presence: [],
   Protean: [],
-  "Blood Sorcery": [],
+  "Blood Sorcery": [
+    { level: 1, name: "Theft of Vitae" },
+    { level: 2, name: "Blood Bond" },
+    // ...add more...
+  ],
   Oblivion: [],
   "Thin-Blood Alchemy": [],
   Vicissitude: [],
