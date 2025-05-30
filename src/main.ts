@@ -44,7 +44,7 @@ if (appElement) {
         flex-direction: column;
         gap: 2.5em;
         box-sizing: border-box;
-        min-height: 100vh;
+        min-height: 500vh;
       ">
       <section class="panel panel-left" style="display: flex; flex-direction: column; gap: 0.8em;">
         <h2>Character Details</h2>
