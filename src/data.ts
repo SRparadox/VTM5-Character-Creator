@@ -136,7 +136,7 @@ export const rituals = [
 
 // Ritual images (add imports if you have them, otherwise leave empty or add as needed)
 export const ritualsImages: Record<string, string> = {
-  "Thin-Blood Alchemy": "", // e.g. ThinBloodAlchemyImg.default,
+  "Thin-Blood Alchemy": "",
   "Oblivion Ceremonies": "",
   "Path of Blood": "",
   "Path of Creation": "",
@@ -157,7 +157,41 @@ export const ritualsImages: Record<string, string> = {
   "Infernalism Rituals": ""
 };
 
-// Add empty or sample powers for new disciplines if not already present
+// Add ritualPowers for each ritual/path
+export const ritualPowers: Record<string, { level: number; name: string }[]> = {
+  "Thin-Blood Alchemy": [
+    { level: 1, name: "Distillation" },
+    { level: 2, name: "Blood of Potency" }
+    // ...add more...
+  ],
+  "Oblivion Ceremonies": [
+    { level: 1, name: "Touch of Oblivion" },
+    { level: 2, name: "Shadow Cast" }
+    // ...add more...
+  ],
+  "Path of Blood": [
+    { level: 1, name: "Taste for Blood" },
+    { level: 2, name: "Blood Walk" }
+    // ...add more...
+  ],
+  "Path of Creation": [],
+  "Path of Destruction": [],
+  "Path of Life": [],
+  "Path of Morpheus": [],
+  "Path of Warding": [],
+  "Path of Hexes": [],
+  "Path of Elements": [],
+  "Path of Flames": [],
+  "Path of Mars": [],
+  "Path of Mercury": [],
+  "Path of Souls": [],
+  "Path of Technomancy": [],
+  "Path of Serpents": [],
+  "Path of Shadows": [],
+  "Fera Magic": [],
+  "Infernalism Rituals": []
+};
+
 export const disciplinePowers: Record<string, { level: number; name: string }[]> = {
   Animalism: [
     { level: 1, name: "Sense the Beast" },

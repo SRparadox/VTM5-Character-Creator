@@ -9,7 +9,8 @@ import {
   archetypes,
   predatorTypes,
   rituals,
-  ritualsImages
+  ritualsImages,
+  ritualPowers // <-- add this import
 } from "./data.ts";
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
@@ -145,14 +146,19 @@ if (appElement) {
         <section class="panel panel-rituals" style="margin-bottom:2em; flex:1;">
           <h2>Rituals</h2>
           <label for="ritualSelect" style="display:block;margin-bottom:0.5em;">Rituals:</label>
-          <select id="ritualSelect" size="8" style="width:100%;max-width:220px;">
-            ${rituals.map((r, i) => `<option value="${i}">${r.name}</option>`).join('')}
-          </select>
+          <div style="display: flex; align-items: flex-start; gap: 1em;">
+            <select id="ritualSelect" size="8" style="width:100%;max-width:220px;">
+              ${rituals.map((r, i) => `<option value="${i}">${r.name}</option>`).join('')}
+            </select>
+            <button id="addRitualBtn" type="button" style="height:2.2em;">Add</button>
+          </div>
           <div id="ritualInfo" style="margin-top:1em;">
             <div style="display:flex;align-items:flex-start;gap:1em;">
               <img id="ritualImage" src="" alt="" style="width:48px;height:48px;object-fit:contain;display:none;border-radius:6px;background:#1a1a1a;" />
               <div class="sect-description" id="ritualDescription"></div>
             </div>
+            <div style="margin-top:1em;"><b>Collected Ritual Paths:</b></div>
+            <ul id="collectedRituals" style="margin:0.5em 0 0 1em;padding:0;"></ul>
           </div>
         </section>
       </div>
@@ -440,6 +446,15 @@ if (appElement) {
   const ritualSelect = document.getElementById('ritualSelect') as HTMLSelectElement;
   const ritualDescription = document.getElementById('ritualDescription') as HTMLElement;
   const ritualImage = document.getElementById('ritualImage') as HTMLImageElement;
+  const addRitualBtn = document.getElementById('addRitualBtn') as HTMLButtonElement;
+  const collectedRituals = document.getElementById('collectedRituals') as HTMLUListElement;
+
+  // Store collected rituals and their selected powers
+  type CollectedRitual = {
+    idx: number;
+    powers?: { level: number; name: string }[];
+  };
+  let collectedRitualPaths: CollectedRitual[] = [];
 
   function updateRitualDescription() {
     const selectedIdx = ritualSelect.selectedIndex;
@@ -459,8 +474,114 @@ if (appElement) {
       ritualImage.style.display = "none";
     }
   }
+
+  function renderCollectedRituals() {
+    collectedRituals.innerHTML = collectedRitualPaths
+      .map((entry, i) => {
+        const ritualName = rituals[entry.idx].name;
+        const powers = entry.powers || [];
+        const availablePowers = ritualPowers[ritualName] || [];
+        // Powers dropdown
+        const powersDropdown = `
+          <select id="ritualPowerSelect-${i}" style="max-width:180px;">
+            <option value="">-- Select Power --</option>
+            ${availablePowers
+              .map(
+                (p, pi) =>
+                  `<option value="${pi}">Level ${p.level}: ${p.name}</option>`
+              )
+              .join('')}
+          </select>
+          <button type="button" id="addRitualPowerBtn-${i}">Add Power</button>
+        `;
+        // Collected powers list with remove buttons
+        const powersList = `
+          <ul id="collectedRitualPowers-${i}" style="margin:0.5em 0 0 1em;padding:0;">
+            ${powers
+              .map(
+                (p: { level: number; name: string }, pi: number) =>
+                  `<li>
+                    Level ${p.level}: ${p.name}
+                    <button type="button" id="removeRitualPowerBtn-${i}-${pi}" style="margin-left:0.5em;">Remove</button>
+                  </li>`
+              )
+              .join('')}
+          </ul>
+        `;
+        return `
+          <li style="margin-bottom:1em;">
+            ${ritualName}
+            <button type="button" id="removeRitualBtn-${i}" style="margin-left:0.5em;">Remove Ritual</button>
+            <div class="mini-panel" style="margin-top:0.5em; border:1px solid #204080; border-radius:6px; padding:0.5em; background:rgba(0,0,30,0.5);">
+              <div><b>Powers</b></div>
+              ${powersDropdown}
+              ${powersList}
+            </div>
+          </li>
+        `;
+      })
+      .join('');
+
+    // Add event listeners for remove ritual, add power, and remove power
+    collectedRitualPaths.forEach((entry, i) => {
+      const removeRitualBtn = document.getElementById(`removeRitualBtn-${i}`) as HTMLButtonElement;
+      const ritualPowerSelect = document.getElementById(`ritualPowerSelect-${i}`) as HTMLSelectElement;
+      const addRitualPowerBtn = document.getElementById(`addRitualPowerBtn-${i}`) as HTMLButtonElement;
+
+      removeRitualBtn?.addEventListener('click', () => {
+        collectedRitualPaths.splice(i, 1);
+        renderCollectedRituals();
+      });
+
+      addRitualPowerBtn?.addEventListener('click', () => {
+        if (!ritualPowerSelect || !ritualPowerSelect.value) return;
+        const ritualName = rituals[entry.idx].name;
+        const availablePowers = ritualPowers[ritualName] || [];
+        const powerIdx = parseInt(ritualPowerSelect.value, 10);
+        if (
+          !isNaN(powerIdx) &&
+          availablePowers[powerIdx] &&
+          !(entry.powers || []).some(
+            (p: { level: number; name: string }) =>
+              p.name === availablePowers[powerIdx].name &&
+              p.level === availablePowers[powerIdx].level
+          )
+        ) {
+          if (!entry.powers) entry.powers = [];
+          entry.powers.push(availablePowers[powerIdx]);
+          renderCollectedRituals();
+        }
+      });
+
+      (entry.powers || []).forEach((p: { level: number; name: string }, pi: number) => {
+        const removePowerBtn = document.getElementById(`removeRitualPowerBtn-${i}-${pi}`) as HTMLButtonElement;
+        removePowerBtn?.addEventListener('click', () => {
+          entry.powers.splice(pi, 1);
+          renderCollectedRituals();
+        });
+      });
+    });
+  }
+
   if (ritualSelect) {
     ritualSelect.addEventListener('change', updateRitualDescription);
     updateRitualDescription();
   }
+
+  if (addRitualBtn) {
+    addRitualBtn.addEventListener('click', () => {
+      const selectedIdx = ritualSelect.selectedIndex;
+      if (selectedIdx >= 0) {
+        const idx = parseInt(ritualSelect.options[selectedIdx].value, 10);
+        if (!collectedRitualPaths.some(e => e.idx === idx)) {
+          collectedRitualPaths.push({ idx, powers: [] });
+          renderCollectedRituals();
+        }
+      }
+    });
+  }
+
+  // Initialize
+  if (collectedRituals) collectedRituals.innerHTML = "";
+  // ...existing code...
 }
