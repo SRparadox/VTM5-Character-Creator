@@ -1,297 +1,99 @@
 import "./style.css";
+import {
+  sects,
+  sectClans,
+  clans,
+  disciplines,
+  disciplinePowers,
+  clanInfo,
+  archetypes
+} from "./data.ts";
 
-// Import images from src/sect_images using Vite's import system
-import camarilla from './sect_images/Camarilla.png';
-import sabbat from './sect_images/Sabbat.png';
-import anarch from './sect_images/Anarch.png';
-import independent from './sect_images/Independent.png';
-
-// Import clan images
-import brujah from './clan_images/Brujah.png';
-import tremere from './clan_images/Tremere.png';
-import ventrue from './clan_images/Ventrue.png';
-import baali from './clan_images/Baali.png';
-import BanuHaqim from './clan_images/BanuHaqim.png';
-import caitiff from './clan_images/Caitiff.png';
-import cappadocian from './clan_images/Cappadocian.png';
-import DaughtersofCacophony from './clan_images/DaughtersofCacophony.png';
-import gangrel from './clan_images/Gangrel.png';
-import gargoyle from './clan_images/Gargoyles.png';
-import giovanni from './clan_images/Giovanni.png';
-import hacata from './clan_images/Hecata.png';
-import kiasyd from './clan_images/Kiasyd.png';
-import lamia from './clan_images/Lamia.png';
-import lasombra from './clan_images/Lasombra.png';
-import lhianna from './clan_images/Lhiannan.png';
-import maeghar from './clan_images/Maeghar.png';
-import malkavian from './clan_images/Malkavian.png';
-import ministry from './clan_images/Ministry.png';
-import nosferatu from './clan_images/Nosferatu.png';
-import nagaraja from './clan_images/Nagaraja.png';
-import ravnos from './clan_images/Ravnos.png';
-import salubri from './clan_images/Salubri.png';
-import samedi from './clan_images/Samedi.png';
-import toreador from './clan_images/Toreador.png';
-import truebruja from './clan_images/TrueBrujah.png';
-import tzimisce from './clan_images/Tzimisce.png';
-// ...add more clans as needed...
-
-const APP_NAME = "Hello";
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
-document.title = APP_NAME;
-app.innerHTML = APP_NAME;
-
-const sects = [
-  {
-    name: "Camarilla",
-    description: "The Camarilla is a secret society of vampires dedicated to maintaining the Masquerade.",
-    image: camarilla,
-  },
-  {
-    name: "Sabbat",
-    description: "The Sabbat opposes the Camarilla and embraces their vampiric nature.",
-    image: sabbat,
-  },
-  {
-    name: "Anarch",
-    description: "The Anarchs reject the authority of the Camarilla and Sabbat.",
-    image: anarch,
-  },
-  {
-    name: "Independent",
-    description: "Independent vampires operate outside the major sects, often pursuing their own agendas.",
-    image: independent,
-  },
+// Attribute and Skill definitions
+const attributes = [
+  { name: "Strength" }, { name: "Dexterity" }, { name: "Stamina" },
+  { name: "Charisma" }, { name: "Manipulation" }, { name: "Composure" },
+  { name: "Intelligence" }, { name: "Wits" }, { name: "Resolve" }
 ];
 
-const clans = [
-  {
-    name: "Brujah",
-    description: "Brujah are passionate rebels, iconoclasts, and warriors.",
-    image: brujah,
-  },
-  {
-    name: "Tremere",
-    description: "Tremere are secretive sorcerers, masters of blood magic.",
-    image: tremere,
-  },
-  {
-    name: "Ventrue",
-    description: "Ventrue are aristocratic leaders, rulers, and organizers.",
-    image: ventrue,
-  },
-  {
-    name: "Baali",
-    description: "Baali are demonic vampires, often associated with dark rituals and infernal powers.",
-    image: baali,
-  },
-  {
-    name: "Banu Haqim",
-    description: "Banu Haqim are fierce warriors and assassins, formerly known as Assamites.",
-    image: BanuHaqim,
-  },
-  {
-    name: "Caitiff",
-    description: "Caitiff are clanless vampires, often marginalized by other clans.",
-    image: caitiff,
-  },
-  {
-    name: "Cappadocian",
-    description: "Cappadocians are scholars of death and the afterlife, now part of the Hecata.",
-    image: cappadocian,
-  },
-  {
-    name: "Daughters of Cacophony",
-    description: "Daughters of Cacophony are musical vampires, often artists and performers.",
-    image: DaughtersofCacophony,
-  },
-  {
-    name: "Gangrel",
-    description: "Gangrel are feral and bestial vampires, closely tied to nature.",
-    image: gangrel,
-  },
-  {
-    name: "Gargoyle",
-    description: "Gargoyles are created by Tremere as guardians, often loyal but tragic figures.",
-    image: gargoyle,
-  },
-  {
-    name: "Giovanni",
-    description: "Giovanni are wealthy bankers and necromancers, dealing with the dead.",
-    image: giovanni,
-  },
-  {
-    name: "Hecata",
-    description: "Hecata is a family of clans that includes Cappadocians, Giovanni, and others focused on death.",
-    image: hacata,
-  },
-  {
-    name: "Kiasyd",
-    description: "Kiasyd are a rare clan with ties to fae magic and vampiric bloodlines.",
-    image: kiasyd,
-  },
-  {
-    name: "Lamia",
-    description: "Lamia are seductive vampires with ties to ancient myths and legends.",
-    image: lamia,
-  },
-  {
-    name: "Lasombra",
-    description: "Lasombra are shadowy manipulators, often leaders within the Sabbat.",
-    image: lasombra,
-  },
-  {
-    name: "Lhiannan",
-    description:
-    "Lhiannan are a clan of Celtic vampires, often associated with ancient traditions and nature.",
-    image: lhianna,
-  },
-  {    name: "Maeghar",
-    description: "Maeghar are a clan of vampires with ties to the ancient and mystical, often seen as guardians of secrets.",
-    image: maeghar,
-  },
-  {    name: "Malkavian",
-    description: "Malkavians are known for their madness and insight, often seeing the world in unique ways.",
-    image: malkavian,
-  },
-  {
-    name: "Ministry",
-    description: "Ministry, formerly known as Followers of Set, are seductive and manipulative vampires with ties to ancient Egyptian mythology.",
-    image: ministry,
-  },
-  {
-    name: "Nosferatu",
-    description: "Nosferatu are hideous and secretive vampires, often serving as information brokers.",
-    image: nosferatu,
-  },
-  {
-    name: "Nagaraja",
-    description: "Nagaraja are a clan of vampires who consume flesh and bone, often associated with death and decay.",
-    image: nagaraja,
-  },
-  {
-    name: "Ravnos",
-    description: "Ravnos are tricksters and illusionists, often seen as wanderers and nomads.",
-    image: ravnos,
-  },
-  {
-    name: "Salubri",
-    description: "Salubri are healers and warriors, often misunderstood and persecuted by other clans.",
-    image: salubri,
-  },
-  {
-    name: "Samedi",
-    description: "Samedi are a clan of undead vampires, often associated with voodoo and the undead.",
-    image: samedi,
-  },
-  {
-    name: "Toreador",
-    description: "Toreador are artistic and passionate vampires, often drawn to beauty and creativity.",
-    image: toreador,
-  },
-  {
-    name: "True Brujah",
-    description: "True Brujah are a sect of the Brujah clan, known for their mastery of time and their philosophical pursuits.",
-    image: truebruja,
-  },
-  {
-    name: "Tzimisce",
-    description: "Tzimisce are ancient and powerful vampires, often associated with the Sabbat and known for their mastery of fleshcrafting.",
-    image: tzimisce,
-  },
-  // ...add more clans as needed...
+const skills = [
+  { name: "Athletics" }, { name: "Brawl" }, { name: "Craft" }, { name: "Drive" }, { name: "Firearms" },
+  { name: "Melee" }, { name: "Larceny" }, { name: "Stealth" }, { name: "Survival" },
+  { name: "Animal Ken" }, { name: "Etiquette" }, { name: "Insight" }, { name: "Intimidation" },
+  { name: "Leadership" }, { name: "Performance" }, { name: "Persuasion" }, { name: "Streetwise" }, { name: "Subterfuge" },
+  { name: "Academics" }, { name: "Awareness" }, { name: "Finance" }, { name: "Investigation" },
+  { name: "Medicine" }, { name: "Occult" }, { name: "Politics" }, { name: "Science" }, { name: "Technology" }
 ];
 
-// Example disciplines (add more as needed)
-const disciplines = [
-  {
-    name: "Animalism",
-    description: "Allows communication and control over animals, and can tap into the beast within.",
-  },
-  {
-    name: "Auspex",
-    description: "Heightened senses, telepathy, and the ability to perceive auras.",
-  },
-  {
-    name: "Celerity",
-    description: "Supernatural speed and reflexes.",
-  },
-  {
-    name: "Dominate",
-    description: "Mind control and the ability to bend others to your will.",
-  },
-  {
-    name: "Fortitude",
-    description: "Supernatural resilience and toughness.",
-  },
-  {
-    name: "Obfuscate",
-    description: "The power to remain hidden or appear as someone else.",
-  },
-  // ...add more disciplines as needed...
-];
-
-// Example discipline powers (expand as needed)
-const disciplinePowers: Record<string, { level: number; name: string }[]> = {
-  Animalism: [
-    { level: 1, name: "Sense the Beast" },
-    { level: 2, name: "Feral Whispers" },
-    { level: 3, name: "Animal Succulence" },
-    // ...add more...
-  ],
-  Auspex: [
-    { level: 1, name: "Heightened Senses" },
-    { level: 1, name: "Sense the Unseen" },
-    { level: 2, name: "Premonition" },
-    { level: 3, name: "Scry the Soul" },
-    // ...add more...
-  ],
-  Celerity: [
-    { level: 1, name: "Cat's Grace" },
-    { level: 2, name: "Rapid Reflexes" },
-    // ...add more...
-  ],
-  // ...add more disciplines and their powers...
-};
-
-import { defineConfig } from 'vite';
+// State for dots
+const attributeDots = Array(attributes.length).fill(1); // Default 1 dot each
+const skillDots = Array(skills.length).fill(0); // Default 0 dots each
 
 const appElement = document.getElementById('app');
 if (appElement) {
+  // Add more vertical margin and padding to ensure all panels are visible and not clipped
   appElement.innerHTML = `
-    <div class="container">
-      <div class="panel panel-left">
+    <div class="container"
+      style="
+        max-width: 520px;
+        margin: 0 auto;
+        padding: 48px 0 48px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2.5em;
+        box-sizing: border-box;
+        min-height: 100vh;
+      ">
+      <section class="panel panel-left" style="display: flex; flex-direction: column; gap: 0.8em;">
         <h2>Character Details</h2>
-        <label>Player Name:<input type="text" id="playerName" /></label>
-        <label>Character Name:<input type="text" id="characterName" /></label>
-        <label>Chronicle:<input type="text" id="chronicle" /></label>
-      </div>
-      <div class="panel panel-right" style="min-width: 480px; flex: 1;">
+        <label style="display:flex; flex-direction:column; gap:0.2em;">Player Name:<input type="text" id="playerName" /></label>
+        <label style="display:flex; flex-direction:column; gap:0.2em;">Character Name:<input type="text" id="characterName" /></label>
+        <label style="display:flex; flex-direction:column; gap:0.2em;">Chronicle:<input type="text" id="chronicle" /></label>
+      </section>
+      <section class="panel panel-attributes">
+        <h2>Attributes</h2>
+        <div id="attributesTable" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5em;"></div>
+      </section>
+      <section class="panel panel-skills">
+        <h2>Skills</h2>
+        <div id="skillsTable" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5em;"></div>
+      </section>
+      <section class="panel panel-sect">
         <h2>Sect Selection</h2>
-        <label for="sectSelect">Sect:</label>
-        <select id="sectSelect">
+        <label for="sectSelect" style="display:block;margin-bottom:0.5em;">Sect:</label>
+        <select id="sectSelect" style="width:100%;max-width:320px;">
           ${sects.map((sect, i) => `<option value="${i}">${sect.name}</option>`).join('')}
         </select>
-        <div id="sectInfo">
-          <div class="sect-image" id="sectImage" style="background-image: url('${sects[0].image}')"></div>
+        <div id="sectInfo" style="margin-top:1em;">
+          <div class="sect-image" id="sectImage" style="background-image: url('${sects[0].image}');width:100%;height:120px;background-size:contain;background-repeat:no-repeat;background-position:center;margin-bottom:0.5em;"></div>
           <div class="sect-description" id="sectDescription">${sects[0].description}</div>
-        </div>
-        <div class="panel panel-clan" style="margin-top: 2rem;">
-          <h2>Clan Selection</h2>
-          <label for="clanSelect">Clan:</label>
-          <select id="clanSelect">
-            ${clans.map((clan, i) => `<option value="${i}">${clan.name}</option>`).join('')}
-          </select>
-          <div id="clanInfo">
-            <div class="sect-image" id="clanImage" style="background-image: url('${clans[0].image}')"></div>
-            <div class="sect-description" id="clanDescription">${clans[0].description}</div>
+          <div class="sect-clans" id="sectClans" style="margin-top:0.5em;font-style:italic;color:#e0b0b0;">
+            Clans & Bloodlines: ${sectClans[sects[0].name] || "Various"}
           </div>
         </div>
-      </div>
-      <div class="panel panel-discipline" style="margin-left: 2rem;">
+      </section>
+      <section class="panel panel-clan">
+        <h2>Clan Selection</h2>
+        <label for="clanSelect" style="display:block;margin-bottom:0.5em;">Clan:</label>
+        <select id="clanSelect" style="width:100%;max-width:320px;">
+          ${clans.map((clan, i) => `<option value="${i}">${clan.name}</option>`).join('')}
+        </select>
+        <div id="clanInfo" style="margin-top:1em;">
+          <div class="sect-image" id="clanImage" style="background-image: url('${clans[0].image}');width:100%;height:120px;background-size:contain;background-repeat:no-repeat;background-position:center;margin-bottom:0.5em;"></div>
+          <div class="sect-description" id="clanDescription">${clans[0].description}</div>
+          <div class="clan-info" id="clanInfoLines" style="margin-top:0.5em;font-size:0.95em;color:#e0e0e0;">
+            <div><b>Disciplines:</b> ${clanInfo[clans[0].name]?.disciplines || "Varies"}</div>
+            <div><b>Compulsion:</b> ${clanInfo[clans[0].name]?.compulsion || "None"}</div>
+            <div><b>Bane:</b> ${clanInfo[clans[0].name]?.bane || "None"}</div>
+            <div><b>Variant Bane:</b> ${clanInfo[clans[0].name]?.variantBane || "None"}</div>
+          </div>
+        </div>
+      </section>
+      <section class="panel panel-discipline" style="margin-bottom:2em;">
         <h2>Discipline Selection</h2>
-        <label for="disciplineSelect">Disciplines (choose up to 5):</label>
+        <label for="disciplineSelect" style="display:block;margin-bottom:0.5em;">Disciplines (choose up to 5):</label>
         <div style="display: flex; align-items: flex-start; gap: 1em;">
           <select id="disciplineSelect" size="8" style="width:100%;max-width:220px;">
             ${disciplines.map((d, i) => `<option value="${i}">${d.name}</option>`).join('')}
@@ -303,29 +105,91 @@ if (appElement) {
           <div style="margin-top:1em;"><b>Collected Disciplines:</b></div>
           <ul id="collectedDisciplines" style="margin:0.5em 0 0 1em;padding:0;"></ul>
         </div>
-      </div>
+      </section>
     </div>
   `;
+
+  // Render counters for attributes and skills after the DOM is set up
+  function renderCounter(current: number, min: number, max: number, prefix: string, idx: number) {
+    return `
+      <button type="button" class="counter-btn" data-type="${prefix}" data-idx="${idx}" data-action="dec" style="width:2em;">-</button>
+      <span class="counter-value" data-type="${prefix}" data-idx="${idx}" style="display:inline-block;width:2em;text-align:center;">${current}</span>
+      <button type="button" class="counter-btn" data-type="${prefix}" data-idx="${idx}" data-action="inc" style="width:2em;">+</button>
+    `;
+  }
+
+  function updateCountersUI() {
+    // Attributes: 3 columns grid
+    const attrTable = document.getElementById('attributesTable');
+    if (attrTable) {
+      attrTable.innerHTML = attributes.map((attr, i) => `
+        <div style="display:flex;align-items:center;gap:1em;margin-bottom:0.5em;">
+          <span style="width:110px;display:inline-block;">${attr.name}</span>
+          <span>${renderCounter(attributeDots[i], 1, 5, "attr", i)}</span>
+        </div>
+      `).join('');
+    }
+    // Skills: 3 columns grid
+    const skillTable = document.getElementById('skillsTable');
+    if (skillTable) {
+      skillTable.innerHTML = skills.map((skill, i) => `
+        <div style="display:flex;align-items:center;gap:1em;margin-bottom:0.5em;">
+          <span style="width:110px;display:inline-block;">${skill.name}</span>
+          <span>${renderCounter(skillDots[i], 0, 5, "skill", i)}</span>
+        </div>
+      `).join('');
+    }
+    // Add event listeners for counters
+    document.querySelectorAll('.counter-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = e.currentTarget as HTMLElement;
+        const type = target.getAttribute('data-type');
+        const idx = parseInt(target.getAttribute('data-idx') || "0", 10);
+        const action = target.getAttribute('data-action');
+        if (type === "attr") {
+          if (action === "inc" && attributeDots[idx] < 5) attributeDots[idx]++;
+          if (action === "dec" && attributeDots[idx] > 1) attributeDots[idx]--;
+          updateCountersUI();
+        } else if (type === "skill") {
+          if (action === "inc" && skillDots[idx] < 5) skillDots[idx]++;
+          if (action === "dec" && skillDots[idx] > 0) skillDots[idx]--;
+          updateCountersUI();
+        }
+      });
+    });
+  }
+
+  updateCountersUI();
 
   // Fix: Use unique IDs for sect and clan elements to avoid querySelector conflicts
   const sectSelect = document.getElementById('sectSelect') as HTMLSelectElement;
   const sectDescription = document.getElementById('sectDescription') as HTMLElement;
   const sectImage = document.getElementById('sectImage') as HTMLElement;
+  const sectClansDiv = document.getElementById('sectClans') as HTMLElement;
 
   sectSelect.addEventListener('change', (e) => {
     const idx = parseInt((e.target as HTMLSelectElement).value, 10);
     sectDescription.textContent = sects[idx].description;
     sectImage.style.backgroundImage = `url('${sects[idx].image}')`;
+    sectClansDiv.textContent = `Clans & Bloodlines: ${sectClans[sects[idx].name] || "Various"}`;
   });
 
   const clanSelect = document.getElementById('clanSelect') as HTMLSelectElement;
   const clanDescription = document.getElementById('clanDescription') as HTMLElement;
   const clanImage = document.getElementById('clanImage') as HTMLElement;
+  const clanInfoLines = document.getElementById('clanInfoLines') as HTMLElement;
 
   clanSelect.addEventListener('change', (e) => {
     const idx = parseInt((e.target as HTMLSelectElement).value, 10);
     clanDescription.textContent = clans[idx].description;
     clanImage.style.backgroundImage = `url('${clans[idx].image}')`;
+    const info = clanInfo[clans[idx].name] || {};
+    clanInfoLines.innerHTML = `
+      <div><b>Disciplines:</b> ${info.disciplines || "Varies"}</div>
+      <div><b>Compulsion:</b> ${info.compulsion || "None"}</div>
+      <div><b>Bane:</b> ${info.bane || "None"}</div>
+      <div><b>Variant Bane:</b> ${info.variantBane || "None"}</div>
+    `;
   });
 
   const disciplineSelect = document.getElementById('disciplineSelect') as HTMLSelectElement;
@@ -334,7 +198,13 @@ if (appElement) {
   const addDisciplineBtn = document.getElementById('addDisciplineBtn') as HTMLButtonElement;
 
   // Store collected discipline indices and their levels
-  let collected: { idx: number; level: number }[] = [];
+  type CollectedDiscipline = {
+    idx: number;
+    level: number;
+    powers?: { level: number; name: string }[];
+  };
+
+  let collected: CollectedDiscipline[] = [];
 
   function updateDisciplineDescription() {
     const selectedIdx = disciplineSelect.selectedIndex;
