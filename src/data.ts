@@ -171,3 +171,46 @@ export const archetypes = [
   { name: "Visionary", description: "You are inspired by dreams and ideas, always looking to the future." },
   // ...add more as needed...
 ];
+
+export const predatorTypes = [
+  {
+    name: "Alleycat",
+    description: "You hunt by stalking and overpowering victims, often using violence or intimidation."
+  },
+  {
+    name: "Bagger",
+    description: "You prefer to feed from blood bags or hospital supplies, avoiding direct predation."
+  },
+  {
+    name: "Blood Leech",
+    description: "You prey on other vampires, drinking the blood of your own kind."
+  },
+  {
+    name: "Cleaver",
+    description: "You maintain ties to a mortal family and feed from them, risking emotional attachment."
+  },
+  {
+    name: "Consensualist",
+    description: "You only feed from willing victims, seeking consent before taking blood."
+  },
+  {
+    name: "Farmer",
+    description: "You feed exclusively on animals, avoiding human blood whenever possible."
+  },
+  {
+    name: "Osiris",
+    description: "You are a celebrity among mortals, feeding from adoring fans or followers."
+  },
+  {
+    name: "Sandman",
+    description: "You feed from sleeping victims, entering homes at night to take blood unnoticed."
+  },
+  {
+    name: "Scene Queen",
+    description: "You hunt in clubs, parties, and social gatherings, blending into nightlife."
+  },
+  {
+    name: "Siren",
+    description: "You seduce your victims, using charm and allure to feed."
+  }
+];

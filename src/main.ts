@@ -6,7 +6,8 @@ import {
   disciplines,
   disciplinePowers,
   clanInfo,
-  archetypes
+  archetypes,
+  predatorTypes
 } from "./data.ts";
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
@@ -107,6 +108,15 @@ if (appElement) {
             <div><b>Variant Bane:</b> ${clanInfo[clans[0].name]?.variantBane || "None"}</div>
           </div>
         </div>
+      </section>
+      <!-- Predator Type Section -->
+      <section class="panel panel-predator">
+        <h2>Predator Type</h2>
+        <label for="predatorTypeSelect" style="display:block;margin-bottom:0.5em;">Predator Type:</label>
+        <select id="predatorTypeSelect" style="width:100%;max-width:320px;">
+          ${predatorTypes.map((pt, i) => `<option value="${i}">${pt.name}</option>`).join('')}
+        </select>
+        <div id="predatorTypeDescription" class="predator-type-description" style="margin-top:1em;"></div>
       </section>
       <section class="panel panel-discipline" style="margin-bottom:2em;">
         <h2>Discipline Selection</h2>
@@ -210,6 +220,14 @@ if (appElement) {
       <div><b>Bane:</b> ${info.bane || "None"}</div>
       <div><b>Variant Bane:</b> ${info.variantBane || "None"}</div>
     `;
+  });
+
+  const predatorTypeSelect = document.getElementById('predatorTypeSelect') as HTMLSelectElement;
+  const predatorTypeDescription = document.getElementById('predatorTypeDescription') as HTMLElement;
+
+  predatorTypeSelect.addEventListener('change', (e) => {
+    const idx = parseInt((e.target as HTMLSelectElement).value, 10);
+    predatorTypeDescription.textContent = predatorTypes[idx].description;
   });
 
   const disciplineSelect = document.getElementById('disciplineSelect') as HTMLSelectElement;
