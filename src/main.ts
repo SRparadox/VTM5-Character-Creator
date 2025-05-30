@@ -78,6 +78,16 @@ if (appElement) {
         <h2>Skills</h2>
         <div id="skillsTable" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5em;"></div>
       </section>
+      <!-- Predator Type Section -->
+      <section class="panel panel-predator">
+        <h2>Predator Type</h2>
+        <label for="predatorTypeSelect" style="display:block;margin-bottom:0.5em;">Predator Type:</label>
+        <select id="predatorTypeSelect" style="width:100%;max-width:320px;">
+          ${predatorTypes.map((pt, i) => `<option value="${i}">${pt.name}</option>`).join('')}
+        </select>
+        <div id="predatorTypeDescription" class="predator-type-description" style="margin-top:1em;"></div>
+      </section>
+      <!-- Sect and Clan panels moved below Predator Type -->
       <section class="panel panel-sect">
         <h2>Sect Selection</h2>
         <label for="sectSelect" style="display:block;margin-bottom:0.5em;">Sect:</label>
@@ -108,15 +118,6 @@ if (appElement) {
             <div><b>Variant Bane:</b> ${clanInfo[clans[0].name]?.variantBane || "None"}</div>
           </div>
         </div>
-      </section>
-      <!-- Predator Type Section -->
-      <section class="panel panel-predator">
-        <h2>Predator Type</h2>
-        <label for="predatorTypeSelect" style="display:block;margin-bottom:0.5em;">Predator Type:</label>
-        <select id="predatorTypeSelect" style="width:100%;max-width:320px;">
-          ${predatorTypes.map((pt, i) => `<option value="${i}">${pt.name}</option>`).join('')}
-        </select>
-        <div id="predatorTypeDescription" class="predator-type-description" style="margin-top:1em;"></div>
       </section>
       <section class="panel panel-discipline" style="margin-bottom:2em;">
         <h2>Discipline Selection</h2>
