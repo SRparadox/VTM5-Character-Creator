@@ -90,37 +90,39 @@ if (appElement) {
         <div id="predatorTypeDescription" class="predator-type-description" style="margin-top:1em;"></div>
       </section>
       <!-- Sect and Clan panels moved below Predator Type -->
-      <section class="panel panel-sect">
-        <h2>Sect Selection</h2>
-        <label for="sectSelect" style="display:block;margin-bottom:0.5em;">Sect:</label>
-        <select id="sectSelect" style="width:100%;max-width:320px;">
-          ${sects.map((sect, i) => `<option value="${i}">${sect.name}</option>`).join('')}
-        </select>
-        <div id="sectInfo" style="margin-top:1em;">
-          <div class="sect-image" id="sectImage" style="background-image: url('${sects[0].image}');width:100%;height:120px;background-size:contain;background-repeat:no-repeat;background-position:center;margin-bottom:0.5em;"></div>
-          <div class="sect-description" id="sectDescription">${sects[0].description}</div>
-          <div class="sect-clans" id="sectClans" style="margin-top:0.5em;font-style:italic;color:#e0b0b0;">
-            Clans & Bloodlines: ${sectClans[sects[0].name] || "Various"}
+      <div style="display: flex; flex-direction: row; gap: 2em;">
+        <section class="panel panel-sect" style="flex:1;">
+          <h2>Sect Selection</h2>
+          <label for="sectSelect" style="display:block;margin-bottom:0.5em;">Sect:</label>
+          <select id="sectSelect" style="width:100%;max-width:320px;">
+            ${sects.map((sect, i) => `<option value="${i}">${sect.name}</option>`).join('')}
+          </select>
+          <div id="sectInfo" style="margin-top:1em;">
+            <div class="sect-image" id="sectImage" style="background-image: url('${sects[0].image}');width:100%;height:120px;background-size:contain;background-repeat:no-repeat;background-position:center;margin-bottom:0.5em;"></div>
+            <div class="sect-description" id="sectDescription">${sects[0].description}</div>
+            <div class="sect-clans" id="sectClans" style="margin-top:0.5em;font-style:italic;color:#e0b0b0;">
+              Clans & Bloodlines: ${sectClans[sects[0].name] || "Various"}
+            </div>
           </div>
-        </div>
-      </section>
-      <section class="panel panel-clan">
-        <h2>Clan Selection</h2>
-        <label for="clanSelect" style="display:block;margin-bottom:0.5em;">Clan:</label>
-        <select id="clanSelect" style="width:100%;max-width:320px;">
-          ${clans.map((clan, i) => `<option value="${i}">${clan.name}</option>`).join('')}
-        </select>
-        <div id="clanInfo" style="margin-top:1em;">
-          <div class="sect-image" id="clanImage" style="background-image: url('${clans[0].image}');width:100%;height:120px;background-size:contain;background-repeat:no-repeat;background-position:center;margin-bottom:0.5em;"></div>
-          <div class="sect-description" id="clanDescription">${clans[0].description}</div>
-          <div class="clan-info" id="clanInfoLines" style="margin-top:0.5em;font-size:0.95em;color:#e0e0e0;">
-            <div><b>Disciplines:</b> ${clanInfo[clans[0].name]?.disciplines || "Varies"}</div>
-            <div><b>Compulsion:</b> ${clanInfo[clans[0].name]?.compulsion || "None"}</div>
-            <div><b>Bane:</b> ${clanInfo[clans[0].name]?.bane || "None"}</div>
-            <div><b>Variant Bane:</b> ${clanInfo[clans[0].name]?.variantBane || "None"}</div>
+        </section>
+        <section class="panel panel-clan" style="flex:1;">
+          <h2>Clan Selection</h2>
+          <label for="clanSelect" style="display:block;margin-bottom:0.5em;">Clan:</label>
+          <select id="clanSelect" style="width:100%;max-width:320px;">
+            ${clans.map((clan, i) => `<option value="${i}">${clan.name}</option>`).join('')}
+          </select>
+          <div id="clanInfo" style="margin-top:1em;">
+            <div class="sect-image" id="clanImage" style="background-image: url('${clans[0].image}');width:100%;height:120px;background-size:contain;background-repeat:no-repeat;background-position:center;margin-bottom:0.5em;"></div>
+            <div class="sect-description" id="clanDescription">${clans[0].description}</div>
+            <div class="clan-info" id="clanInfoLines" style="margin-top:0.5em;font-size:0.95em;color:#e0e0e0;">
+              <div><b>Disciplines:</b> ${clanInfo[clans[0].name]?.disciplines || "Varies"}</div>
+              <div><b>Compulsion:</b> ${clanInfo[clans[0].name]?.compulsion || "None"}</div>
+              <div><b>Bane:</b> ${clanInfo[clans[0].name]?.bane || "None"}</div>
+              <div><b>Variant Bane:</b> ${clanInfo[clans[0].name]?.variantBane || "None"}</div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
       <div style="display: flex; flex-direction: row; gap: 2em;">
         <section class="panel panel-discipline" style="margin-bottom:2em; flex:1;">
           <h2>Discipline Selection</h2>
