@@ -51,6 +51,23 @@ if (appElement) {
         <label style="display:flex; flex-direction:column; gap:0.2em;">Player Name:<input type="text" id="playerName" /></label>
         <label style="display:flex; flex-direction:column; gap:0.2em;">Character Name:<input type="text" id="characterName" /></label>
         <label style="display:flex; flex-direction:column; gap:0.2em;">Chronicle:<input type="text" id="chronicle" /></label>
+        <label style="display:flex; flex-direction:column; gap:0.2em;">Concept:<input type="text" id="concept" /></label>
+        <label for="natureSelect" style="display:flex; flex-direction:column; gap:0.2em;">
+          Nature:
+          <select id="natureSelect">
+            <option value="">-- Select Nature --</option>
+            ${archetypes.map((a, i) => `<option value="${i}">${a.name}</option>`).join('')}
+          </select>
+        </label>
+        <div id="natureDescription" class="archetype-description" style="margin-bottom:0.5em;"></div>
+        <label for="demeanorSelect" style="display:flex; flex-direction:column; gap:0.2em;">
+          Demeanor:
+          <select id="demeanorSelect">
+            <option value="">-- Select Demeanor --</option>
+            ${archetypes.map((a, i) => `<option value="${i}">${a.name}</option>`).join('')}
+          </select>
+        </label>
+        <div id="demeanorDescription" class="archetype-description"></div>
       </section>
       <section class="panel panel-attributes">
         <h2>Attributes</h2>
@@ -111,10 +128,13 @@ if (appElement) {
 
   // Render counters for attributes and skills after the DOM is set up
   function renderCounter(current: number, min: number, max: number, prefix: string, idx: number) {
+    // Place - and + on the sides of the number, horizontally
     return `
-      <button type="button" class="counter-btn" data-type="${prefix}" data-idx="${idx}" data-action="dec" style="width:2em;">-</button>
-      <span class="counter-value" data-type="${prefix}" data-idx="${idx}" style="display:inline-block;width:2em;text-align:center;">${current}</span>
-      <button type="button" class="counter-btn" data-type="${prefix}" data-idx="${idx}" data-action="inc" style="width:2em;">+</button>
+      <span style="display: inline-flex; align-items: center; gap: 0.2em;">
+        <button type="button" class="counter-btn" data-type="${prefix}" data-idx="${idx}" data-action="dec" style="width:1.5em;height:1.5em;padding:0;font-size:1em;line-height:1em;">-</button>
+        <span class="counter-value" data-type="${prefix}" data-idx="${idx}" style="display:inline-block;width:2em;text-align:center;">${current}</span>
+        <button type="button" class="counter-btn" data-type="${prefix}" data-idx="${idx}" data-action="inc" style="width:1.5em;height:1.5em;padding:0;font-size:1em;line-height:1em;">+</button>
+      </span>
     `;
   }
 
@@ -347,4 +367,31 @@ if (appElement) {
   // Initialize
   disciplineDescription.textContent = "";
   collectedDisciplines.innerHTML = "";
+
+  // Add nature/demeanor description logic
+  const natureSelect = document.getElementById('natureSelect') as HTMLSelectElement;
+  const natureDescription = document.getElementById('natureDescription') as HTMLElement;
+  const demeanorSelect = document.getElementById('demeanorSelect') as HTMLSelectElement;
+  const demeanorDescription = document.getElementById('demeanorDescription') as HTMLElement;
+
+  if (natureSelect && natureDescription) {
+    natureSelect.addEventListener('change', (e) => {
+      const idx = parseInt((e.target as HTMLSelectElement).value, 10);
+      if (!isNaN(idx) && archetypes[idx]) {
+        natureDescription.textContent = archetypes[idx].description;
+      } else {
+        natureDescription.textContent = "";
+      }
+    });
+  }
+  if (demeanorSelect && demeanorDescription) {
+    demeanorSelect.addEventListener('change', (e) => {
+      const idx = parseInt((e.target as HTMLSelectElement).value, 10);
+      if (!isNaN(idx) && archetypes[idx]) {
+        demeanorDescription.textContent = archetypes[idx].description;
+      } else {
+        demeanorDescription.textContent = "";
+      }
+    });
+  }
 }
