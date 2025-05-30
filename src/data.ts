@@ -30,6 +30,11 @@ import * as toreador from './clan_images/Toreador.png?url';
 import * as truebruja from './clan_images/TrueBrujah.png?url';
 import * as tzimisce from './clan_images/Tzimisce.png?url';
 
+// Add discipline images (if you want to use them in the future)
+// import * as animalismImg from './discipline_images/Animalism.png?url';
+// import * as auspexImg from './discipline_images/Auspex.png?url';
+// ...etc...
+
 export const sects = [
   { name: "Camarilla", description: "The Camarilla is a secret society of vampires dedicated to maintaining the Masquerade.", image: camarilla.default },
   { name: "Sabbat", description: "The Sabbat opposes the Camarilla and embraces their vampiric nature.", image: sabbat.default },
@@ -83,9 +88,27 @@ export const disciplines = [
   { name: "Dominate", description: "Mind control and the ability to bend others to your will." },
   { name: "Fortitude", description: "Supernatural resilience and toughness." },
   { name: "Obfuscate", description: "The power to remain hidden or appear as someone else." },
-  // ...add more disciplines as needed...
+  { name: "Potence", description: "Supernatural strength and physical power." },
+  { name: "Presence", description: "Supernatural charisma and the ability to inspire or terrify." },
+  { name: "Protean", description: "Shape-shifting and animalistic powers." },
+  { name: "Blood Sorcery", description: "Magical manipulation of vitae, including Thaumaturgy and related arts." },
+  { name: "Oblivion", description: "Necromantic and shadow-based powers." },
+  { name: "Thin-Blood Alchemy", description: "Alchemy unique to thin-blooded vampires." },
+  { name: "Vicissitude", description: "Fleshcrafting and body manipulation." },
+  { name: "Dementation", description: "Powers of madness and insight." },
+  { name: "Melpominee", description: "Supernatural vocal powers, unique to Daughters of Cacophony." },
+  { name: "Mytherceria", description: "Fae-related powers, unique to Kiasyd." },
+  { name: "Necromancy", description: "Death magic, practiced by Giovanni and Hecata." },
+  { name: "Obeah", description: "Healing and spiritual powers, unique to Salubri." },
+  { name: "Quietus", description: "Assassin's arts, unique to Banu Haqim." },
+  { name: "Serpentis", description: "Serpentine powers, unique to Ministry/Setites." },
+  { name: "Temporis", description: "Time manipulation, unique to True Brujah." },
+  { name: "Valeren", description: "Warrior and healer powers, unique to Salubri." },
+  { name: "Chimerstry", description: "Illusions, unique to Ravnos." },
+  // ...existing disciplines, add more if you have more PNGs...
 ];
 
+// Add empty or sample powers for new disciplines if not already present
 export const disciplinePowers: Record<string, { level: number; name: string }[]> = {
   Animalism: [
     { level: 1, name: "Sense the Beast" },
@@ -105,7 +128,27 @@ export const disciplinePowers: Record<string, { level: number; name: string }[]>
     { level: 2, name: "Rapid Reflexes" },
     // ...add more...
   ],
-  // ...add more disciplines and their powers...
+  Dominate: [],
+  Fortitude: [],
+  Obfuscate: [],
+  Potence: [],
+  Presence: [],
+  Protean: [],
+  "Blood Sorcery": [],
+  Oblivion: [],
+  "Thin-Blood Alchemy": [],
+  Vicissitude: [],
+  Dementation: [],
+  Melpominee: [],
+  Mytherceria: [],
+  Necromancy: [],
+  Obeah: [],
+  Quietus: [],
+  Serpentis: [],
+  Temporis: [],
+  Valeren: [],
+  Chimerstry: [],
+  // ...add more as needed...
 };
 
 export const clanInfo: Record<string, {

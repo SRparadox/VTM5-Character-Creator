@@ -120,7 +120,7 @@ if (appElement) {
       </section>
       <section class="panel panel-discipline" style="margin-bottom:2em;">
         <h2>Discipline Selection</h2>
-        <label for="disciplineSelect" style="display:block;margin-bottom:0.5em;">Disciplines (choose up to 5):</label>
+        <label for="disciplineSelect" style="display:block;margin-bottom:0.5em;">Disciplines:</label>
         <div style="display: flex; align-items: flex-start; gap: 1em;">
           <select id="disciplineSelect" size="8" style="width:100%;max-width:220px;">
             ${disciplines.map((d, i) => `<option value="${i}">${d.name}</option>`).join('')}
@@ -371,8 +371,8 @@ if (appElement) {
   addDisciplineBtn.addEventListener('click', () => {
     const selectedIdx = disciplineSelect.selectedIndex;
     if (
-      selectedIdx >= 0 &&
-      collected.length < 5
+      selectedIdx >= 0
+      // removed: && collected.length < 5
     ) {
       const idx = parseInt(disciplineSelect.options[selectedIdx].value, 10);
       if (!collected.some(e => e.idx === idx)) {
